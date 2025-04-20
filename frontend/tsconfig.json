@@ -17,8 +17,16 @@
     "importHelpers": true,
     "target": "ES2022",
     "module": "ES2022",
+    "baseUrl": "./src",  // Add this line
     "paths": {
-      "@models/*": ["/shared/models/*"]
+      "@models/*": ["app/shared/models/*"],
+      "@model/product.model": ["app/shared/models/product.model"],
+      "@model/cart-item.model": ["app/shared/models/cart-item.model"],
+      "@model/cart.model": ["app/shared/models/cart.model"],
+      "@model/order-item.model": ["app/shared/models/order-item.model"],
+      "@model/order.model": ["app/shared/models/order.model"],
+      "@model/payment.model": ["app/shared/models/payment.model"],
+      "@model/user.model": ["app/shared/models/user.model"]
     }
   },
   "angularCompilerOptions": {
@@ -27,5 +35,4 @@
     "strictInputAccessModifiers": true,
     "strictTemplates": true
   }
-
 }

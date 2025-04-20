@@ -1,11 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import { Product } from '@model/product.model';
 
 @Component({
   selector: 'app-product-detail',
   standalone: false,
   templateUrl: './product-detail.component.html',
-  styleUrl: './product-detail.component.css'
+  styleUrls: ['./product-detail.component.css']
 })
 export class ProductDetailComponent {
+  @Input() product: Product | null = null;
 
 }

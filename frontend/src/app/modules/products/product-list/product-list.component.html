@@ -1,5 +1,13 @@
-<p>product-list works!</p>
-<div *ngFor="let product of products">
-  <h3>{{ product.name }}</h3>
-  <button (click)="addToCart(product)">Sepete Ekle</button>
+<p>product list</p>
+
+<div *ngIf="isLoading">
+  Loading products...
+</div>
+
+<div *ngIf="!isLoading">
+  <div *ngFor="let product of products">
+    <h2>Item #{{product.id}}</h2>
+    <app-products [product]="product"></app-products>
+    <button (click)="addToCart(product)">Sepete Ekle</button>
+  </div>
 </div>

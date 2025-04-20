@@ -1,11 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, Input} from '@angular/core';
+import { Product } from '@models/product.model';
 
 @Component({
   selector: 'app-products',
   standalone: false,
   templateUrl: './products.component.html',
-  styleUrl: './products.component.css'
+  styleUrls: ['./products.component.css']
 })
 export class ProductsComponent {
+  @Input() product: Product | undefined; // Safer than !
 
 }

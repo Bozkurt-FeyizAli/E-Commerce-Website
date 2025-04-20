@@ -11,7 +11,7 @@ const routes: Routes = [
   },
   {
     path: 'auth',
-    loadChildren: () => import('./modules/auth/auth.module').then(m => m.AuthModule)
+    loadChildren: () => import('./modules/auth/module/auth.module').then(m => m.AuthModule)
   },
   // Cart modülü (Lazy Loading + Guard)
   {
@@ -19,7 +19,8 @@ const routes: Routes = [
     loadChildren: () => import('./modules/cart/cart.module').then(m => m.CartModule),
     canActivate: [guardsGuard]
   },
-  // Diğer rotalar...
+  { path: "**", redirectTo: "/products", pathMatch: "full" },
+  { path: "", redirectTo: "/products", pathMatch: "full" },
 ];
 
 @NgModule({

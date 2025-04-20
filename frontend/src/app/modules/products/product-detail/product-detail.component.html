@@ -1,1 +1,7 @@
-<p>product-detail works!</p>
+<div *ngIf="product">
+  <p>{{product.name}}</p>
+  <p>{{product.price | currency}}</p>
+</div>
+<div *ngIf="!product">
+  Loading product details...
+</div>

@@ -1,17 +1,18 @@
+// product-list.component.ts
 import { Component } from '@angular/core';
 import { ProductService } from '../services/product.service';
 import { CartService } from '../../cart/services/cart.service';
-import { Product } from '../../../shared/models/product.model'; // Adjust the import path as necessary
+import { Product } from '../../../shared/models/product.model';
 
 @Component({
   selector: 'app-product-list',
   standalone: false,
   templateUrl: './product-list.component.html',
-  styleUrl: './product-list.component.css'
+  styleUrls: ['./product-list.component.css']
 })
-
 export class ProductListComponent {
   products: Product[] = [];
+  isLoading = true;
 
   constructor(
     private productService: ProductService,
@@ -19,8 +20,13 @@ export class ProductListComponent {
   ) {}
 
   ngOnInit() {
-    this.productService.getProducts().subscribe((products: Product[]) => {
-      this.products = products;
+    this.productService.getProducts().subscribe(
+      (ps:Product[]) => {
+        this.products=ps;
+      }
+    )
+    this.products.forEach(product => {
+      console.log(product.id, product.name, product.price);
     });
   }
 
