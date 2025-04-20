@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { User } from '@models/user.model';
+import { AuthService } from '../auth/service/auth.service';
 
 @Component({
   selector: 'app-admin',
@@ -6,6 +8,17 @@ import { Component } from '@angular/core';
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.css'
 })
-export class AdminComponent {
+export class AdminComponent implements OnInit {
 
+  users: User[] = [];
+
+  constructor(private authService: AuthService) {}
+
+  ngOnInit() {
+    this.users = this.authService.getUsers();
+  }
+
+  deleteUser(user: User) {
+    this.users = this.users.filter(u => u !== user);
+  }
 }
