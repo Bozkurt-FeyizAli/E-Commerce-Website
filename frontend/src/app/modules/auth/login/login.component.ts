@@ -1,32 +1,41 @@
 import { Component } from '@angular/core';
-import { FormGroup, FormBuilder, Form } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { AuthService } from '../service/auth.service';
 import { Router } from '@angular/router';
+import { Observable, of } from 'rxjs';
+
 @Component({
   selector: 'app-login',
   standalone: false,
   templateUrl: './login.component.html',
-  styleUrl: './login.component.css'
+  styleUrls: ['./login.component.css'] // <-- düzeltildi
 })
 export class LoginComponent {
   loginForm: FormGroup;
 
-  constructor(private formBuilder: FormBuilder, private authService: AuthService, private router: Router) {
+  constructor(
+    private formBuilder: FormBuilder,
+    private authService: AuthService,
+    private router: Router
+  ) {
     this.loginForm = this.formBuilder.group({
-      email: [''],
-      password: ['']
+      email: ['', Validators.required],
+      password: ['', Validators.required]
     });
   }
 
   onSubmit() {
-    if (this.loginForm.valid) {
-      this.authService.login(this.loginForm.value);
-      this.router.navigate(['home']);
-    } else {
-      console.log('Form is invalid');
-    }
+    this.authService.login(this.loginForm.value).subscribe({
+      next: (res: { token: string; }) => {
+        localStorage.setItem('token', res.token);
+        this.router.navigate(['/']);
+      },
+      error: () => alert('Login failed')
+    });
   }
+
   onRegister() {
-    this.router.navigate(['register']);
+    this.router.navigate(['/register']);
   }
+
 }

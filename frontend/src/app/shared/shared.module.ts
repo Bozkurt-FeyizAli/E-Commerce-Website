@@ -4,24 +4,26 @@ import { HeaderComponent } from './components/header/header.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { LoadingSpinnerComponent } from './components/loading-spinner/loading-spinner.component';
 import { FormsModule } from '@angular/forms';
-//import { CustomButtonDirective } from './directives/custom-button.directive';
-
-
+import { LucideAngularModule, Menu, X, Search, Heart, ShoppingCart, User } from 'lucide-angular';
+import { RouterModule } from '@angular/router';
 
 @NgModule({
   declarations: [
     HeaderComponent,
     FooterComponent,
-    LoadingSpinnerComponent
+    LoadingSpinnerComponent,
   ],
   imports: [
-    CommonModule
+    CommonModule,
+    FormsModule, // ✅ BURAYA EKLENDİ
+    LucideAngularModule.pick({ Menu, X, Search, Heart, ShoppingCart, User }),
+    RouterModule,
   ],
   exports: [
     HeaderComponent,
     FooterComponent,
     LoadingSpinnerComponent,
-    FormsModule
+    FormsModule // bu da kalsın, dışarıdan da kullanılacaksa
   ]
 })
 export class SharedModule { }

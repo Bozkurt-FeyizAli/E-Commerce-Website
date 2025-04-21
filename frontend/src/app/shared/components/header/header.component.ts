@@ -1,26 +1,34 @@
-import { Router } from '@angular/router';
 import { Component } from '@angular/core';
-import { AuthService } from '../../../core/auth/auth.service';
+import { CommonModule } from '@angular/common';
+import { Router, RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { LucideAngularModule, SearchIcon, ShoppingCartIcon, HeartIcon, UserIcon, MenuIcon, XIcon } from 'lucide-angular';
+
 @Component({
   selector: 'app-header',
   standalone: false,
   templateUrl: './header.component.html',
-  styleUrl: './header.component.css'
+  styleUrls: ['./header.component.scss'],
 })
 export class HeaderComponent {
+  categories = ['New Arrivals', 'Women', 'Men', 'Accessories', 'Sale'];
+  searchQuery = '';
+  isMobileMenuOpen = false;
+  cartItemCount = 0;
+  wishlistCount = 0;
   isLoggedIn: boolean = false;
-  isAdmin: boolean = false;
-  constructor(private authService: AuthService, private router: Router) {
-    // this.isLoggedIn = this.authService.isLoggedIn();
-    // this.isAdmin = this.authService.isAdmin();
+
+  // Inject the Router service to enable navigation.
+  constructor(private router: Router) {}
+
+  toggleMobileMenu(): void {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
   }
-  sendToLogin() {
-    this.router.navigate(['/login']);
-  }
-  sendToRegister() {
-    this.router.navigate(['/register']);
-  }
-  sendToHome() {
-    this.router.navigate(['/home']);
+
+  search(): void {
+    if (this.searchQuery.trim()) {
+      // Navigate to a search results page with the query as a parameter.
+      this.router.navigate(['/search'], { queryParams: { q: this.searchQuery } });
+    }
   }
 }

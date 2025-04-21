@@ -18,17 +18,25 @@ export class RegisterComponent {
       email: new FormControl(''),
       password: new FormControl(''),
       confirmPassword: new FormControl(''),
-      resgistrationDate: new FormControl(new Date()),
+      registrationDate: new FormControl(new Date()),
       terms: new FormControl(false),
     });
   }
 
   onSubmit() {
     if (this.registerForm.valid) {
-      this.authService.register(this.registerForm.value);
-      this.router.navigate(['login']);
+      this.authService.register(this.registerForm.value).subscribe({
+        next: (res) => {
+          console.log('Kayıt başarılı:', res);
+          this.router.navigate(['login']);
+        },
+        error: (err) => {
+          console.error('Kayıt başarısız:', err);
+        }
+      });
     } else {
       console.log('Form is invalid');
     }
   }
+
 }
