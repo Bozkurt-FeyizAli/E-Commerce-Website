@@ -1,7 +1,8 @@
-<div *ngIf="product">
-  <p>{{product.name}}</p>
-  <p>{{product.price | currency}}</p>
+<div class="product-box" *ngIf="product">
+  <p><strong>{{ product.name }}</strong></p>
+  <p>{{ product.price | currency }}</p>
 </div>
-<div *ngIf="!product">
+
+<div class="product-box loading" *ngIf="!product">
   Loading product details...
 </div>

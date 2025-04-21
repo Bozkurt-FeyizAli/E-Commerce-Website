@@ -7,7 +7,7 @@ const routes: Routes = [
 
   {
     path: 'products',
-    loadChildren: () => import('./modules/products/products.module').then(m => m.ProductsModule) // Lazy loading
+    loadChildren: () => import('./modules/products/module/products.module').then(m => m.ProductsModule) // Lazy loading
   },
   {
     path: 'auth',
