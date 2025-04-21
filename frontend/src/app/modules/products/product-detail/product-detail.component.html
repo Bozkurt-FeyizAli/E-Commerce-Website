@@ -1,8 +1,72 @@
-<div class="product-box" *ngIf="product">
-  <p><strong>{{ product.name }}</strong></p>
-  <p>{{ product.price | currency }}</p>
-</div>
+<div class="product-detail-container">
+  <div *ngIf="loading" class="loading-state">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading product details...</p>
+  </div>
 
-<div class="product-box loading" *ngIf="!product">
-  Loading product details...
+  <div *ngIf="error" class="error-state">
+    <mat-icon color="warn" class="error-icon">error_outline</mat-icon>
+    <p>{{ error }}</p>
+    <button mat-raised-button color="primary" (click)="retry()">Retry</button>
+    <button mat-stroked-button color="primary" [routerLink]="[product?.id]">
+      <mat-icon>arrow_back</mat-icon>
+      Back to Products
+    </button>
+  </div>
+
+
+  <div *ngIf="product && !loading" class="product-detail-card mat-elevation-z4">
+    <div class="product-image">
+      <img [src]="product.imageUrl || 'assets/images/product-placeholder.png'"
+           [alt]="product.name"
+           (error)="handleImageError($event)">
+    </div>
+
+    <div class="product-info">
+      <h1 class="product-title">{{ product.name }}</h1>
+
+      <!-- Özel URL formatı için düzenlenmiş breadcrumb -->
+      <div class="breadcrumb">
+        <a [routerLink]="['/products']">Products</a>
+        <span>></span>
+        <span>id:{{ product.id }}</span>
+      </div>
+
+      <div class="price-section">
+        <span class="current-price">{{ product.price | currency:'TRY':'symbol':'1.2-2' }}</span>
+      </div>
+
+      <div class="stock-status">
+        <mat-icon [color]="product.stock > 0 ? 'primary' : 'warn'">
+          {{ product.stock > 0 ? 'check_circle' : 'cancel' }}
+        </mat-icon>
+        <span>{{ product.stock > 0 ? 'In Stock (' + product.stock + ' available)' : 'Out of Stock' }}</span>
+      </div>
+
+      <div class="product-description">
+        <h3>Description</h3>
+        <p>{{ product.description || 'No description available' }}</p>
+      </div>
+
+      <div class="product-actions">
+        <button mat-raised-button
+                color="primary"
+                (click)="onAdd()"
+                [disabled]="product.stock <= 0"
+                aria-label="Add to cart">
+          <mat-icon>add_shopping_cart</mat-icon>
+          Add to Cart
+        </button>
+
+        <!-- Özel URL formatına uygun geri dönüş butonu -->
+        <button mat-stroked-button
+                color="primary"
+                [routerLink]="['']"
+                aria-label="Back to products">
+          <mat-icon>arrow_back</mat-icon>
+          Back to Products
+        </button>
+      </div>
+    </div>
+  </div>
 </div>

@@ -1,11 +1,15 @@
 import { NgModule } from '@angular/core';
-import { HttpClientModule } from '@angular/common/http'; // Ensure correct import
-import { ProductsRoutingModule } from './module/products-routing.module';
+import { ProductsRoutingModule } from './products-routing.module';
 import { ProductsComponent } from './products.component';
 import { ProductListComponent } from './product-list/product-list.component';
 import { ProductDetailComponent } from './product-detail/product-detail.component';
 import { SharedModule } from '../../shared/shared.module';
-
+import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { HttpClientModule} from '@angular/common/http'
 @NgModule({
   declarations: [
     ProductsComponent,
@@ -15,7 +19,12 @@ import { SharedModule } from '../../shared/shared.module';
   imports: [
     ProductsRoutingModule,
     SharedModule,
-    HttpClientModule // Ensure this is correctly imported
+    CommonModule,
+    MatIconModule,
+    MatButtonModule,
+    MatProgressSpinnerModule,
+    MatSnackBarModule,
+    HttpClientModule,
   ]
 })
 export class ProductsModule {

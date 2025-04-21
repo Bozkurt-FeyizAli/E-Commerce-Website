@@ -1,15 +1,18 @@
-.product-box {
-  border: 1px solid #ccc;
-  padding: 15px;
-  width: 200px;
-  height: auto;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  background-color: #fff;
-}
+.breadcrumb {
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  color: #666;
 
-.loading {
-  color: gray;
-  text-align: center;
-  font-style: italic;
+  a {
+    color: #1976d2;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  span {
+    margin: 0 0.3rem;
+  }
 }

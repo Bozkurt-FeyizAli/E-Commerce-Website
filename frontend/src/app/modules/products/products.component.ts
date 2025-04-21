@@ -1,5 +1,7 @@
-import { Component, EventEmitter, Input, Output} from '@angular/core';
-import { Product } from '@models/product.model';
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ProductListComponent } from './product-list/product-list.component';
+import { ProductDetailComponent } from './product-detail/product-detail.component';
 
 @Component({
   selector: 'app-products',
@@ -8,10 +10,5 @@ import { Product } from '@models/product.model';
   styleUrls: ['./products.component.css']
 })
 export class ProductsComponent {
-  @Input() product: Product | undefined; // Safer than !
-  @Output() add = new EventEmitter<Product>();
 
-  onAdd() {
-    this.add.emit(this.product);
-  }
 }
