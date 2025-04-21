@@ -1,43 +1,26 @@
-<nav>
-  <a routerLink="/products/products">  Ürünler  </a>
-  <a routerLink="/products/cart">  Sepet  </a>
-  <button *ngIf="!isLoggedIn" routerLink="/auth/login">   Giriş Yap</button>
-</nav>
-
-
 <header class="bg-white shadow-sm fixed w-full z-50">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between h-16">
-      <!-- Logo and Mobile Menu -->
+    <div class="flex justify-between items-center h-16">
+      <!-- Sol: Logo ve Mobil Menü -->
       <div class="flex items-center">
-        <button
-          class="sm:hidden p-2 text-gray-600 hover:text-gray-900"
-          (click)="toggleMobileMenu()"
-          aria-label="Toggle menu"
-        >
-        <lucide-icon name="menu" [size]="24"></lucide-icon>
-        <lucide-icon name="x" *ngIf="isMobileMenuOpen" [size]="24"></lucide-icon>
+        <button class="sm:hidden p-2 text-gray-600 hover:text-gray-900" (click)="toggleMobileMenu()" aria-label="Toggle menu">
+          <lucide-icon [name]="isMobileMenuOpen ? 'x' : 'menu'" [size]="24"></lucide-icon>
         </button>
-        <a routerLink="/" class="flex items-center">
-          <span class="text-2xl font-bold text-indigo-600 ml-2">Enterprise</span>
-        </a>
+        <a routerLink="/" class="ml-3 text-2xl font-bold text-indigo-600">Enterprise</a>
       </div>
 
-      <!-- Desktop Navigation -->
+      <!-- Orta: Menü (Sadece büyük ekranda) -->
       <nav class="hidden sm:flex items-center space-x-8">
-        <ng-container *ngFor="let category of categories">
-          <a
-            [routerLink]="['/category', category.toLowerCase()]"
-            class="text-gray-600 hover:text-indigo-600 transition-colors text-sm font-medium"
-          >
-            {{ category }}
-          </a>
-        </ng-container>
+        <a *ngFor="let category of categories"
+           [routerLink]="['/category', category.toLowerCase()]"
+           class="text-gray-600 hover:text-indigo-600 text-sm font-medium">
+          {{ category }}
+        </a>
       </nav>
 
-      <!-- Search and Actions -->
+      <!-- Sağ: Arama ve İkonlar -->
       <div class="flex items-center space-x-4">
-        <!-- Search -->
+        <!-- Search Desktop -->
         <div class="relative hidden sm:block">
           <input
             type="text"
@@ -45,74 +28,48 @@
             class="w-64 px-4 py-2 rounded-lg border border-gray-200 focus:border-indigo-500"
             [(ngModel)]="searchQuery"
             (keyup.enter)="search()"
-            aria-label="Search"
           />
-          <lucide-icon
-            class="absolute right-3 top-2.5 text-gray-400"
-            [size]="20"
-          />
+          <lucide-icon name="search" class="absolute right-3 top-2.5 text-gray-400" [size]="20"></lucide-icon>
         </div>
 
-        <!-- Action Buttons -->
-        <button
-          class="p-2 text-gray-600 hover:text-indigo-600 transition-colors relative"
-          aria-label="Wishlist"
-        >
-          <lucide-icon [size]="24"/>
-          <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-            {{ wishlistCount }}
-          </span>
+        <!-- Wishlist -->
+        <button class="relative p-2 text-gray-600 hover:text-indigo-600" aria-label="Wishlist">
+          <lucide-icon name="heart" [size]="24"></lucide-icon>
+          <span class="badge">{{ wishlistCount }}</span>
         </button>
 
-        <button
-          class="p-2 text-gray-600 hover:text-indigo-600 transition-colors relative"
-          aria-label="Shopping cart"
-        >
-          <lucide-icon [size]="24"/>
-          <span class="absolute -top-1 -right-1 bg-indigo-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-            {{ cartItemCount }}
-          </span>
+        <!-- Cart -->
+        <button class="relative p-2 text-gray-600 hover:text-indigo-600" aria-label="Shopping cart">
+          <lucide-icon name="shopping-cart" [size]="24"></lucide-icon>
+          <span class="badge bg-indigo-600">{{ cartItemCount }}</span>
         </button>
 
-        <button
-          class="p-2 text-gray-600 hover:text-indigo-600 transition-colors"
-          aria-label="User account"
-        >
-          <lucide-icon [size]="24"/>
+        <!-- User -->
+        <button class="p-2 text-gray-600 hover:text-indigo-600" aria-label="User account">
+          <lucide-icon name="user" [size]="24"></lucide-icon>
         </button>
       </div>
     </div>
 
     <!-- Mobile Menu -->
-    <div
-      *ngIf="isMobileMenuOpen"
-      class="sm:hidden bg-white border-t"
-    >
-      <div class="px-2 pt-2 pb-3 space-y-1">
-        <ng-container *ngFor="let category of categories">
-          <a
-            [routerLink]="['/category', category.toLowerCase()]"
-            class="block px-3 py-2 text-gray-600 hover:text-indigo-600 transition-colors text-base font-medium"
-          >
-            {{ category }}
-          </a>
-        </ng-container>
+    <div *ngIf="isMobileMenuOpen" class="sm:hidden bg-white border-t">
+      <div class="px-4 py-4 space-y-2">
+        <a *ngFor="let category of categories"
+           [routerLink]="['/category', category.toLowerCase()]"
+           class="block px-3 py-2 text-gray-600 hover:text-indigo-600 text-base font-medium">
+          {{ category }}
+        </a>
+
         <!-- Mobile Search -->
-        <div class="px-3 py-2">
-          <div class="relative">
-            <input
-              type="text"
-              placeholder="Search products..."
-              class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-indigo-500"
-              [(ngModel)]="searchQuery"
-              (keyup.enter)="search()"
-              aria-label="Search"
-            />
-            <lucide-icon
-              class="absolute right-3 top-2.5 text-gray-400"
-              [size]="20"
-            />
-          </div>
+        <div class="relative">
+          <input
+            type="text"
+            placeholder="Search products..."
+            class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-indigo-500"
+            [(ngModel)]="searchQuery"
+            (keyup.enter)="search()"
+          />
+          <lucide-icon name="search" class="absolute right-3 top-2.5 text-gray-400" [size]="20"></lucide-icon>
         </div>
       </div>
     </div>
