@@ -7,7 +7,7 @@ import {
   coerceCssPixelValue,
   getRtlScrollAxisType,
   supportsScrollBehavior
-} from "./chunk-WNUFIJLY.js";
+} from "./chunk-ILPAGUTH.js";
 import {
   BreakpointObserver,
   ESCAPE,
@@ -22,17 +22,17 @@ import {
   coerceElement,
   coerceNumberProperty,
   hasModifierKey
-} from "./chunk-ARHL3YD3.js";
+} from "./chunk-2LPGDOSU.js";
 import {
   BidiModule,
   Directionality
-} from "./chunk-L6RZVE7F.js";
+} from "./chunk-FGGTBHIW.js";
 import {
   Location
-} from "./chunk-FDTPWRY7.js";
+} from "./chunk-HQKTRAST.js";
 import {
   DOCUMENT
-} from "./chunk-KJYX7JCN.js";
+} from "./chunk-TK5VCKB2.js";
 import {
   ANIMATION_MODULE_TYPE,
   ApplicationRef,
@@ -66,7 +66,6 @@ import {
   createComponent,
   forwardRef,
   inject,
-  require_operators,
   setClassMetadata,
   untracked,
   ɵɵInheritDefinitionFeature,
@@ -99,10 +98,14 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate1,
   ɵɵviewQuery
-} from "./chunk-4ELRZZ4Z.js";
+} from "./chunk-UI7CJKIZ.js";
+import {
+  require_operators
+} from "./chunk-XCIYP5SE.js";
 import {
   require_cjs
-} from "./chunk-AQYIT73X.js";
+} from "./chunk-ZUJ64LXG.js";
+import "./chunk-OYTRG5F6.js";
 import {
   __spreadProps,
   __spreadValues,

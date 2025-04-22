@@ -1,30 +1,96 @@
 import { Injectable } from '@angular/core';
-import { Product } from '../../../shared/models/product.model';
-import { catchError, Observable, throwError } from 'rxjs';
+import { Product } from '@models//product.model';
+import { Observable, BehaviorSubject, throwError, of, forkJoin } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { catchError, tap, switchMap, map } from 'rxjs/operators';
+import { CartItem } from '@models/cart-item.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CartService {
-  apiUrl= 'http://localhost:3000'; // Base URL for json-server
-  constructor(private http: HttpClient) { }
-  addItem(product: Product){}
-  addToCart(p: Product): Observable<Product[]>{
-    return new Observable<Product[]>;
-  }
-  getProductById(id: number): Observable<Product> {
-    if (isNaN(id)) {
-      return throwError(() => new Error('Geçersiz ürün IDsi'));
-    }
+  private apiUrl = 'http://localhost:3000/carts';
+  private cartItems = new BehaviorSubject<CartItem[]>([]);
+  currentCart$ = this.cartItems.asObservable();
 
-    return this.http.get<Product>(`${this.apiUrl}/products/${id}`).pipe(
+  constructor(private http: HttpClient) {
+    this.loadInitialCart();
+  }
+
+  private loadInitialCart(): void {
+    this.http.get<any>(`${this.apiUrl}/1`).pipe(
+      map(response => response.items),
+      catchError(() => of([]))
+    ).subscribe(items => this.cartItems.next(items));
+  }
+
+  addToCart(product: Product, quantity: number = 1): Observable<CartItem[]> {
+    const newItem: Partial<CartItem> = {
+      productId: product.id,
+      quantity,
+      priceAtAddition: product.price // Yeni eklenen özellik
+    };
+
+    return this.http.patch<{items: CartItem[]}>(`${this.apiUrl}/1`, {
+      items: [...this.cartItems.value, newItem]
+    }).pipe(
+      map(response => response.items),
+      tap(items => this.cartItems.next(items)), // DÜZELTİLMİŞ SATIR 31
+      catchError(this.handleError)
+    );
+  }
+
+  removeFromCart(itemId: number): Observable<CartItem[]> {
+    const updatedItems = this.cartItems.value.filter(item => item.id !== itemId);
+    return this.updateCartItems(updatedItems);
+  }
+
+  updateQuantity(itemId: number, newQuantity: number): Observable<CartItem[]> {
+    const updatedItems = this.cartItems.value.map(item =>
+      item.id === itemId ? { ...item, quantity: newQuantity } : item
+    );
+    return this.updateCartItems(updatedItems);
+  }
+
+  clearCart(): Observable<CartItem[]> {
+    return this.updateCartItems([]);
+  }
+
+  private updateCartItems(items: CartItem[]): Observable<CartItem[]> {
+    return this.http.patch<{items: CartItem[]}>(`${this.apiUrl}/1`, { items }).pipe(
+      map(response => response.items),
+      tap(items => this.cartItems.next(items)),
+      catchError(this.handleError)
+    );
+  }
+
+  getCartTotal(): Observable<number> {
+    return this.currentCart$.pipe(
+      switchMap(items =>
+        forkJoin(items.map(item =>
+          this.getProductById(item.productId).pipe(
+            map(product => product.price * item.quantity)
+          )
+        )).pipe(
+          map(prices => prices.reduce((acc, curr) => acc + curr, 0))
+        )
+      )
+    );
+  }
+
+  getProductById(productId: number): Observable<Product> { // DÜZELTİLMİŞ SATIR 54
+    return this.http.get<Product>(`http://localhost:3000/products/${productId}`).pipe(
       catchError(error => {
-        console.error('API Hatası:', error);
-        return throwError(() => new Error(
-          error.status === 404 ? 'Ürün bulunamadı' : 'Sunucu hatası'
-        ));
+        console.error('Product fetch error:', error);
+        return throwError(() => new Error('Ürün bilgileri alınamadı'));
       })
     );
+  }
+
+  private handleError(error: any): Observable<never> {
+    console.error('Cart error:', error);
+    return throwError(() => new Error(
+      error.error?.message || 'Sepet işlemi sırasında bir hata oluştu'
+    ));
   }
 }

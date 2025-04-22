@@ -4,7 +4,5 @@ export interface OrderItem {
   orderId: number;
   productId: number;
   quantity: number;
-  priceAtPurchase: number; // Satın alma anındaki fiyat
-  // İlişkiler
-  product: Product;
+  priceAtPurchase: number;
 }

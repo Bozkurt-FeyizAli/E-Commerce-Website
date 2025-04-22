@@ -4,6 +4,5 @@ export interface CartItem {
   cartId: number;
   productId: number;
   quantity: number;
-  // İlişkiler
-  product: Product;
+  priceAtAddition: number;
 }

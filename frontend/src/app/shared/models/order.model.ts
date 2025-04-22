@@ -4,9 +4,8 @@ export interface Order {
   id: number;
   userId: number;
   totalPrice: number;
-  status: 'PENDING' | 'SHIPPED' | 'DELIVERED';
+  status: OrderStatus;
   createdAt: Date;
-  // İlişkiler
-  user: User;
-  items: OrderItem[];
 }
+
+export type OrderStatus = 'PENDING' | 'SHIPPED' | 'DELIVERED';

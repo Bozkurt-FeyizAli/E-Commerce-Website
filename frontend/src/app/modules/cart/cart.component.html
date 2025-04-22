@@ -1,1 +1,67 @@
-<p>cart works!</p>
+<h2>cart works</h2>>
+<div class="cart-container">
+  <h2 class="cart-title">Your Cart</h2>
+
+  <div *ngIf="loading" class="loading-overlay">
+    <mat-spinner diameter="50"></mat-spinner>
+  </div>
+
+  <ng-container *ngIf="!(loading) && (cartItems$ | async) as items">
+    <div *ngIf="items.length === 0" class="empty-cart">
+      <mat-icon class="empty-icon">remove_shopping_cart</mat-icon>
+      <h3>Your cart is empty</h3>
+      <a mat-raised-button color="primary" routerLink="/products">
+        Continue Shopping
+      </a>
+    </div>
+
+    <div *ngIf="items.length > 0" class="cart-content">
+      <div class="cart-items">
+        <div *ngFor="let entry of items" class="cart-item">
+          <img [src]="entry.product.imageUrl"
+               [alt]="entry.product.name"
+               class="product-image">
+
+          <div class="item-details">
+            <h3 class="product-name">{{ entry.product.name }}</h3>
+            <p class="product-price">{{ entry.product.price | currency }}</p>
+
+            <div class="quantity-controls">
+              <button mat-icon-button (click)="updateQuantity(entry.item, entry.item.quantity - 1)">
+                <mat-icon>remove</mat-icon>
+              </button>
+              <span class="quantity">{{ entry.item.quantity }}</span>
+              <button mat-icon-button (click)="updateQuantity(entry.item, entry.item.quantity + 1)">
+                <mat-icon>add</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <div class="item-actions">
+            <button mat-icon-button (click)="removeItem(entry.item.id)">
+              <mat-icon color="warn">delete</mat-icon>
+            </button>
+            <p class="item-total">
+              {{ (entry.product.price * entry.item.quantity) | currency }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="cart-summary">
+        <div class="total-section">
+          <h3>Total: {{ totalPrice$ | async | currency }}</h3>
+        </div>
+
+        <div class="action-buttons">
+          <button mat-raised-button color="warn" (click)="clearCart()">
+            Clear Cart
+          </button>
+          <button mat-raised-button color="primary" routerLink="/checkout">
+            Proceed to Checkout
+          </button>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>

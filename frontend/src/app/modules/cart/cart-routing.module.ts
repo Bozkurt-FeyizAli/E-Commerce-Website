@@ -1,13 +1,13 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { CartComponent } from './cart.component';
-import { guardsGuard } from '../../core/guards.guard'; // AuthGuard'ı import et
+import { AuthGuard } from '../../core/guards/auth.guard'; // İsimlendirme düzeltildi
 
 const routes: Routes = [
   {
     path: '',
     component: CartComponent,
-    canActivate: [guardsGuard] // Sadece giriş yapanlar erişebilir
+    canActivate: [AuthGuard]
   }
 ];
 
