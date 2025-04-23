@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { CartComponent } from './cart.component';
-import { AuthGuard } from '../../core/guards/auth.guard'; // İsimlendirme düzeltildi
+import { AuthGuard } from '../../core/guards/auth.guard';
 
 const routes: Routes = [
   {

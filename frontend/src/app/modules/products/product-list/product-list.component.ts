@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ProductService } from '../services/product.service';
-import { CartService } from '../../cart/services/cart.service';
+import { CartService } from '../../../shared/services/cart.service';
 import { Product } from '../../../shared/models/product.model';
 import { Observable, catchError, finalize, of, tap } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';

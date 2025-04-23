@@ -9,9 +9,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import 'zone.js/node';
-import { ngExpressEngine } from '@nguniversal/express-engine';
 import { join } from 'path';
-import { AppServerModule } from '../main.server';
 
 const serverDistFolder = dirname(fileURLToPath(import.meta.url));
 const browserDistFolder = resolve(serverDistFolder, '../browser');
@@ -71,39 +69,5 @@ if (isMainModule(import.meta.url)) {
 export const reqHandler = createNodeRequestHandler(appInstance);
 
 
-export function createApp(): express.Express {
-  const server = express();
-  const distFolder = join(process.cwd(), 'dist/frontend/browser');
-
-  server.engine('html', ngExpressEngine({
-    bootstrap: AppServerModule
-  }));
-
-  server.set('view engine', 'html');
-  server.set('views', distFolder);
-
-  server.get('*.*', express.static(distFolder));
-  server.get('*', (req, res) => {
-    res.render('index', { req });
-  });
-
-  return server;
-}
 
 
-function run(): void {
-  const port = process.env['PORT'] || 4000;
-  const server = createApp();
-
-  server.listen(port, () => {
-    console.log(`Node Express server listening on http://localhost:${port}`);
-  });
-}
-
-declare const __non_webpack_require__: NodeRequire;
-const mainModule = __non_webpack_require__.main;
-if (mainModule && mainModule.filename === __filename) {
-  run();
-}
-
-export * from './src/main.server';

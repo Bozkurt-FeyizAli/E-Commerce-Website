@@ -1,6 +1,6 @@
 // cart.component.ts
 import { Component, OnInit } from '@angular/core';
-import { CartService } from './services/cart.service';
+import { CartService } from '../../shared/services/cart.service';
 import { CartItem } from '@models/cart-item.model';
 import { Product } from '@models/product.model';
 import { Observable, forkJoin, of } from 'rxjs';
