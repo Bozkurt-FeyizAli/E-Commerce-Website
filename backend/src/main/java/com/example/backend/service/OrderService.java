@@ -5,6 +5,7 @@ import com.example.backend.repository.*;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -33,26 +34,29 @@ public class OrderService {
         order.setCreatedAt(LocalDateTime.now());
         order.setStatus(OrderStatus.PENDING);
 
-        final double[] total = {0};
-        List<OrderItem> orderItems = cart.getItems().stream().map(cartItem -> {
-            OrderItem item = new OrderItem();
-            item.setProduct(cartItem.getProduct());
-            item.setQuantity(cartItem.getQuantity());
-            item.setPriceAtPurchase(cartItem.getPriceAtAddition());
-            item.setOrder(order);
+        double total = 0;
 
-            total[0] += item.getQuantity() * item.getPriceAtPurchase();
-            return item;
-        }).toList();
+List<OrderItem> orderItems = new ArrayList<>();
+for (CartItem cartItem : cart.getItems()) {
+    OrderItem item = new OrderItem();
+    item.setProduct(cartItem.getProduct());
+    item.setQuantity(cartItem.getQuantity());
+    item.setPriceAtPurchase(cartItem.getPriceAtAddition());
+    item.setOrder(order);
+
+    total += item.getQuantity() * item.getPriceAtPurchase();
+    orderItems.add(item);
+}
+
 
         order.setItems(orderItems);
-        order.setTotalPrice(total[0]);
+        order.setTotalPrice(total);
 
         Order savedOrder = orderRepository.save(order);
-
-        cart.getItems().clear();
-        cartRepository.save(cart);
-
+        if (savedOrder.getId() != null) {
+          cart.getItems().clear();
+          cartRepository.save(cart);
+      }
         return savedOrder;
     }
 

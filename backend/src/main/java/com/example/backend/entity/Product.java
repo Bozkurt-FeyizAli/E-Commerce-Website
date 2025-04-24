@@ -22,6 +22,7 @@ public class Product {
     private String description;
     private String imageUrl;
     private boolean featured;
+    private boolean active;
 
     @ManyToOne
     @JoinColumn(name = "category_id")

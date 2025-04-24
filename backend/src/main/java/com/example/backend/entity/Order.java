@@ -33,10 +33,20 @@ public class Order {
     private List<OrderItem> orderItems;
 
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
-    private Payment payment;
+    private PaymentMethod paymentMethod;
 
     public void setItems(List<OrderItem> orderItems2) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setItems'");
+      this.orderItems = orderItems2;
+      for (OrderItem orderItem : orderItems2) {
+          orderItem.setOrder(this);
+      }
+    }
+
+    public void setStatus(PaymentStatus success) {
+        this.status = OrderStatus.DELIVERED;
+    }
+
+    public void setStatus(OrderStatus pending) {
+        this.status = OrderStatus.PENDING;
     }
 }

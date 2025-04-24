@@ -26,14 +26,26 @@ public class CartController {
     }
 
     @PostMapping("/add")
-    public Cart addItem(@AuthenticationPrincipal UserDetails userDetails,
-                        @RequestParam Long productId,
-                        @RequestParam(defaultValue = "1") int quantity) {
-        return cartService.addToCart(userDetails.getUsername(), productId, quantity);
-    }
+public Cart addItem(@AuthenticationPrincipal UserDetails userDetails,
+                    @RequestBody AddToCartRequest request) {
+    return cartService.addToCart(userDetails.getUsername(), request.productId, request.quantity);
+}
+
+@DeleteMapping("/remove")
+public void removeItem(@AuthenticationPrincipal UserDetails userDetails,
+                       @RequestParam Long productId) {
+    cartService.removeFromCart(userDetails.getUsername(), productId);
+}
+
 
     @DeleteMapping("/clear")
     public void clearCart(@AuthenticationPrincipal UserDetails userDetails) {
         cartService.clearCart(userDetails.getUsername());
     }
+
+    public static class AddToCartRequest {
+      public Long productId;
+      public int quantity = 1;
+  }
+
 }

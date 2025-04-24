@@ -1,4 +1,5 @@
 package com.example.backend.service;
+
 import com.example.backend.entity.*;
 import com.example.backend.repository.*;
 import org.springframework.stereotype.Service;
@@ -13,8 +14,10 @@ public class CartService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
 
-    public CartService(CartRepository cartRepository, CartItemRepository cartItemRepository,
-                       ProductRepository productRepository, UserRepository userRepository) {
+    public CartService(CartRepository cartRepository,
+                       CartItemRepository cartItemRepository,
+                       ProductRepository productRepository,
+                       UserRepository userRepository) {
         this.cartRepository = cartRepository;
         this.cartItemRepository = cartItemRepository;
         this.productRepository = productRepository;
@@ -34,19 +37,32 @@ public class CartService {
         Cart cart = getCartByUser(email);
         Product product = productRepository.findById(productId).orElseThrow();
 
-        CartItem item = new CartItem();
-        item.setCart(cart);
-        item.setProduct(product);
-        item.setQuantity(quantity);
-        item.setPriceAtAddition(product.getPrice());
+        // Aynı ürün sepette varsa miktarını güncelle
+        CartItem existingItem = cart.getItems().stream()
+                .filter(i -> i.getProduct().getId().equals(productId))
+                .findFirst()
+                .orElse(null);
 
-        cart.getItems().add(item);
-        cartRepository.save(cart);
-        return cart;
+        if (existingItem != null) {
+            existingItem.setQuantity(existingItem.getQuantity() + quantity);
+            cartItemRepository.save(existingItem);
+        } else {
+            CartItem newItem = new CartItem();
+            newItem.setCart(cart);
+            newItem.setProduct(product);
+            newItem.setQuantity(quantity);
+            newItem.setPriceAtAddition(product.getPrice());
+
+            cart.getItems().add(newItem);
+            cartItemRepository.save(newItem);
+        }
+
+        return cartRepository.save(cart);
     }
 
     public void clearCart(String email) {
         Cart cart = getCartByUser(email);
+        cartItemRepository.deleteAll(cart.getItems()); // güvenli temizlik
         cart.getItems().clear();
         cartRepository.save(cart);
     }
@@ -55,4 +71,31 @@ public class CartService {
         return getCartByUser(email).getItems();
     }
 
+    public void removeItem(String email, Long productId) {
+        Cart cart = getCartByUser(email);
+        CartItem item = cart.getItems().stream()
+                .filter(i -> i.getProduct().getId().equals(productId))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Ürün sepette bulunamadı"));
+
+        cart.getItems().remove(item);
+        cartItemRepository.delete(item);
+        cartRepository.save(cart);
+    }
+
+    public void updateItemQuantity(String email, Long productId, int newQuantity) {
+        Cart cart = getCartByUser(email);
+        CartItem item = cart.getItems().stream()
+                .filter(i -> i.getProduct().getId().equals(productId))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Ürün sepette bulunamadı"));
+
+        item.setQuantity(newQuantity);
+        cartItemRepository.save(item);
+    }
+
+    public void removeFromCart(String username, Long productId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'removeFromCart'");
+    }
 }

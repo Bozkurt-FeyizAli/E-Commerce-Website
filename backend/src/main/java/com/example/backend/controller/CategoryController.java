@@ -2,6 +2,7 @@ package com.example.backend.controller;
 
 import com.example.backend.entity.Category;
 import com.example.backend.repository.CategoryRepository;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,7 +24,12 @@ public class CategoryController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public Category createCategory(@RequestBody Category category) {
+        // slug otomatik oluşturulabilir
+        if (category.getSlug() == null || category.getSlug().isEmpty()) {
+            category.setSlug(category.getName().toLowerCase().replace(" ", "-"));
+        }
         return categoryRepository.save(category);
     }
 }

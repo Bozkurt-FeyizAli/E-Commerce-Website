@@ -24,9 +24,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .csrf(csrf -> csrf.disable())
+        .csrf(csrf -> csrf.disable())
+        .formLogin(form -> form.disable()) // ← önemli
+        .httpBasic(httpBasic -> httpBasic.disable()) // ← önemli
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/products/**", "/category/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN") // 🔒 sadece admin
                         .anyRequest().authenticated()

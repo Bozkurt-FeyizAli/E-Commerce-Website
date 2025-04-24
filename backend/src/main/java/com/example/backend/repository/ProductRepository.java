@@ -9,4 +9,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     // Featured ürünleri filtrelemek için özel sorgu
     List<Product> findByFeaturedTrue();
+
+    List<Product> findByActiveTrue();
 }
