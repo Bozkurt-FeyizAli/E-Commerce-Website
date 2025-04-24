@@ -4,12 +4,14 @@ import { Product} from '@models/product.model'; // Adjust the import path as nec
 import { CartItem } from '@models/cart-item.model'; // Adjust the import path as necessary
 import { OrderItem } from '@models/order-item.model'; // Adjust the import path as necessary
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../shared/environments/environment';
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProductService {
-  private apiUrl = 'http://localhost:3000'; // Base URL for json-server
+  private apiUrl = `${environment.apiUrl}`;
 
   constructor(private http: HttpClient) { }
 

@@ -4,12 +4,14 @@ import { Observable, BehaviorSubject, throwError, of, forkJoin } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { catchError, tap, switchMap, map } from 'rxjs/operators';
 import { CartItem } from '@models/cart-item.model';
+import { environment } from '../../shared/environments/environment';
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class CartService {
-  private apiUrl = 'http://localhost:3000/carts';
+  private apiUrl = `${environment.apiUrl}/cart`;
   private cartItems = new BehaviorSubject<CartItem[]>([]);
   currentCart$ = this.cartItems.asObservable();
 
