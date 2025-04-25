@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ProductService } from '../services/product.service';
-import { CartService } from '../../../shared/services/cart.service';
+import { CartService } from '../../cart/service/cart.service';
 import { Product } from '../../../shared/models/product.model';
 import { catchError, finalize, of, tap } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -15,6 +15,9 @@ export class ProductListComponent implements OnInit {
   products: Product[] = [];
   loading = true;
   error: string | null = null;
+  categories: string[] = ['Electronics', 'Clothing', 'Books']; // backend'den çekebilirsin
+
+
 
   constructor(
     private productService: ProductService,
@@ -58,6 +61,20 @@ export class ProductListComponent implements OnInit {
       next: () => this.showSuccessNotification(product),
       error: (err) => this.showErrorNotification(err)
     });
+  }
+
+  onSearch(term: string): void {
+    this.loading = true;
+    this.productService.searchProducts(term).pipe(
+      finalize(() => this.loading = false)
+    ).subscribe(products => this.products = products);
+  }
+
+  onFilterCategory(cat: string): void {
+    this.loading = true;
+    this.productService.filterByCategory(cat).pipe(
+      finalize(() => this.loading = false)
+    ).subscribe(products => this.products = products);
   }
 
   trackByProductId(index: number, product: Product): number {

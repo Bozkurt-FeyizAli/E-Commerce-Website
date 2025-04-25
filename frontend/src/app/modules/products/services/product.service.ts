@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Observable, catchError, forkJoin, map, of, throwError } from 'rxjs';
-import { Product} from 'app/shared/a.ts/product.model'; // Adjust the import path as necessary
-import { CartItem } from 'app/shared/a.ts/cart-item.model'; // Adjust the import path as necessary
-import { OrderItem } from 'app/shared/a.ts/order-item.model'; // Adjust the import path as necessary
+import { Product} from '@model/product.model'; // Adjust the import path as necessary
+import { CartItem } from '@model/cart-item.model'; // Adjust the import path as necessary
+import { OrderItem } from '@model/order-item.model'; // Adjust the import path as necessary
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../shared/environments/environment';
 
@@ -79,4 +79,11 @@ export class ProductService {
       error.error?.message || error.message || 'Server error'
     ));
   }
+
+  getFeaturedProducts(): Observable<Product[]> {
+    return this.http.get<Product[]>(`${this.apiUrl}/products?featured=true`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
 }

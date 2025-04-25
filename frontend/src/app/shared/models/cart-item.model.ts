@@ -8,4 +8,5 @@ export interface CartItem {
   priceAtAddition: number;
 
   product?: Product;
+  is_active: boolean;
 }

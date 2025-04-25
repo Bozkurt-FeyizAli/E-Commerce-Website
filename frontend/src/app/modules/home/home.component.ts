@@ -1,11 +1,11 @@
 // home.component.ts
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Product } from 'app/shared/a.ts/product.model';
-import { Category } from 'app/shared/a.ts/category.model';
-import { ProductService } from '@services/product.service';
-import { CategoryService } from '@services/category.service';
-import { CartService } from '@services/cart.service';
+import { Product } from '@model/product.model';
+import { Category } from '@model/category.model';
+import { CategoryService } from 'app/modules/category/service/category.service';
+import { CartService } from 'app/modules/cart/service/cart.service';
+import { HomeService } from './service/home.service';
 
 @Component({
   selector: 'app-home',
@@ -21,7 +21,7 @@ export class HomeComponent {
 
   constructor(
     private fb: FormBuilder,
-    private productService: ProductService,
+    private homeService: HomeService,
     private categoryService: CategoryService,
     private cartService: CartService
   ) {
@@ -37,7 +37,7 @@ export class HomeComponent {
   }
 
   private loadFeaturedProducts() {
-    this.productService.getFeaturedProducts().subscribe(products => {
+    this.homeService.getFeaturedProducts().subscribe(products => {
       this.featuredProducts = products;
     });
   }

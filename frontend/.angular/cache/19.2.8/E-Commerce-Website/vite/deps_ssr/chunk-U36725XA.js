@@ -4,22 +4,22 @@ import {
   BrowserModule,
   EVENT_MANAGER_PLUGINS,
   EventManagerPlugin
-} from "./chunk-JGO7UZJ6.js";
+} from "./chunk-H7JTONW6.js";
 import {
   HTTP_ROOT_INTERCEPTOR_FNS
-} from "./chunk-BUDWIEIS.js";
+} from "./chunk-G7TVHKQS.js";
 import {
   NullViewportScroller,
   PlatformLocation,
   ViewportScroller,
   getDOM,
   setRootDomAdapter
-} from "./chunk-HQKTRAST.js";
+} from "./chunk-KXIDSWWM.js";
 import {
   DOCUMENT,
   PLATFORM_SERVER_ID,
   XhrFactory
-} from "./chunk-TK5VCKB2.js";
+} from "./chunk-YRPTRWJS.js";
 import {
   ALLOW_MULTIPLE_PLATFORMS,
   APP_ID,
@@ -53,7 +53,7 @@ import {
   ɵɵdefineInjector,
   ɵɵdefineNgModule,
   ɵɵinject
-} from "./chunk-UI7CJKIZ.js";
+} from "./chunk-4UBR7WAK.js";
 import {
   require_cjs
 } from "./chunk-ZUJ64LXG.js";
@@ -16874,7 +16874,7 @@ function renderApplication(bootstrap, options) {
     }
   });
 }
-var VERSION = new Version("19.2.7");
+var VERSION = new Version("19.2.8");
 
 export {
   INITIAL_CONFIG,
@@ -16896,16 +16896,16 @@ export {
 
 @angular/platform-server/fesm2022/server-BPmC12ZL.mjs:
   (**
-   * @license Angular v19.2.7
+   * @license Angular v19.2.8
    * (c) 2010-2025 Google LLC. https://angular.io/
    * License: MIT
    *)
 
 @angular/platform-server/fesm2022/platform-server.mjs:
   (**
-   * @license Angular v19.2.7
+   * @license Angular v19.2.8
    * (c) 2010-2025 Google LLC. https://angular.io/
    * License: MIT
    *)
 */
-//# sourceMappingURL=chunk-RT3XPGM5.js.map
+//# sourceMappingURL=chunk-U36725XA.js.map

@@ -5,4 +5,5 @@ export interface Payment {
   transactionId: string;
   status: 'SUCCESS' | 'FAILED';
   createdAt: Date;
+  paymentFormatId: number;
 }

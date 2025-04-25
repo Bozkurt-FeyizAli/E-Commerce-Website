@@ -7,10 +7,12 @@ import { guardsGuard } from './core/guards.guard';
 import { HttpClientModule } from '@angular/common/http';
 import { JwtModule, JWT_OPTIONS } from '@auth0/angular-jwt';
 import { StorageService } from './core/services/storage.service';
+import { CategoryComponent } from './modules/category/category.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    CategoryComponent
   ],
   imports: [
     BrowserModule,

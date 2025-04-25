@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { User } from 'app/shared/a.ts/user.model';
+import { User } from '@model/user.model';
 import { environment } from '../../../shared/environments/environment';
 
 

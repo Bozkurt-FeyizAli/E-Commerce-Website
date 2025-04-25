@@ -12,10 +12,8 @@ export interface Product {
   featured?: boolean;
   active?: boolean;
   productDetails?: string;
-
   category: Category;
-
-  // İlişkiler
   cartItems?: CartItem[];
   orderItems?: OrderItem[];
 }
+

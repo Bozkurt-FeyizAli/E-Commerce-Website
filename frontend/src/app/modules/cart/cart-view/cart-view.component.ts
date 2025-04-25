@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { CartService } from '../../../shared/services/cart.service';
-import { Product } from 'app/shared/a.ts/product.model';
-import { CartItem } from 'app/shared/a.ts/cart-item.model';
+import { CartService } from '../service/cart.service';
+import { Product } from '@model/product.model';
+import { CartItem } from '@model/cart-item.model';
 import { Observable, forkJoin, map, of, switchMap, tap } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 

@@ -7,7 +7,7 @@ export interface User {
   passwordHash?: string;
   role: 'CUSTOMER' | 'ADMIN';
   createdAt: Date;
-
   orders?: Order[];
   cart?: Cart;
 }
+
