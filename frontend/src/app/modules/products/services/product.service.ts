@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Observable, catchError, forkJoin, map, of, throwError } from 'rxjs';
-import { Product} from '@models/product.model'; // Adjust the import path as necessary
-import { CartItem } from '@models/cart-item.model'; // Adjust the import path as necessary
-import { OrderItem } from '@models/order-item.model'; // Adjust the import path as necessary
+import { Product} from 'app/shared/a.ts/product.model'; // Adjust the import path as necessary
+import { CartItem } from 'app/shared/a.ts/cart-item.model'; // Adjust the import path as necessary
+import { OrderItem } from 'app/shared/a.ts/order-item.model'; // Adjust the import path as necessary
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../shared/environments/environment';
 

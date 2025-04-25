@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { Product } from '@models/product.model';
+import { Product } from 'app/shared/a.ts/product.model';
 
 @Component({
   selector: 'app-root',
@@ -8,7 +8,7 @@ import { Product } from '@models/product.model';
   standalone: false,
   styleUrl: './app.component.css'
 })
-export class AppComponent { 
+export class AppComponent {
   title = 'E-Commerce-Website';
 
 }
