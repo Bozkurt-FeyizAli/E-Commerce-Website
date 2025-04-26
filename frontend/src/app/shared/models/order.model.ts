@@ -1,4 +1,6 @@
+import { User } from './user.model';
 import { OrderItem } from './order-item.model';
+import { OrderStatus } from './order-status.model';
 
 export interface Order {
   id: number;
@@ -11,7 +13,8 @@ export interface Order {
   comment?: string;
   paymentMethodId?: number;
   orderItems?: OrderItem[];
+  user?: User;
 }
 
 
-export type OrderStatus = 'PENDING' | 'SHIPPED' | 'DELIVERED';
+

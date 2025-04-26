@@ -1,17 +1,55 @@
-<p>register Form!</p>
-<form (ngSubmit)="onSubmit()" #registerForm="ngForm">
-  <div>
-    <label for="username">Username</label>
-    <input type="text" id="username" name="username" ngModel required>
-  </div>
-  <div>
-    <label for="email">Email</label>
-    <input type="email" id="email" name="email" ngModel required>
-  </div>
-  <div>
-    <label for="password">Password</label>
-    <input type="password" id="password" name="password" ngModel required>
-  </div>
-  <button type="onSubmit" [disabled]="!registerForm.valid">Register</button>
-</form>
+<div class="register-container">
+  <h2>Create an Account</h2>
 
+  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+    <!-- Username -->
+    <div>
+      <label for="username">Username</label>
+      <input type="text" id="username" formControlName="username" required>
+      <div *ngIf="registerForm.get('username')?.touched && registerForm.get('username')?.invalid">
+        <small class="error" *ngIf="registerForm.get('username')?.errors?.['required']">Username is required</small>
+      </div>
+    </div>
+
+    <!-- Email -->
+    <div>
+      <label for="email">Email</label>
+      <input type="email" id="email" formControlName="email" required>
+      <div *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.invalid">
+        <small class="error" *ngIf="registerForm.get('email')?.errors?.['required']">Email is required</small>
+        <small class="error" *ngIf="registerForm.get('email')?.errors?.['email']">Invalid email format</small>
+      </div>
+    </div>
+
+    <!-- Password -->
+    <div>
+      <label for="password">Password</label>
+      <input type="password" id="password" formControlName="password" required>
+      <div *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.invalid">
+        <small class="error" *ngIf="registerForm.get('password')?.errors?.['required']">Password is required</small>
+        <small class="error" *ngIf="registerForm.get('password')?.errors?.['minlength']">Password must be at least 6 characters</small>
+      </div>
+    </div>
+
+    <!-- Confirm Password -->
+    <div>
+      <label for="confirmPassword">Confirm Password</label>
+      <input type="password" id="confirmPassword" formControlName="confirmPassword" required>
+      <div *ngIf="registerForm.get('confirmPassword')?.touched && registerForm.get('confirmPassword')?.invalid">
+        <small class="error" *ngIf="registerForm.get('confirmPassword')?.errors?.['required']">Confirm password is required</small>
+        <small class="error" *ngIf="registerForm.get('confirmPassword')?.errors?.['notEqual']">Passwords must match</small>
+      </div>
+    </div>
+
+    <!-- Terms and Conditions -->
+    <div>
+      <label for="terms">Accept Terms and Conditions</label>
+      <input type="checkbox" id="terms" formControlName="terms">
+      <div *ngIf="registerForm.get('terms')?.touched && registerForm.get('terms')?.invalid">
+        <small class="error" *ngIf="registerForm.get('terms')?.errors?.['requiredTrue']">You must accept the terms</small>
+      </div>
+    </div>
+
+    <button type="submit" [disabled]="registerForm.invalid">Register</button>
+  </form>
+</div>

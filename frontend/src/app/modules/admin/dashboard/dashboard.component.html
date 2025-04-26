@@ -1,1 +1,159 @@
-<p>dashboard works!</p>
+<div class="min-h-screen bg-gray-50 py-6">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Dashboard Header -->
+    <div class="mb-8">
+      <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
+      <p class="mt-1 text-sm text-gray-500">Overview of your store's performance</p>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <trending-up-icon class="h-6 w-6 text-gray-400" />
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">Total Revenue</dt>
+                <dd class="text-lg font-semibold text-gray-900">$54,763.00</dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+        <div class="bg-gray-50 px-5 py-3">
+          <div class="text-sm">
+            <a href="#" class="font-medium text-indigo-600 hover:text-indigo-900">View all</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <shopping-cart-icon class="h-6 w-6 text-gray-400" />
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">Total Orders</dt>
+                <dd class="text-lg font-semibold text-gray-900">1,482</dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+        <div class="bg-gray-50 px-5 py-3">
+          <div class="text-sm">
+            <a href="#" class="font-medium text-indigo-600 hover:text-indigo-900">View all</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <users-icon class="h-6 w-6 text-gray-400" />
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">Total Customers</dt>
+                <dd class="text-lg font-semibold text-gray-900">2,845</dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+        <div class="bg-gray-50 px-5 py-3">
+          <div class="text-sm">
+            <a href="#" class="font-medium text-indigo-600 hover:text-indigo-900">View all</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <package-icon class="h-6 w-6 text-gray-400" />
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">Products in Stock</dt>
+                <dd class="text-lg font-semibold text-gray-900">384</dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+        <div class="bg-gray-50 px-5 py-3">
+          <div class="text-sm">
+            <a href="#" class="font-medium text-indigo-600 hover:text-indigo-900">View all</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Orders & Low Stock -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <!-- Recent Orders -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="p-6">
+          <h2 class="text-lg font-medium text-gray-900 mb-4">Recent Orders</h2>
+          <div class="flow-root">
+            <ul role="list" class="divide-y divide-gray-200">
+              <li *ngFor="let order of recentOrders" class="py-4">
+                <div class="flex items-center space-x-4">
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-gray-900 truncate">
+                      Order #{{ order.id }}
+                    </p>
+                    <p class="text-sm text-gray-500 truncate">{{ order.user?.firstName }}</p>
+                  </div>
+                  <div class="inline-flex items-center text-sm font-semibold"
+                       [ngClass]="{
+                         'text-green-600': order.status === 'DELIVERED',
+                         'text-yellow-600': order.status === 'SHIPPED',
+                         'text-red-600': order.status === 'CANCELLED',
+                         'text-gray-600': order.status === 'PENDING'
+                       }">
+                    {{ order.status }}
+                  </div>
+                  <div class="text-sm text-gray-900">${{ order.totalPrice }}</div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Low Stock Products -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="p-6">
+          <h2 class="text-lg font-medium text-gray-900 mb-4">Low Stock Products</h2>
+          <div class="flow-root">
+            <ul role="list" class="divide-y divide-gray-200">
+              <li *ngFor="let product of lowStockProducts" class="py-4">
+                <div class="flex items-center space-x-4">
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-gray-900 truncate">
+                      {{ product.name }}
+                    </p>
+                    <p class="text-sm text-gray-500">
+                      Stock: {{ product.stock }} units
+                    </p>
+                  </div>
+                  <div class="text-sm font-medium text-gray-900">
+                    ${{ product.price }}
+                  </div>
+                  <button class="px-3 py-1 text-sm text-white bg-indigo-600 rounded-md hover:bg-indigo-700">
+                    Restock
+                  </button>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

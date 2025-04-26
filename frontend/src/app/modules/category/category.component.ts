@@ -1,11 +1,32 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { CategoryService } from './service/category.service';
+import { Category } from '@model/category.model';
 
 @Component({
   selector: 'app-category',
   standalone: false,
   templateUrl: './category.component.html',
-  styleUrl: './category.component.css'
+  styleUrls: ['./category.component.css']
 })
-export class CategoryComponent {
+export class CategoryComponent implements OnInit {
+  categories: Category[] = [];
+  errorMessage: string | null = null;
 
+  constructor(private categoryService: CategoryService) {}
+
+  ngOnInit(): void {
+    this.loadCategories();
+  }
+
+  loadCategories(): void {
+    this.categoryService.getMainCategories().subscribe({
+      next: (categories) => {
+        this.categories = categories;
+      },
+      error: (err) => {
+        this.errorMessage = 'Error loading categories. Please try again later.';
+        console.error(err);
+      }
+    });
+  }
 }

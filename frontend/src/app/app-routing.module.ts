@@ -24,6 +24,13 @@ const routes: Routes = [
       import('./modules/home/home.module').then((m) => m.HomeModule)
   },
 
+  {
+    path: 'admin',
+    loadChildren: () =>
+      import('./modules/admin/admin.module').then((m) => m.AdminModule),
+    canActivate: [guardsGuard]
+  },
+
   { path: "**", redirectTo: "/products", pathMatch: "full" },
 
 ];

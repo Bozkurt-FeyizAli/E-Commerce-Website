@@ -1,1 +1,12 @@
-<p>category works!</p>
+<div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+<div class="category-list" *ngIf="categories.length > 0">
+  <div class="category-item" *ngFor="let category of categories">
+    <h2>{{ category.name }}</h2>
+    <p>{{ category.description }}</p>
+  </div>
+</div>
+
+<div *ngIf="categories.length === 0">
+  <p>No categories found.</p>
+</div>
