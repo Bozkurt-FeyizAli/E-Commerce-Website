@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { AuthService } from '../service/auth.service';
+import { AuthService } from 'app/core/services/auth/auth.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -25,11 +25,11 @@ export class LoginComponent {
   }
 
   onSubmit() {
+    console.log(this.loginForm.value)
     if (this.loginForm.valid) {
-      const { email, password } = this.loginForm.value;
-      this.authService.login({ email, password }).subscribe({
-        next: (response) => {
-          if (response.token) {
+      this.authService.login({ form: this.loginForm }).subscribe({
+        next: (response: { token: string } | boolean) => {
+          if (typeof response === 'object' && 'token' in response) {
             localStorage.setItem('token', response.token);  // Save the token to localStorage
             this.router.navigate(['/home']);  // Redirect to the home page
           } else {

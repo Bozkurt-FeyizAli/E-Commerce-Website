@@ -6,16 +6,18 @@ import { LoadingSpinnerComponent } from './components/loading-spinner/loading-sp
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Menu, X, Search, Heart, ShoppingCart, User } from 'lucide-angular';
 import { RouterModule } from '@angular/router';
+import { RoleDirective } from './directives/role.directive';
 
 @NgModule({
   declarations: [
     HeaderComponent,
     FooterComponent,
     LoadingSpinnerComponent,
+    RoleDirective,
   ],
   imports: [
     CommonModule,
-    FormsModule, // ✅ BURAYA EKLENDİ
+    FormsModule,
     LucideAngularModule.pick({ Menu, X, Search, Heart, ShoppingCart, User }),
     RouterModule,
   ],
@@ -23,7 +25,8 @@ import { RouterModule } from '@angular/router';
     HeaderComponent,
     FooterComponent,
     LoadingSpinnerComponent,
-    FormsModule // bu da kalsın, dışarıdan da kullanılacaksa
+    FormsModule,
+     RouterModule
   ]
 })
 export class SharedModule { }

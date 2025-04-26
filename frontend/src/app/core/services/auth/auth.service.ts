@@ -2,8 +2,9 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { User } from '@model/user.model';
 import { environment } from '../../../shared/environments/environment';
-import { catchError } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 import { Observable, of, throwError } from 'rxjs';
+import { FormGroup } from '@angular/forms';
 
 @Injectable({
   providedIn: 'root'
@@ -12,44 +13,50 @@ export class AuthService {
   getUsers(): User[] {
     throw new Error('Method not implemented.');
   }
+
+  private readonly JWT_TOKEN = 'JWT_TOKEN';
+  private readonly ROLES = 'USER_ROLES';
+
+
   private apiUrl = `${environment.apiUrl}/auth`;
 
   constructor(private http: HttpClient) {}
 
   // Kullanıcı girişi (login)
-  login(credentials: { email: string, password: string }): Observable<{ token: string }> {
-    return this.http.post<{ token: string }>(`${this.apiUrl}/login`, credentials).pipe(
-      catchError(error => {
-        console.error('Login error: ', error);
-        // Better error handling, throwing error instead of returning empty token
-        return throwError(() => new Error('Login failed. Please try again.'));
-      })
+  login(credentials: {form: FormGroup }): Observable<boolean> {
+    return this.http.post<any>('/api/auth/login', credentials).pipe(
+      tap(res => this.storeTokens(res)),
+      map(() => true)
     );
   }
+  private storeTokens(authResult: any) {
+    localStorage.setItem(this.JWT_TOKEN, authResult.token);
+    localStorage.setItem(this.ROLES, JSON.stringify(authResult.roles));
+  }
 
-  // Kullanıcı kaydı (register)
   register(userData: User): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/register`, userData).pipe(
       catchError(error => {
         console.error('Registration error: ', error);
-        // Returning a descriptive error
         return throwError(() => new Error('Registration failed. Please try again.'));
       })
     );
   }
 
-  // Kullanıcı giriş durumunu kontrol etme
   isLoggedIn(): boolean {
-    return !!localStorage.getItem('token');
+    return !!this.getJwtToken();
   }
 
-  // Token'ı almak
-  getToken(): string | null {
-    return localStorage.getItem('token');
+  getJwtToken(): string | null {
+    return localStorage.getItem(this.JWT_TOKEN);
   }
 
-  // Kullanıcı çıkışı (logout)
-  logout(): void {
-    localStorage.removeItem('token'); // Çıkış işlemi
+  logout() {
+    localStorage.removeItem(this.JWT_TOKEN);
+    localStorage.removeItem(this.ROLES);
+  }
+
+  getRoles(): string[] {
+    return JSON.parse(localStorage.getItem(this.ROLES) || '[]');
   }
 }

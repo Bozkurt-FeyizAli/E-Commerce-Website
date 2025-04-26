@@ -5,20 +5,24 @@
   <title>ECommerceWebsite</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Birleştirilmiş CSP Meta Etiketi -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self' http://localhost:*;
+                img-src 'self' data: http://localhost:* https:;
+                style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+                font-src 'self' https://fonts.gstatic.com;
+                script-src 'self' 'unsafe-inline' http://localhost:*;
+                connect-src 'self' http://localhost:*;
+                frame-src 'none';
+                object-src 'none'">
+
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
-
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
-  <title>Registration Form</title>
-    <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <app-root></app-root>
 </body>
 </html>
-
-
-
-
-
