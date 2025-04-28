@@ -3,9 +3,11 @@ package com.example.backend.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+@Table(name = "products")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,21 +18,41 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String name;
-    private Double price;
-    private Integer stock;
+
     private String description;
-    private String imageUrl;
-    private boolean featured;
-    private boolean active;
+
+    @Column(nullable = false)
+    private Double price;
+
+    private Integer stock = 0;
+
+    private String mainImageUrl;
+
+    private Double discountPercentage = 0.0;
+
+    private Double ratingAverage = 0.0;
+
+    @Column(nullable = false)
+    private Boolean isActive = true;
+
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @OneToMany(mappedBy = "product")
-    private List<CartItem> cartItems;
+    @ManyToOne
+    @JoinColumn(name = "seller_id")
+    private User seller;
 
-    @OneToMany(mappedBy = "product")
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductImage> images;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Review> reviews;
 }

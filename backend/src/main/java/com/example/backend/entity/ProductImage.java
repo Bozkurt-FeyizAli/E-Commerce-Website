@@ -4,20 +4,25 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "payment_formats")
+@Table(name = "product_images")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PaymentFormat {
+public class ProductImage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String name; // Stripe, PayPal vb.
+    private String imageUrl;
+
+    private Integer imageOrder = 0;
 
     @Column(nullable = false)
     private Boolean isActive = true;
+
+    @ManyToOne
+    @JoinColumn(name = "product_id")
+    private Product product;
 }

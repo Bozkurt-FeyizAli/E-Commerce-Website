@@ -5,9 +5,8 @@ import lombok.*;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 @Entity
+@Table(name = "categories")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,12 +17,15 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true)
     private String name;
-    private String description;
-    private String slug;
-    private String image;
 
-    @OneToMany(mappedBy = "category")
-    @JsonIgnore
+    private String description;
+    private String imageUrl;
+
+    @Column(nullable = false)
+    private Boolean isActive = true;
+
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Product> products;
 }

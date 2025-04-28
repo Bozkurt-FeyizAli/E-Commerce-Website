@@ -3,28 +3,30 @@ package com.example.backend.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
+
 @Entity
-@Table(name = "order_items")
+@Table(name = "shipment_tracking")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class OrderItem {
+public class ShipmentTracking {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Integer quantity = 1;
-    private Double priceAtPurchase;
+    private String trackingNumber;
+    private String shipmentStatus = "Preparing";
+    private String carrier;
 
-    @ManyToOne
+    private LocalDate estimatedDeliveryDate;
+    private LocalDate deliveredDate;
+
+    @OneToOne
     @JoinColumn(name = "order_id")
     private Order order;
-
-    @ManyToOne
-    @JoinColumn(name = "product_id")
-    private Product product;
 
     @Column(nullable = false)
     private Boolean isActive = true;

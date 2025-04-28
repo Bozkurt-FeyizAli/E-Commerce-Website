@@ -7,46 +7,46 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+@Table(name = "orders")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "orders")
 public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Double totalPrice;
+    private String status = "Pending";
 
-    @Enumerated(EnumType.STRING)
-    private OrderStatus status;
+    private Double totalAmount;
 
-    private LocalDateTime createdAt;
+    private String shippingAddressLine;
+    private String shippingCity;
+    private String shippingState;
+    private String shippingPostalCode;
+    private String shippingCountry;
+
+    private LocalDateTime orderDate = LocalDateTime.now();
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    @ManyToOne
+    @JoinColumn(name = "payment_id")
+    private Payment payment;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems;
 
-    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
-    private PaymentMethod paymentMethod;
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private ShipmentTracking shipmentTracking;
 
-    public void setItems(List<OrderItem> orderItems2) {
-      this.orderItems = orderItems2;
-      for (OrderItem orderItem : orderItems2) {
-          orderItem.setOrder(this);
-      }
-    }
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Complaint> complaints;
 
-    public void setStatus(PaymentStatus success) {
-        this.status = OrderStatus.DELIVERED;
-    }
-
-    public void setStatus(OrderStatus pending) {
-        this.status = OrderStatus.PENDING;
-    }
+    @Column(nullable = false)
+    private Boolean isActive = true;
 }

@@ -4,30 +4,36 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
-@Table(name = "cart")
+@Table(name = "complaints")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Cart {
+public class Complaint {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
+    private String complaintType;
+    private String description;
+
+    private String status = "Open";
+
+    private String resolutionComment;
+
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CartItem> cartItems;
+    @ManyToOne
+    @JoinColumn(name = "order_id")
+    private Order order;
 
     @Column(nullable = false)
     private Boolean isActive = true;
-
-    private LocalDateTime createdAt = LocalDateTime.now();
-    private LocalDateTime updatedAt = LocalDateTime.now();
 }
