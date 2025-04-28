@@ -4,7 +4,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
       <div class="flex items-center space-x-4">
         <div class="flex-1 relative">
-          
+
           <input
             type="text"
             placeholder="Search products..."
@@ -59,7 +59,7 @@
                 <input
                   type="checkbox"
                   [checked]="filters.category.includes(category)"
-                  (change)="toggleFilter('category', category)"
+                  (change)="toggleFilters()"
                   class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                 />
                 <span class="ml-2 text-sm">{{ category }}</span>
@@ -75,7 +75,7 @@
                 <input
                   type="checkbox"
                   [checked]="filters.brand.includes(brand)"
-                  (change)="toggleFilter('brand', brand)"
+                  (change)="toggleFilters()"
                   class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                 />
                 <span class="ml-2 text-sm">{{ brand }}</span>
