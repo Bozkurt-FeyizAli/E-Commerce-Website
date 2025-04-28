@@ -1,56 +1,52 @@
 package com.example.backend.controller;
 
-import com.example.backend.entity.Product;
-import com.example.backend.repository.ProductRepository;
+import com.example.backend.dto.ProductDto;
+import com.example.backend.service.IProductService;
 
-import org.springframework.security.access.prepost.PreAuthorize;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;@RestController
-@RequestMapping("/products")
-@CrossOrigin(origins = "http://localhost:4200")
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/products")
+@RequiredArgsConstructor
 public class ProductController {
 
-    private final ProductRepository productRepository;
+    private final IProductService productService;
 
-    public ProductController(ProductRepository productRepository) {
-        this.productRepository = productRepository;
+    @PostMapping
+public ResponseEntity<ProductDto> createProduct(@Valid @RequestBody ProductDto productDto) {
+    ProductDto createdProduct = productService.createProduct(productDto);
+    return ResponseEntity.ok(createdProduct);
+}
+
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ProductDto> updateProduct(@PathVariable Long id, @RequestBody ProductDto productDto) {
+        ProductDto updatedProduct = productService.updateProduct(id, productDto);
+        return ResponseEntity.ok(updatedProduct);
     }
 
-    @GetMapping
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
-    }
-
-    @GetMapping("/featured")
-    public List<Product> getFeaturedProducts() {
-        return productRepository.findByFeaturedTrue();
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
+        productService.deleteProduct(id);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}")
-    public Product getProductById(@PathVariable Long id) {
-        return productRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Product not found"));
+    public ResponseEntity<ProductDto> getProductById(@PathVariable Long id) {
+        ProductDto product = productService.getProductById(id);
+        return ResponseEntity.ok(product);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping
-    public Product createProduct(@RequestBody Product product) {
-        return productRepository.save(product);
+    @GetMapping
+    public ResponseEntity<List<ProductDto>> getAllActiveProducts() {
+        List<ProductDto> products = productService.getAllActiveProducts();
+        return ResponseEntity.ok(products);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/{id}")
-    public void deactivateProduct(@PathVariable Long id) {
-        Product product = productRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Product not found"));
-        product.setActive(false);
-        productRepository.save(product);
-    }
-
-    @GetMapping("/active")
-    public List<Product> getActiveProducts() {
-    return productRepository.findByActiveTrue();
-}
 
 }

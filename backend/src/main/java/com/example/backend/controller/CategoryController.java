@@ -1,35 +1,47 @@
 package com.example.backend.controller;
 
-import com.example.backend.entity.Category;
-import com.example.backend.repository.CategoryRepository;
-import org.springframework.security.access.prepost.PreAuthorize;
+import com.example.backend.dto.CategoryDto;
+import com.example.backend.service.ICategoryService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/category")
-@CrossOrigin(origins = "http://localhost:4200")
+@RequestMapping("/api/categories")
+@RequiredArgsConstructor
 public class CategoryController {
 
-    private final CategoryRepository categoryRepository;
+    private final ICategoryService categoryService;
 
-    public CategoryController(CategoryRepository categoryRepository) {
-        this.categoryRepository = categoryRepository;
+    @PostMapping
+    public ResponseEntity<CategoryDto> createCategory(@RequestBody CategoryDto categoryDto) {
+        CategoryDto createdCategory = categoryService.createCategory(categoryDto);
+        return ResponseEntity.ok(createdCategory);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<CategoryDto> updateCategory(@PathVariable Long id, @RequestBody CategoryDto categoryDto) {
+        CategoryDto updatedCategory = categoryService.updateCategory(id, categoryDto);
+        return ResponseEntity.ok(updatedCategory);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
+        categoryService.deleteCategory(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<CategoryDto> getCategoryById(@PathVariable Long id) {
+        CategoryDto category = categoryService.getCategoryById(id);
+        return ResponseEntity.ok(category);
     }
 
     @GetMapping
-    public List<Category> getAllCategories() {
-        return categoryRepository.findAll();
-    }
-
-    @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public Category createCategory(@RequestBody Category category) {
-        // slug otomatik oluşturulabilir
-        if (category.getSlug() == null || category.getSlug().isEmpty()) {
-            category.setSlug(category.getName().toLowerCase().replace(" ", "-"));
-        }
-        return categoryRepository.save(category);
+    public ResponseEntity<List<CategoryDto>> getAllCategories() {
+        List<CategoryDto> categories = categoryService.getAllActiveCategories();
+        return ResponseEntity.ok(categories);
     }
 }

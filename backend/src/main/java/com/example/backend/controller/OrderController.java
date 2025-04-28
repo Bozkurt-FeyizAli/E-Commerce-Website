@@ -1,34 +1,47 @@
 package com.example.backend.controller;
 
-import com.example.backend.entity.Order;
-import com.example.backend.service.OrderService;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
+import com.example.backend.dto.OrderDto;
+import com.example.backend.service.IOrderService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/orders")
-@CrossOrigin(origins = "http://localhost:4200")
+@RequestMapping("/api/orders")
+@RequiredArgsConstructor
 public class OrderController {
 
-    private final OrderService orderService;
-
-    public OrderController(OrderService orderService) {
-        this.orderService = orderService;
-    }
+    private final IOrderService orderService;
 
     @PostMapping
-    @PreAuthorize("hasRole('CUSTOMER')")
-    public Order createOrder(@AuthenticationPrincipal UserDetails userDetails) {
-        return orderService.createOrder(userDetails.getUsername());
+    public ResponseEntity<OrderDto> createOrder(@RequestBody OrderDto orderDto) {
+        OrderDto createdOrder = orderService.createOrder(orderDto);
+        return ResponseEntity.ok(createdOrder);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<OrderDto> updateOrder(@PathVariable Long id, @RequestBody OrderDto orderDto) {
+        OrderDto updatedOrder = orderService.updateOrder(id, orderDto);
+        return ResponseEntity.ok(updatedOrder);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
+        orderService.deleteOrder(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<OrderDto> getOrderById(@PathVariable Long id) {
+        OrderDto order = orderService.getOrderById(id);
+        return ResponseEntity.ok(order);
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('CUSTOMER')")
-    public List<Order> getOrders(@AuthenticationPrincipal UserDetails userDetails) {
-        return orderService.getOrders(userDetails.getUsername());
+    public ResponseEntity<List<OrderDto>> getAllActiveOrders() {
+        List<OrderDto> orders = orderService.getAllActiveOrders();
+        return ResponseEntity.ok(orders);
     }
 }
