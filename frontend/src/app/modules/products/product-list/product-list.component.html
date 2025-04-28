@@ -4,7 +4,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
       <div class="flex items-center space-x-4">
         <div class="flex-1 relative">
-          <search-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" [size]="20"/>
+          
           <input
             type="text"
             placeholder="Search products..."
@@ -120,9 +120,9 @@
       <!-- Product Grid -->
       <div class="flex-1">
         <div [class]="viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'">
-          
+
           <!-- Products from filteredProducts -->
-          <div *ngFor="let product of filteredProducts" 
+          <div *ngFor="let product of filteredProducts"
                [class]="viewMode === 'grid' ? 'card' : 'card flex'"
           >
             <div [class]="viewMode === 'grid' ? '' : 'w-48 flex-shrink-0'">

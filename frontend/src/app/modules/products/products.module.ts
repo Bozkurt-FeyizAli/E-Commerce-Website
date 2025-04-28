@@ -10,6 +10,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { HttpClientModule} from '@angular/common/http'
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 @NgModule({
   declarations: [
     ProductsComponent,
@@ -25,7 +26,8 @@ import { HttpClientModule} from '@angular/common/http'
     MatProgressSpinnerModule,
     MatSnackBarModule,
     HttpClientModule,
-  ]
+  ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class ProductsModule {
   // ...existing code...
