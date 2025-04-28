@@ -15,8 +15,21 @@ export class ProductListComponent implements OnInit {
   products: Product[] = [];
   loading = true;
   error: string | null = null;
-  categories: string[] = ['Electronics', 'Clothing', 'Books']; // backend'den çekebilirsin
 
+  searchQuery = '';
+  showFilters = false;
+  viewMode: 'grid' | 'list' = 'grid';
+
+  categories = ['Electronics', 'Fashion', 'Home & Living', 'Sports', 'Books']; // You can later fetch dynamically
+  brands = ['Apple', 'Samsung', 'Nike', 'Adidas', 'Sony']; // Same for brands
+
+  filters = {
+    category: [] as string[],
+    brand: [] as string[],
+    priceRange: [0, 1000] as [number, number],
+    inStock: false
+  };
+  filteredProducts: Product[] = [];
 
 
   constructor(
@@ -61,6 +74,29 @@ export class ProductListComponent implements OnInit {
       next: () => this.showSuccessNotification(product),
       error: (err) => this.showErrorNotification(err)
     });
+  }
+
+  onSearch(): void {
+    this.applyFilters();
+  }
+
+  toggleFilters(): void {
+    this.showFilters = !this.showFilters;
+  }
+
+  oggleFilter(type: 'category' | 'brand', value: string): void {
+    const list = this.filters[type];
+    const index = list.indexOf(value);
+    if (index === -1) {
+      list.push(value);
+    } else {
+      list.splice(index, 1);
+    }
+    this.applyFilters();
+  }
+
+  applyFilters(): void {
+    this.filteredProducts = this.getFilteredProducts();
   }
 
   onSearch(term: string): void {
@@ -113,4 +149,25 @@ export class ProductListComponent implements OnInit {
       }
     );
   }
+
+
+  getFilteredProducts(): Product[] {
+    return this.products.filter(product => {
+      const matchesSearch = product.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+                            product.description.toLowerCase().includes(this.searchQuery.toLowerCase());
+
+      const matchesCategory = this.filters.category.length === 0 || 
+                               this.filters.category.includes(product.category);
+
+      const matchesBrand = this.filters.brand.length === 0 || 
+                           this.filters.brand.includes(product.brand);
+
+      const matchesPrice = product.price <= this.filters.priceRange[1];
+
+      const matchesStock = !this.filters.inStock || product.inStock;
+
+      return matchesSearch && matchesCategory && matchesBrand && matchesPrice && matchesStock;
+    });
+  }
+
 }

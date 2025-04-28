@@ -1,68 +1,164 @@
-<div class="product-container">
-  <!-- Yükleniyor durumu -->
-  <div *ngIf="loading" class="loading-spinner">
-    <mat-spinner diameter="40"></mat-spinner>
-    <p>Loading products...</p>
-  </div>
-
-  <!-- Hata durumu -->
-  <div *ngIf="error" class="error-message">
-    <mat-icon>error</mat-icon>
-    {{ error }}
-    <button mat-button color="primary" (click)="retryLoading()">
-      <mat-icon>refresh</mat-icon>
-      Try Again
-    </button>
-  </div>
-
-  <!-- Ürün listesi -->
-  <div *ngIf="!loading && !error" class="product-grid">
-    <div *ngFor="let product of products; trackBy: trackByProductId"
-         class="product-card mat-elevation-z2"
-         [class.out-of-stock]="product.stock === 0">
-      <div class="product-image">
-        <img [src]="product.imageUrl || 'assets/placeholder.jpg'"
-             [alt]="product.name"
-             loading="lazy"
-             (error)="handleImageError($event)">
-      </div>
-
-      <div class="product-info">
-        <h3 class="product-title">{{ product.name }}</h3>
-        <p class="product-price">{{ product.price | currency:'TRY':'symbol':'1.2-2' }}</p>
-
-        <div class="stock-status">
-          <mat-icon [color]="product.stock > 0 ? 'primary' : 'warn'">
-            {{ product.stock > 0 ? 'check_circle' : 'cancel' }}
-          </mat-icon>
-          <span>{{ product.stock > 0 ? 'In Stock' : 'Out of Stock' }}</span>
+<div class="min-h-screen bg-gray-50">
+  <!-- Search Header -->
+  <div class="bg-white shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="flex items-center space-x-4">
+        <div class="flex-1 relative">
+          <search-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" [size]="20"/>
+          <input
+            type="text"
+            placeholder="Search products..."
+            class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200"
+            [(ngModel)]="searchQuery"
+            (input)="onSearch()"
+          />
         </div>
-
-        <div class="product-actions">
-          <a mat-button
-             color="primary"
-             [routerLink]="['/', product.id]"
-             [attr.aria-label]="'View details of ' + product.name">
-            <mat-icon>visibility</mat-icon>
-            Details
-          </a>
-
-          <button mat-raised-button
-                  color="accent"
-                  (click)="addToCart(product)"
-                  [disabled]="product.stock === 0"
-                  [attr.aria-label]="'Add ' + product.name + ' to cart'">
-            <mat-icon>add_shopping_cart</mat-icon>
-            Add to Cart
+        <button
+          class="p-2 text-gray-600 hover:text-gray-900 sm:hidden"
+          (click)="toggleFilters()"
+          aria-label="Toggle filters"
+        >
+          <sliders-icon [size]="24"/>
+        </button>
+        <div class="hidden sm:flex items-center space-x-4">
+          <button
+            class="p-2"
+            [class.text-indigo-600]="viewMode === 'grid'"
+            [class.text-gray-400]="viewMode === 'list'"
+            (click)="viewMode = 'grid'"
+            aria-label="Grid view"
+          >
+            <grid-icon [size]="24"/>
+          </button>
+          <button
+            class="p-2"
+            [class.text-indigo-600]="viewMode === 'list'"
+            [class.text-gray-400]="viewMode === 'grid'"
+            (click)="viewMode = 'list'"
+            aria-label="List view"
+          >
+            <list-icon [size]="24"/>
           </button>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Ürün yoksa -->
-    <div *ngIf="products.length === 0" class="no-products">
-      <mat-icon>info</mat-icon>
-      <p>No products available</p>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="flex flex-col sm:flex-row gap-8">
+      <!-- Filters Sidebar -->
+      <div class="w-full sm:w-64 flex-shrink-0" [class.hidden]="!showFilters" [class.sm:block]="true">
+        <div class="bg-white rounded-lg shadow p-6">
+          <h2 class="text-lg font-semibold mb-4">Filters</h2>
+
+          <!-- Categories -->
+          <div class="mb-6">
+            <h3 class="font-medium mb-2">Categories</h3>
+            <div class="space-y-2">
+              <label *ngFor="let category of categories" class="flex items-center">
+                <input
+                  type="checkbox"
+                  [checked]="filters.category.includes(category)"
+                  (change)="toggleFilter('category', category)"
+                  class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                />
+                <span class="ml-2 text-sm">{{ category }}</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Brands -->
+          <div class="mb-6">
+            <h3 class="font-medium mb-2">Brands</h3>
+            <div class="space-y-2">
+              <label *ngFor="let brand of brands" class="flex items-center">
+                <input
+                  type="checkbox"
+                  [checked]="filters.brand.includes(brand)"
+                  (change)="toggleFilter('brand', brand)"
+                  class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                />
+                <span class="ml-2 text-sm">{{ brand }}</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Price Range -->
+          <div class="mb-6">
+            <h3 class="font-medium mb-2">Price Range</h3>
+            <div class="space-y-2">
+              <input
+                type="range"
+                [min]="0"
+                [max]="1000"
+                [(ngModel)]="filters.priceRange[1]"
+                (input)="applyFilters()"
+                class="w-full"
+              />
+              <div class="flex justify-between text-sm text-gray-600">
+                <span>$0</span>
+                <span>${{ filters.priceRange[1] }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stock Status -->
+          <div>
+            <label class="flex items-center">
+              <input
+                type="checkbox"
+                [(ngModel)]="filters.inStock"
+                (change)="applyFilters()"
+                class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+              />
+              <span class="ml-2 text-sm">In Stock Only</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product Grid -->
+      <div class="flex-1">
+        <div [class]="viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'">
+          
+          <!-- Products from filteredProducts -->
+          <div *ngFor="let product of filteredProducts" 
+               [class]="viewMode === 'grid' ? 'card' : 'card flex'"
+          >
+            <div [class]="viewMode === 'grid' ? '' : 'w-48 flex-shrink-0'">
+              <img
+                [src]="product.imageUrl || '/assets/images/placeholder.png'"
+                [alt]="product.name"
+                class="w-full h-48 object-cover rounded-t-lg"
+                [class.rounded-l-lg]="viewMode === 'list'"
+                [class.rounded-t-lg]="viewMode === 'grid'"
+                (error)="handleImageError($event)"
+              />
+            </div>
+            <div class="p-4">
+              <div class="text-sm text-indigo-600 mb-1">{{ product.category }}</div>
+              <h3 class="text-lg font-semibold text-gray-900 mb-2">
+                {{ product.name }}
+              </h3>
+              <p class="text-sm text-gray-500 mb-4" *ngIf="viewMode === 'list'">
+                {{ product.description }}
+              </p>
+              <div class="flex items-center justify-between">
+                <span class="text-lg font-bold text-gray-900">{{ product.price | currency:'USD':'symbol':'1.2-2' }}</span>
+                <button class="btn btn-primary">
+                  Add to Cart
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- No Products -->
+          <div *ngIf="filteredProducts.length === 0" class="text-center w-full py-10 text-gray-500">
+            <p>No products match your filters.</p>
+          </div>
+
+        </div>
+      </div>
     </div>
   </div>
 </div>

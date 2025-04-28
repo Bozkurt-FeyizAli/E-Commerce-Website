@@ -8,9 +8,6 @@ import { Product } from '@models/product.model';
   standalone: false,
   styleUrl: './app.component.css'
 })
-export class AppComponent implements OnInit {
-  title = 'E-Commerce-Website';
-  ngOnInit() {
-    document.body.classList.add('loaded');
-  }
+export class AppComponent {
+
 }
