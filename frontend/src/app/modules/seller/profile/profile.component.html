@@ -1,0 +1,53 @@
+<h2 class="text-2xl font-bold mb-4">👤 Profil Bilgileri</h2>
+
+<form (ngSubmit)="updateProfile()" class="space-y-4 bg-white p-4 shadow rounded max-w-lg">
+  <div>
+    <label class="block font-medium">Ad</label>
+    <input type="text" [(ngModel)]="profile.firstName" name="firstName" class="border p-2 w-full rounded" />
+  </div>
+
+  <div>
+    <label class="block font-medium">Soyad</label>
+    <input type="text" [(ngModel)]="profile.lastName" name="lastName" class="border p-2 w-full rounded" />
+  </div>
+
+  <div>
+    <label class="block font-medium">Telefon</label>
+    <input type="text" [(ngModel)]="profile.phoneNumber" name="phoneNumber" class="border p-2 w-full rounded" />
+  </div>
+
+  <div>
+    <label class="block font-medium">Adres</label>
+    <input type="text" [(ngModel)]="profile.addressLine" name="addressLine" class="border p-2 w-full rounded" />
+  </div>
+
+  <div class="flex justify-end">
+    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+      Güncelle
+    </button>
+  </div>
+</form>
+
+<div *ngIf="successMessage" class="bg-green-100 text-green-700 p-4 rounded mt-4">{{ successMessage }}</div>
+<div *ngIf="errorMessage" class="bg-red-100 text-red-700 p-4 rounded mt-4">{{ errorMessage }}</div>
+
+<hr class="my-8" />
+
+<h3 class="text-xl font-bold mb-4">🔒 Şifre Değiştir</h3>
+<form #passwordForm="ngForm" (ngSubmit)="changePassword(oldPassword.value, newPassword.value)" class="space-y-4 bg-white p-4 shadow rounded max-w-lg">
+  <div>
+    <label class="block font-medium">Mevcut Şifre</label>
+    <input type="password" #oldPassword name="oldPassword" ngModel class="border p-2 w-full rounded" required />
+  </div>
+
+  <div>
+    <label class="block font-medium">Yeni Şifre</label>
+    <input type="password" #newPassword name="newPassword" ngModel class="border p-2 w-full rounded" required />
+  </div>
+
+  <div class="flex justify-end">
+    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+      Şifreyi Değiştir
+    </button>
+  </div>
+</form>

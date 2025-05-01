@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AdminService } from '../service/admin.service'; // Service to handle API calls
-import { Order } from '@models/order.model';
-import { Product } from '@models/product.model';
+import { Order } from '@models/order';
+import { Product } from '@models/product';
 
 @Component({
   selector: 'app-admin-dashboard',

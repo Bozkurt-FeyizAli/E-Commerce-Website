@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { Product } from '@models/product.model';
+import { Product } from '@models/product';
 
 @Component({
   selector: 'app-root',

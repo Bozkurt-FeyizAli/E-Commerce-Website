@@ -16,7 +16,7 @@
 
     <div *ngIf="items.length > 0" class="cart-items">
       <div class="cart-item" *ngFor="let entry of items">
-        <img [src]="entry.product.imageUrl"
+        <img [src]="entry.product.mainImageUrl"
              [alt]="entry.product.name"
              class="product-image">
 
@@ -50,9 +50,9 @@
     </div>
 
     <div class="cart-summary" *ngIf="items.length > 0">
-      <h3>Toplam Tutar: {{ ((total$ | async)?.valueOf() ?? 0) | currency:'TRY':'symbol':'1.2-2' }}</h3>
+      <h3>Toplam Tutar: {{ (total$ | async) | number:'1.2-2' | currency:'TRY':'symbol' }}</h3>
       <div class="summary-actions">
-        <button mat-raised-button color="warn" (click)="cartService.clearCart()">
+        <button mat-raised-button color="warn" (click)="clearCartItems()">
           Sepeti Temizle
         </button>
         <button mat-raised-button color="primary" routerLink="/checkout">

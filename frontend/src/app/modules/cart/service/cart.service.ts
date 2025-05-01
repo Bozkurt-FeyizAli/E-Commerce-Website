@@ -1,11 +1,10 @@
 import { Injectable } from '@angular/core';
-import { Product } from '@model/product.model';
+import { Product } from '@models/product';
 import { Observable, BehaviorSubject, throwError, of, forkJoin } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { catchError, tap, switchMap, map } from 'rxjs/operators';
-import { CartItem } from '@model/cart-item.model';
+import { CartItem } from '@models/cart-item';
 import { environment } from '../../../shared/environments/environment';
-
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +19,7 @@ export class CartService {
   }
 
   private loadInitialCart(): void {
-    this.http.get<any>(`${this.apiUrl}/1`).pipe(
+    this.http.get<{ items: CartItem[] }>(`${this.apiUrl}/1`).pipe(
       map(response => response.items),
       catchError(() => of([]))
     ).subscribe(items => this.cartItems.next(items));
@@ -30,14 +29,13 @@ export class CartService {
     const newItem: Partial<CartItem> = {
       productId: product.id,
       quantity,
-      priceAtAddition: product.price // Yeni eklenen özellik
     };
 
-    return this.http.patch<{items: CartItem[]}>(`${this.apiUrl}/1`, {
+    return this.http.patch<{ items: CartItem[] }>(`${this.apiUrl}/1`, {
       items: [...this.cartItems.value, newItem]
     }).pipe(
       map(response => response.items),
-      tap(items => this.cartItems.next(items)), // DÜZELTİLMİŞ SATIR 31
+      tap(items => this.cartItems.next(items)),
       catchError(this.handleError)
     );
   }
@@ -54,12 +52,12 @@ export class CartService {
     return this.updateCartItems(updatedItems);
   }
 
-  clearCart(): Observable<CartItem[]> {
+  public clearCart(): Observable<CartItem[]> {
     return this.updateCartItems([]);
   }
 
   private updateCartItems(items: CartItem[]): Observable<CartItem[]> {
-    return this.http.patch<{items: CartItem[]}>(`${this.apiUrl}/1`, { items }).pipe(
+    return this.http.patch<{ items: CartItem[] }>(`${this.apiUrl}/1`, { items }).pipe(
       map(response => response.items),
       tap(items => this.cartItems.next(items)),
       catchError(this.handleError)
@@ -69,19 +67,23 @@ export class CartService {
   getCartTotal(): Observable<number> {
     return this.currentCart$.pipe(
       switchMap(items =>
-        forkJoin(items.map(item =>
-          this.getProductById(item.productId).pipe(
-            map(product => product.price * item.quantity)
-          )
-        )).pipe(
-          map(prices => prices.reduce((acc, curr) => acc + curr, 0))
-        )
+        items.length > 0
+          ? forkJoin(
+              items.map(item =>
+                this.getProductById(item.productId).pipe(
+                  map(product => product.price * item.quantity)
+                )
+              )
+            ).pipe(
+              map(prices => prices.reduce((acc, curr) => acc + curr, 0))
+            )
+          : of(0)
       )
     );
   }
 
-  getProductById(productId: number): Observable<Product> { // DÜZELTİLMİŞ SATIR 54
-    return this.http.get<Product>(`http://localhost:3000/products/${productId}`).pipe(
+  getProductById(productId: number): Observable<Product> {
+    return this.http.get<Product>(`${environment.apiUrl}/products/${productId}`).pipe(
       catchError(error => {
         console.error('Product fetch error:', error);
         return throwError(() => new Error('Ürün bilgileri alınamadı'));
@@ -95,4 +97,6 @@ export class CartService {
       error.error?.message || 'Sepet işlemi sırasında bir hata oluştu'
     ));
   }
+
+
 }

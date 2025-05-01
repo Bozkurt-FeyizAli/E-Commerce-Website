@@ -1,8 +1,7 @@
-// cart.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CartService } from './service/cart.service';
-import { CartItem } from '@model/cart-item.model';
-import { Product } from '@model/product.model';
+import { CartItem } from '@models/cart-item';
+import { Product } from '@models/product';
 import { Observable, forkJoin, of } from 'rxjs';
 import { map, switchMap, tap } from 'rxjs/operators';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -45,14 +44,19 @@ export class CartComponent implements OnInit {
       tap(() => this.loading = false)
     );
 
-    this.totalPrice$ = this.cartService.getCartTotal();
+    this.totalPrice$ = this.cartItems$.pipe(
+      map(items =>
+        items.reduce((total, entry) => total + (entry.item.quantity * entry.product.price), 0)
+      )
+    );
   }
 
   updateQuantity(item: CartItem, newQuantity: number): void {
     if (newQuantity < 1) return;
 
     this.cartService.updateQuantity(item.id, newQuantity).subscribe({
-      error: () => this.showError('Quantity update failed')
+      next: () => this.showSuccess('Quantity updated successfully'),
+      error: () => this.showError('Failed to update quantity')
     });
   }
 
@@ -79,5 +83,9 @@ export class CartComponent implements OnInit {
       duration: 5000,
       panelClass: ['error-snackbar']
     });
+  }
+
+  handleImageError(event: Event): void {
+    (event.target as HTMLImageElement).src = 'assets/images/product-placeholder.png';
   }
 }

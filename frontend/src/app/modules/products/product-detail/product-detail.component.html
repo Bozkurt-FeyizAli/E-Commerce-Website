@@ -1,25 +1,12 @@
-<div class="filter-bar">
-  <input type="text" placeholder="Search products..." (keyup)="onSearch($event)">
-  <button mat-icon-button *ngIf="searchTerm" (click)="onClearSearch()">
-    <mat-icon>close</mat-icon>
-  </button>
-  <select (change)="onFilterCategory($event)">
-    <option value="">All Categories</option>
-    <option *ngFor="let cat of categories" [value]="cat.name">{{ cat.name }}</option>
-  </select>
-</div>
-
-<!-- Product Detail Container -->
 <div class="product-detail-container">
   <!-- Loading State -->
-  <div *ngIf="loading" class="loading-state">
+  <div *ngIf="loading" class="text-center py-10">
     <mat-spinner diameter="50"></mat-spinner>
     <p>Loading product details...</p>
   </div>
 
   <!-- Error State -->
-  <div *ngIf="error" class="error-state">
-    <mat-icon color="warn" class="error-icon">error_outline</mat-icon>
+  <div *ngIf="error" class="text-center py-10 text-red-600">
     <p>{{ error }}</p>
     <button mat-raised-button color="primary" (click)="retry()">Retry</button>
     <button mat-stroked-button color="primary" [routerLink]="['/products']">
@@ -29,60 +16,48 @@
   </div>
 
   <!-- Product Detail -->
-  <div *ngIf="product && !loading" class="product-detail-card mat-elevation-z4">
-    <div class="product-image">
-      <img [src]="product.imageUrl || 'assets/images/product-placeholder.png'"
-           [alt]="product.name"
-           (error)="handleImageError($event)">
-    </div>
-
-    <div class="product-info">
-      <h1 class="product-title">{{ product.name }}</h1>
-
-      <!-- Breadcrumb -->
-      <div class="breadcrumb">
-        <a [routerLink]="['/products']">Products</a>
-        <span>></span>
-        <span>id:{{ product.id }}</span>
+  <div *ngIf="product && !loading" class="max-w-4xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
+    <div class="grid grid-cols-1 md:grid-cols-2">
+      <div>
+        <img
+          [src]="product.mainImageUrl"
+          [alt]="product.name"
+          class="w-full h-full object-cover"
+          (error)="handleImageError($event)"
+        />
       </div>
-
-      <!-- Price Section -->
-      <div class="price-section">
-        <span class="current-price">{{ product.price | currency:'TRY':'symbol':'1.2-2' }}</span>
-      </div>
-
-      <!-- Stock Status -->
-      <div class="stock-status">
-        <mat-icon [color]="product.stock > 0 ? 'primary' : 'warn'">
-          {{ product.stock > 0 ? 'check_circle' : 'cancel' }}
-        </mat-icon>
-        <span>{{ product.stock > 0 ? 'In Stock (' + product.stock + ' available)' : 'Out of Stock' }}</span>
-      </div>
-
-      <!-- Product Description -->
-      <div class="product-description">
-        <h3>Description</h3>
-        <p>{{ product.description || 'No description available' }}</p>
-      </div>
-
-      <!-- Product Actions -->
-      <div class="product-actions">
-        <button mat-raised-button
-                color="primary"
-                (click)="onAdd()"
-                [disabled]="product.stock <= 0"
-                aria-label="Add to cart">
-          <mat-icon>add_shopping_cart</mat-icon>
-          Add to Cart
-        </button>
-
-        <button mat-stroked-button
-                color="primary"
-                [routerLink]="['/products']"
-                aria-label="Back to products">
-          <mat-icon>arrow_back</mat-icon>
-          Back to Products
-        </button>
+      <div class="p-6 flex flex-col justify-between">
+        <div>
+          <h1 class="text-2xl font-bold mb-4">{{ product.name }}</h1>
+          <p class="text-gray-600 mb-4">{{ product.description || 'No description available.' }}</p>
+          <div class="text-xl font-semibold text-green-600 mb-4">
+            {{ product.price | currency:'TRY':'symbol':'1.2-2' }}
+          </div>
+          <div class="flex items-center mb-4">
+            <mat-icon [color]="product.stock > 0 ? 'primary' : 'warn'">
+              {{ product.stock > 0 ? 'check_circle' : 'cancel' }}
+            </mat-icon>
+            <span class="ml-2">
+              {{ product.stock > 0 ? 'In Stock (' + product.stock + ' available)' : 'Out of Stock' }}
+            </span>
+          </div>
+        </div>
+        <div class="mt-6">
+          <button
+            mat-raised-button
+            color="primary"
+            class="mr-2"
+            (click)="onAdd()"
+            [disabled]="product.stock <= 0"
+          >
+            <mat-icon>add_shopping_cart</mat-icon>
+            Add to Cart
+          </button>
+          <button mat-stroked-button color="primary" [routerLink]="['/products']">
+            <mat-icon>arrow_back</mat-icon>
+            Back to Products
+          </button>
+        </div>
       </div>
     </div>
   </div>

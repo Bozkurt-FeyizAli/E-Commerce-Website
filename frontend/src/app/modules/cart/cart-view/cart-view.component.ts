@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CartService } from '../service/cart.service';
-import { Product } from '@model/product.model';
-import { CartItem } from '@model/cart-item.model';
-import { Observable, forkJoin, map, of, switchMap, tap } from 'rxjs';
+import { CartItem } from '@models/cart-item';
+import { Product } from '@models/product';
+import { Observable, Subscribable, forkJoin, of } from 'rxjs';
+import { map, switchMap, tap } from 'rxjs/operators';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
@@ -13,33 +14,41 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 })
 export class CartViewComponent implements OnInit {
   cartItems$!: Observable<{ item: CartItem, product: Product }[]>;
-  total$! : Observable<Number>;
+  totalPrice$!: Observable<number>;
   loading = true;
+total$: Observable<string | number> | Subscribable<string | number> | Promise<string | number> | undefined;
 
   constructor(
-    public cartService: CartService,
+    private cartService: CartService,
     private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
-    this.loadCartItems();
-    this.total$ = this.cartService.currentCart$.pipe(
-      map(items => items.reduce((total, item) => total + (item.priceAtAddition * item.quantity), 0))
-    );
+    this.loadCart();
   }
 
-  private loadCartItems(): void {
+  private loadCart(): void {
     this.cartItems$ = this.cartService.currentCart$.pipe(
-      switchMap((items: CartItem[]) =>
-        items.length > 0
-          ? forkJoin(items.map((item: CartItem) =>
-              this.cartService.getProductById(item.productId).pipe(
-                map(product => ({ item, product }))
-              )
-            ))
-          : of([])
-      ),
-      tap(() => (this.loading = false))
+      switchMap(items => {
+        if (items.length === 0) {
+          this.loading = false;
+          return of([]);
+        }
+        return forkJoin(
+          items.map(item =>
+            this.cartService.getProductById(item.productId).pipe(
+              map(product => ({ item, product }))
+            )
+          )
+        );
+      }),
+      tap(() => this.loading = false)
+    );
+
+    this.totalPrice$ = this.cartItems$.pipe(
+      map(items =>
+        items.reduce((total, entry) => total + (entry.item.quantity * entry.product.price), 0)
+      )
     );
   }
 
@@ -47,25 +56,44 @@ export class CartViewComponent implements OnInit {
     if (newQuantity < 1) return;
 
     this.cartService.updateQuantity(item.id, newQuantity).subscribe({
-      error: () => this.showError('Miktar güncellenemedi')
+      next: () => this.showSuccess('Quantity updated successfully'),
+      error: () => this.showError('Failed to update quantity')
     });
   }
 
   removeItem(itemId: number): void {
     this.cartService.removeFromCart(itemId).subscribe({
-      next: () => this.showSuccess('Ürün sepetten kaldırıldı'),
-      error: () => this.showError('Ürün kaldırılamadı')
+      next: () => this.showSuccess('Item removed from cart'),
+      error: () => this.showError('Failed to remove item')
+    });
+  }
+
+  clearCart(): void {
+    this.cartService.clearCart().subscribe({
+      next: () => this.showSuccess('Cart cleared successfully'),
+      error: () => this.showError('Failed to clear cart')
     });
   }
 
   private showSuccess(message: string): void {
-    this.snackBar.open(message, 'Kapat', { duration: 3000 });
+    this.snackBar.open(message, 'Close', { duration: 3000 });
   }
 
   private showError(message: string): void {
-    this.snackBar.open(message, 'Kapat', {
+    this.snackBar.open(message, 'Close', {
       duration: 5000,
       panelClass: ['error-snackbar']
+    });
+  }
+
+  handleImageError(event: Event): void {
+    (event.target as HTMLImageElement).src = 'assets/images/product-placeholder.png';
+  }
+
+  clearCartItems(): void {
+    this.cartService.clearCart().subscribe({
+      next: () => this.showSuccess('Cart cleared successfully'),
+      error: () => this.showError('Failed to clear cart')
     });
   }
 }

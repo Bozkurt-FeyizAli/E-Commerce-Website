@@ -1,0 +1,44 @@
+<div *ngIf="isLoading" class="text-center text-blue-500 font-semibold py-4">
+  Yükleniyor...
+</div>
+
+<div *ngIf="errorMessage" class="bg-red-100 text-red-700 p-4 rounded my-2">
+  {{ errorMessage }}
+</div>
+
+<div *ngIf="dashboardData" class="space-y-6">
+  <h2 class="text-2xl font-bold mb-4">📈 Satış Analitiği</h2>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="bg-white p-4 rounded shadow">
+      <p class="text-gray-500">Toplam Satış</p>
+      <p class="text-xl font-bold">{{ dashboardData.totalSales | currency }}</p>
+    </div>
+    <div class="bg-white p-4 rounded shadow">
+      <p class="text-gray-500">Toplam Sipariş</p>
+      <p class="text-xl font-bold">{{ dashboardData.totalOrders }}</p>
+    </div>
+    <div class="bg-white p-4 rounded shadow">
+      <p class="text-gray-500">Toplam Stok</p>
+      <p class="text-xl font-bold">{{ dashboardData.totalStock }}</p>
+    </div>
+  </div>
+
+  <div>
+    <h3 class="text-lg font-semibold mb-2 mt-4">🔥 En Çok Satan Ürünler</h3>
+    <ul class="list-disc pl-5">
+      <li *ngFor="let product of dashboardData.topSellingProducts">
+        {{ product.name }} - Satış: {{ product.totalSold }}
+      </li>
+    </ul>
+  </div>
+
+  <div>
+    <h3 class="text-lg font-semibold mb-2 mt-4">📦 Sipariş Durumları</h3>
+    <ul class="list-disc pl-5">
+      <li *ngFor="let status of dashboardData.orderStatusSummary">
+        {{ status.status }}: {{ status.count }}
+      </li>
+    </ul>
+  </div>
+</div>

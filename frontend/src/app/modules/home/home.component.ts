@@ -1,8 +1,8 @@
 // home.component.ts
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Product } from '@model/product.model';
-import { Category } from '@model/category.model';
+import { Product } from '@models/product';
+import { Category } from '@models/category';
 import { CategoryService } from 'app/modules/category/service/category.service';
 import { CartService } from 'app/modules/cart/service/cart.service';
 import { HomeService } from './service/home.service';
@@ -54,9 +54,10 @@ export class HomeComponent {
 
   onNewsletterSubmit() {
     if (this.newsletterForm.valid) {
-      // Newsletter subscription logic
-      console.log('Submitting:', this.newsletterForm.value);
+      console.log('Newsletter subscription:', this.newsletterForm.value.email);
+      // TODO: Burada backend'e gönderim yapılabilir
       this.newsletterForm.reset();
     }
   }
+
 }

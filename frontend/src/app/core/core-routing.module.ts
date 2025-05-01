@@ -2,7 +2,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './guards/auth.guard';
-import { Role } from '../shared/models/role.enum.model';
+import { Role } from '../shared/models/role.enum';
 import { CoreComponent } from './core.component';
 
 const routes: Routes = [

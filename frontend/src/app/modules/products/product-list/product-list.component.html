@@ -4,7 +4,6 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
       <div class="flex items-center space-x-4">
         <div class="flex-1 relative">
-
           <input
             type="text"
             placeholder="Search products..."
@@ -18,7 +17,7 @@
           (click)="toggleFilters()"
           aria-label="Toggle filters"
         >
-          <sliders-icon [size]="24"/>
+          <mat-icon>filter_list</mat-icon>
         </button>
         <div class="hidden sm:flex items-center space-x-4">
           <button
@@ -28,7 +27,7 @@
             (click)="viewMode = 'grid'"
             aria-label="Grid view"
           >
-            <grid-icon [size]="24"/>
+            <mat-icon>grid_view</mat-icon>
           </button>
           <button
             class="p-2"
@@ -37,7 +36,7 @@
             (click)="viewMode = 'list'"
             aria-label="List view"
           >
-            <list-icon [size]="24"/>
+            <mat-icon>list</mat-icon>
           </button>
         </div>
       </div>
@@ -59,7 +58,7 @@
                 <input
                   type="checkbox"
                   [checked]="filters.category.includes(category)"
-                  (change)="toggleFilters()"
+                  (change)="toggleFilter('category', category)"
                   class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                 />
                 <span class="ml-2 text-sm">{{ category }}</span>
@@ -75,7 +74,7 @@
                 <input
                   type="checkbox"
                   [checked]="filters.brand.includes(brand)"
-                  (change)="toggleFilters()"
+                  (change)="toggleFilter('brand', brand)"
                   class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                 />
                 <span class="ml-2 text-sm">{{ brand }}</span>
@@ -119,44 +118,59 @@
 
       <!-- Product Grid -->
       <div class="flex-1">
-        <div [class]="viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'">
+        <!-- Loading -->
+        <div *ngIf="loading" class="text-center py-10">
+          <mat-spinner diameter="50"></mat-spinner>
+          <p class="mt-2 text-gray-500">Loading products...</p>
+        </div>
 
-          <!-- Products from filteredProducts -->
-          <div *ngFor="let product of filteredProducts"
-               [class]="viewMode === 'grid' ? 'card' : 'card flex'"
-          >
-            <div [class]="viewMode === 'grid' ? '' : 'w-48 flex-shrink-0'">
-              <img
-                [src]="product.imageUrl || '/assets/images/placeholder.png'"
-                [alt]="product.name"
-                class="w-full h-48 object-cover rounded-t-lg"
-                [class.rounded-l-lg]="viewMode === 'list'"
-                [class.rounded-t-lg]="viewMode === 'grid'"
-                (error)="handleImageError($event)"
-              />
-            </div>
-            <div class="p-4">
-              <div class="text-sm text-indigo-600 mb-1">{{ product.category }}</div>
-              <h3 class="text-lg font-semibold text-gray-900 mb-2">
-                {{ product.name }}
-              </h3>
-              <p class="text-sm text-gray-500 mb-4" *ngIf="viewMode === 'list'">
-                {{ product.description }}
-              </p>
-              <div class="flex items-center justify-between">
-                <span class="text-lg font-bold text-gray-900">{{ product.price | currency:'USD':'symbol':'1.2-2' }}</span>
-                <button class="btn btn-primary">
-                  Add to Cart
-                </button>
+        <!-- Error -->
+        <div *ngIf="error" class="text-center py-10 text-red-600">
+          <p>{{ error }}</p>
+          <button mat-raised-button color="primary" (click)="retryLoading()">Retry</button>
+        </div>
+
+        <!-- Products -->
+        <div *ngIf="!loading && !error">
+          <div [class]="viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'">
+            <div *ngFor="let product of filteredProducts" class="bg-white rounded-lg shadow overflow-hidden">
+              <div>
+                <img
+                  [src]="product.mainImageUrl"
+                  [alt]="product.name"
+                  class="w-full h-48 object-cover"
+                  (error)="handleImageError($event)"
+                />
+              </div>
+              <div class="p-4">
+                <div class="text-sm text-indigo-600 mb-1">{{ product.category?.name }}</div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">
+                  {{ product.name }}
+                </h3>
+                <p class="text-sm text-gray-500 mb-4" *ngIf="viewMode === 'list'">
+                  {{ product.description }}
+                </p>
+                <div class="flex items-center justify-between">
+                  <span class="text-lg font-bold text-gray-900">
+                    {{ product.price | currency:'TRY':'symbol':'1.2-2' }}
+                  </span>
+                  <button
+                    mat-raised-button
+                    color="primary"
+                    (click)="addToCart(product)"
+                    [disabled]="product.stock <= 0"
+                  >
+                    Add to Cart
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
 
-          <!-- No Products -->
-          <div *ngIf="filteredProducts.length === 0" class="text-center w-full py-10 text-gray-500">
-            <p>No products match your filters.</p>
+            <!-- No Products -->
+            <div *ngIf="filteredProducts.length === 0" class="text-center w-full py-10 text-gray-500">
+              <p>No products match your filters.</p>
+            </div>
           </div>
-
         </div>
       </div>
     </div>

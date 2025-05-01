@@ -1,0 +1,41 @@
+<div *ngIf="isLoading" class="text-center text-blue-500 font-semibold py-4">
+  Şikayetler yükleniyor...
+</div>
+
+<div *ngIf="errorMessage" class="bg-red-100 text-red-700 p-4 rounded my-2">
+  {{ errorMessage }}
+</div>
+
+<div *ngIf="complaints.length > 0; else noComplaints">
+  <h2 class="text-2xl font-bold mb-4">📢 Şikayet Listesi</h2>
+  <div class="overflow-x-auto">
+    <table class="min-w-full bg-white shadow rounded">
+      <thead class="bg-gray-200">
+        <tr>
+          <th class="p-2 text-left">ID</th>
+          <th class="p-2 text-left">Kullanıcı</th>
+          <th class="p-2 text-left">Sipariş ID</th>
+          <th class="p-2 text-left">Tür</th>
+          <th class="p-2 text-left">Açıklama</th>
+          <th class="p-2 text-left">Durum</th>
+          <th class="p-2 text-left">Tarih</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let complaint of complaints" class="border-b hover:bg-gray-50">
+          <td class="p-2">{{ complaint.id }}</td>
+          <td class="p-2">{{ complaint.userId }}</td>
+          <td class="p-2">{{ complaint.orderId }}</td>
+          <td class="p-2">{{ complaint.complaintType }}</td>
+          <td class="p-2">{{ complaint.description }}</td>
+          <td class="p-2">{{ complaint.status }}</td>
+          <td class="p-2">{{ complaint.createdAt | date }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<ng-template #noComplaints>
+  <p class="text-gray-500 italic">Hiç şikayet bulunamadı.</p>
+</ng-template>

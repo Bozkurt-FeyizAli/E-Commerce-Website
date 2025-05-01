@@ -1,0 +1,39 @@
+<div *ngIf="isLoading" class="text-center text-blue-500 font-semibold py-4">
+  Ödemeler yükleniyor...
+</div>
+
+<div *ngIf="errorMessage" class="bg-red-100 text-red-700 p-4 rounded my-2">
+  {{ errorMessage }}
+</div>
+
+<div *ngIf="payments.length > 0; else noPayments">
+  <h2 class="text-2xl font-bold mb-4">💳 Ödeme Geçmişi</h2>
+  <div class="overflow-x-auto">
+    <table class="min-w-full bg-white shadow rounded">
+      <thead class="bg-gray-200">
+        <tr>
+          <th class="p-2 text-left">ID</th>
+          <th class="p-2 text-left">Tutar</th>
+          <th class="p-2 text-left">Durum</th>
+          <th class="p-2 text-left">Tarih</th>
+          <th class="p-2 text-left">İşlem No</th>
+          <th class="p-2 text-left">Yöntem</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let payment of payments" class="border-b hover:bg-gray-50">
+          <td class="p-2">{{ payment.id }}</td>
+          <td class="p-2">{{ payment.amount | currency }}</td>
+          <td class="p-2">{{ payment.status }}</td>
+          <td class="p-2">{{ payment.paymentDate | date }}</td>
+          <td class="p-2">{{ payment.transactionReference }}</td>
+          <td class="p-2">{{ payment.paymentFormatId }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<ng-template #noPayments>
+  <p class="text-gray-500 italic">Henüz ödeme bulunamadı.</p>
+</ng-template>

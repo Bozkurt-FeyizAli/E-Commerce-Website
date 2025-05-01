@@ -1,8 +1,8 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { ProductService } from '../services/product.service';
 import { CartService } from '../../cart/service/cart.service';
-import { Product } from '../../../shared/models/product.model';
-import { catchError, finalize, of, tap } from 'rxjs';
+import { Product } from '../../../shared/models/product';
+import { catchError, finalize, of, Subject, takeUntil, tap } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
@@ -11,7 +11,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   templateUrl: './product-list.component.html',
   styleUrls: ['./product-list.component.css']
 })
-export class ProductListComponent implements OnInit {
+export class ProductListComponent implements OnInit, OnDestroy {
   products: Product[] = [];
   loading = true;
   error: string | null = null;
@@ -20,8 +20,9 @@ export class ProductListComponent implements OnInit {
   showFilters = false;
   viewMode: 'grid' | 'list' = 'grid';
 
-  categories = ['Electronics', 'Fashion', 'Home & Living', 'Sports', 'Books']; // You can later fetch dynamically
-  brands = ['Apple', 'Samsung', 'Nike', 'Adidas', 'Sony']; // Same for brands
+  // Opsiyonel: backend'den dinamik çekebilirsin ama şimdilik statik
+  categories = ['Electronics', 'Fashion', 'Home & Living', 'Sports', 'Books'];
+  brands = ['Apple', 'Samsung', 'Nike', 'Adidas', 'Sony'];
 
   filters = {
     category: [] as string[],
@@ -31,6 +32,7 @@ export class ProductListComponent implements OnInit {
   };
   filteredProducts: Product[] = [];
 
+  private destroy$ = new Subject<void>();
 
   constructor(
     private productService: ProductService,
@@ -41,7 +43,20 @@ export class ProductListComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadProducts();
+    this.loadCategories();
   }
+
+  loadCategories(): void {
+    this.productService.getCategories().subscribe({
+      next: (categories) => {
+        this.categories = categories.map(c => c.name);
+      },
+      error: (err) => {
+        console.error('Kategori yükleme hatası:', err);
+      }
+    });
+  }
+
 
   loadProducts(): void {
     this.loading = true;
@@ -50,6 +65,7 @@ export class ProductListComponent implements OnInit {
     this.productService.getProducts().pipe(
       tap((products) => {
         this.products = products;
+        this.applyFilters();  // İlk başta tüm ürünler gösterilsin
         this.loading = false;
         this.cdr.detectChanges();
       }),
@@ -63,7 +79,8 @@ export class ProductListComponent implements OnInit {
       finalize(() => {
         this.loading = false;
         this.cdr.detectChanges();
-      })
+      }),
+      takeUntil(this.destroy$)
     ).subscribe();
   }
 
@@ -84,7 +101,7 @@ export class ProductListComponent implements OnInit {
     this.showFilters = !this.showFilters;
   }
 
-  oggleFilter(type: 'category' | 'brand', value: string): void {
+  toggleFilter(type: 'category' | 'brand', value: string): void {
     const list = this.filters[type];
     const index = list.indexOf(value);
     if (index === -1) {
@@ -99,18 +116,15 @@ export class ProductListComponent implements OnInit {
     this.filteredProducts = this.getFilteredProducts();
   }
 
-  // onSearch(term: string): void {
-  //   this.loading = true;
-  //   this.productService.searchProducts(term).pipe(
-  //     finalize(() => this.loading = false)
-  //   ).subscribe(products => this.products = products);
-  // }
-
   onFilterCategory(cat: string): void {
     this.loading = true;
     this.productService.filterByCategory(cat).pipe(
-      finalize(() => this.loading = false)
-    ).subscribe(products => this.products = products);
+      finalize(() => this.loading = false),
+      takeUntil(this.destroy$)
+    ).subscribe(products => {
+      this.products = products;
+      this.applyFilters();
+    });
   }
 
   trackByProductId(index: number, product: Product): number {
@@ -150,22 +164,29 @@ export class ProductListComponent implements OnInit {
     );
   }
 
-
   getFilteredProducts(): Product[] {
     return this.products.filter(product => {
       const matchesSearch = product.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
                             product.description?.toLowerCase().includes(this.searchQuery.toLowerCase());
 
       const matchesCategory = this.filters.category.length === 0 ||
-                               this.filters.category.includes(product.category.toString());
+                              this.filters.category.includes(product.category?.name || '');
 
+      const matchesBrand = this.filters.brand.length === 0 ||
+                           this.filters.brand.includes(product.productDetails || ''); // productDetails'ı marka olarak kullanıyorsan
 
-      const matchesPrice = product.price <= this.filters.priceRange[1];
+      const matchesPrice =
+        product.price >= this.filters.priceRange[0] &&
+        product.price <= this.filters.priceRange[1];
 
-      const matchesStock = !this.filters.inStock || product.stock;
+      const matchesStock = !this.filters.inStock || product.stock > 0;
 
-      return matchesSearch && matchesCategory  && matchesPrice && matchesStock;
+      return matchesSearch && matchesCategory && matchesBrand && matchesPrice && matchesStock;
     });
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 }

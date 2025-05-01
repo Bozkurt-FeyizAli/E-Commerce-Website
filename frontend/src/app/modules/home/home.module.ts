@@ -5,10 +5,18 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HomeRoutingModule } from './home-routing.module';
 import { HomeComponent } from './home.component';
 import { SharedModule } from '../../shared/shared.module';
+import { BannerComponent } from './banner/banner.component';
+import { CategoryGridComponent } from './category-grid/category-grid.component';
+import { FeaturedProductsComponent } from './featured-products/featured-products.component';
+import { NewArrivalsComponent } from './new-arrivals/new-arrivals.component';
 
 @NgModule({
   declarations: [
     HomeComponent,
+    BannerComponent,
+    CategoryGridComponent,
+    FeaturedProductsComponent,
+    NewArrivalsComponent,
 
   ],
   imports: [

@@ -1,0 +1,50 @@
+<div class="py-8">
+  <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">Featured Products</h2>
+
+  <div *ngIf="loading" class="flex justify-center py-10">
+    <mat-spinner diameter="50"></mat-spinner>
+  </div>
+
+  <div *ngIf="error" class="text-center text-red-500 py-4">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!loading && !error" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <div
+      *ngFor="let product of featuredProducts"
+      class="bg-white rounded-lg shadow hover:shadow-lg transition duration-300 flex flex-col"
+    >
+      <img
+        [src]="product.mainImageUrl || 'assets/images/product-placeholder.png'"
+        [alt]="product.name"
+        class="w-full h-48 object-cover rounded-t-lg"
+        (error)="handleImageError($event)"
+      />
+      <div class="p-4 flex flex-col justify-between flex-1">
+        <div>
+          <h3 class="text-lg font-semibold text-gray-900">{{ product.name }}</h3>
+          <p class="text-sm text-gray-500 mb-2">
+            {{ product.description || 'No description available' }}
+          </p>
+          <div class="text-lg font-bold text-green-600">
+            {{ product.price | currency:'TRY':'symbol':'1.2-2' }}
+          </div>
+        </div>
+        <button
+          mat-raised-button
+          color="primary"
+          class="mt-4 w-full"
+          (click)="addToCart(product)"
+          [disabled]="product.stock <= 0"
+        >
+          <mat-icon>add_shopping_cart</mat-icon>
+          Add to Cart
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && featuredProducts.length === 0" class="text-center text-gray-500 py-10">
+    No featured products found.
+  </div>
+</div>

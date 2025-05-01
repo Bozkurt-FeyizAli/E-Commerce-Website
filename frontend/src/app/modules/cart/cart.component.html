@@ -1,4 +1,3 @@
-<h2>cart works</h2>>
 <div class="cart-container">
   <h2 class="cart-title">Your Cart</h2>
 
@@ -18,13 +17,14 @@
     <div *ngIf="items.length > 0" class="cart-content">
       <div class="cart-items">
         <div *ngFor="let entry of items" class="cart-item">
-          <img [src]="entry.product.imageUrl"
+          <img [src]="entry.product.mainImageUrl || 'assets/images/product-placeholder.png'"
                [alt]="entry.product.name"
-               class="product-image">
+               class="product-image"
+               (error)="handleImageError($event)">
 
           <div class="item-details">
             <h3 class="product-name">{{ entry.product.name }}</h3>
-            <p class="product-price">{{ entry.product.price | currency }}</p>
+            <p class="product-price">{{ entry.product.price | currency:'TRY':'symbol':'1.2-2' }}</p>
 
             <div class="quantity-controls">
               <button mat-icon-button (click)="updateQuantity(entry.item, entry.item.quantity - 1)">
@@ -42,7 +42,7 @@
               <mat-icon color="warn">delete</mat-icon>
             </button>
             <p class="item-total">
-              {{ (entry.product.price * entry.item.quantity) | currency }}
+              {{ (entry.product.price * entry.item.quantity) | currency:'TRY':'symbol':'1.2-2' }}
             </p>
           </div>
         </div>
@@ -50,7 +50,7 @@
 
       <div class="cart-summary">
         <div class="total-section">
-          <h3>Total: {{ totalPrice$ | async | currency }}</h3>
+          <h3>Total: {{ totalPrice$ | async | currency:'TRY':'symbol':'1.2-2' }}</h3>
         </div>
 
         <div class="action-buttons">

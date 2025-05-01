@@ -1,5 +1,5 @@
 import { Directive, Input, TemplateRef, ViewContainerRef } from '@angular/core';
-import { Role } from '@models/role.enum.model';
+import { Role } from '@models/role.enum';
 import { AuthService } from 'app/core/services/auth/auth.service';
 
 @Directive({
