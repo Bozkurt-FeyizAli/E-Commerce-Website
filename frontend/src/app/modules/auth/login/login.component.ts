@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { AuthService } from 'app/core/services/auth/auth.service';
 import { Router } from '@angular/router';
+import { SessionService } from 'app/core/services/session/session.service';
 
 @Component({
   selector: 'app-login',
@@ -15,35 +16,36 @@ export class LoginComponent {
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
+    private sessionService: SessionService,  // ✅ EKLENDİ
     private router: Router
   ) {
-    // Initialize the reactive form
     this.loginForm = this.formBuilder.group({
-      email: ['', [Validators.required, Validators.email]],  // email validation
-      password: ['', Validators.required]  // password required
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', Validators.required]
     });
   }
 
   onSubmit() {
-    console.log(this.loginForm.value)
     if (this.loginForm.valid) {
-      this.authService.login({ form: this.loginForm }).subscribe({
-        next: (response: { token: string } | boolean) => {
-          if (typeof response === 'object' && 'token' in response) {
-            localStorage.setItem('token', response.token);  // Save the token to localStorage
-            this.router.navigate(['/home']);  // Redirect to the home page
-          } else {
-            alert('Login failed');
-          }
+      this.authService.login(this.loginForm.value).subscribe({
+        next: (response: { token: string; user: any }) => {
+          console.log('Login başarılı:', response);
+
+          // ✅ TOKEN ve USER SESSION’A KAYDEDİLİYOR
+          this.sessionService.saveToken(response.token);
+          this.sessionService.save('user', response.user);  // opsiyonel: backend user dönerse
+
+          // Başarıyla giriş → yönlendir
+          this.router.navigate(['/home']);
         },
-        error: () => {
+        error: (err: any) => {
+          console.error('Login failed:', err);
           alert('Login failed');
         }
       });
     }
   }
 
-  // Redirect to the registration page
   onRegister() {
     this.router.navigate(['auth/register']);
   }

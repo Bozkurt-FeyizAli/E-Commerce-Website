@@ -1,62 +1,41 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { User } from '@models/user';
-import { environment } from '../../../shared/environments/environment';
-import { catchError, map, tap } from 'rxjs/operators';
-import { Observable, of, throwError } from 'rxjs';
-import { FormGroup } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from 'app/shared/environments/environment';
+import { SessionService } from 'app/core/services/session/session.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  getUsers(): User[] {
-    throw new Error('Method not implemented.');
-  }
-
-  private readonly JWT_TOKEN = 'JWT_TOKEN';
-  private readonly ROLES = 'USER_ROLES';
-
-
   private apiUrl = `${environment.apiUrl}/auth`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private sessionService: SessionService) {}
 
-  // Kullanıcı girişi (login)
-  login(credentials: {form: FormGroup }): Observable<boolean> {
-    return this.http.post<any>('/api/auth/login', credentials).pipe(
-      tap(res => this.storeTokens(res)),
-      map(() => true)
-    );
-  }
-  private storeTokens(authResult: any) {
-    localStorage.setItem(this.JWT_TOKEN, authResult.token);
-    localStorage.setItem(this.ROLES, JSON.stringify(authResult.roles));
+  login(credentials: { email: string; password: string }): Observable<any> {
+    return this.http.post(`${this.apiUrl}/login`, credentials);
   }
 
-  register(userData: User): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/register`, userData).pipe(
-      catchError(error => {
-        console.error('Registration error: ', error);
-        return throwError(() => new Error('Registration failed. Please try again.'));
-      })
-    );
+  register(userDto: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/register`, userDto);
+  }
+
+  logout(): void {
+    this.sessionService.clear();  // ✅ Oturumu tamamen temizler
   }
 
   isLoggedIn(): boolean {
-    return !!this.getJwtToken();
+    return !!this.sessionService.getToken();
   }
 
-  getJwtToken(): string | null {
-    return localStorage.getItem(this.JWT_TOKEN);
+  getToken(): string | null {
+    return this.sessionService.getToken();
   }
 
-  logout() {
-    localStorage.removeItem(this.JWT_TOKEN);
-    localStorage.removeItem(this.ROLES);
-  }
-
-  getRoles(): string[] {
-    return JSON.parse(localStorage.getItem(this.ROLES) || '[]');
+  getUserRole(): string | null {
+    const token = this.sessionService.getToken();
+    if (!token) return null;
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.role;
   }
 }
