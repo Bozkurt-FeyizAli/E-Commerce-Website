@@ -24,7 +24,6 @@ import { NewArrivalsComponent } from './new-arrivals/new-arrivals.component';
     FormsModule,
     ReactiveFormsModule,
     RouterModule,
-    SharedModule,
     HomeRoutingModule
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]

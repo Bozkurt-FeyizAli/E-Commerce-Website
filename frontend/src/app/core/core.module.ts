@@ -1,9 +1,9 @@
+import { SharedModule } from '../shared/shared.module';
 import { NgModule, Optional, SkipSelf } from '@angular/core';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
-import { TokenInterceptor } from './interceptors/token.inteceptor';
+import { TokenInterceptor } from './interceptors/TokenInterceptor';
 import { ErrorInterceptor } from './interceptors/error.interceptor';
-import { HeaderComponent } from 'app/shared/components/header/header.component';
-import { FooterComponent } from 'app/shared/components/footer/footer.component';
+import { CoreRoutingModule } from './core-routing.module';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
@@ -16,20 +16,18 @@ import { CoreComponent } from './core.component';
     // Diğer core servislerin varsa burada ekle
   ],
   declarations: [
-    HeaderComponent,
-    FooterComponent,
     CoreComponent,
 
   ],
   imports: [
     CommonModule,
     RouterOutlet,
+    CoreRoutingModule,
+    SharedModule,
     // Diğer core modüllerini burada ekle
 
   ],
   exports: [
-    HeaderComponent,
-    FooterComponent,
     RouterOutlet,
 
   ],

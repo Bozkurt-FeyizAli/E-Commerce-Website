@@ -26,7 +26,9 @@ import { RoleDirective } from './directives/role.directive';
     FooterComponent,
     LoadingSpinnerComponent,
     FormsModule,
-     RouterModule
+    LucideAngularModule,
+    RoleDirective,
+    RouterModule,
   ]
 })
 export class SharedModule { }

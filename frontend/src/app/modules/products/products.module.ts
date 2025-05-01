@@ -11,21 +11,25 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { HttpClientModule} from '@angular/common/http'
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 @NgModule({
   declarations: [
     ProductsComponent,
     ProductListComponent,
     ProductDetailComponent,
+
   ],
   imports: [
     ProductsRoutingModule,
-    SharedModule,
     CommonModule,
     MatIconModule,
     MatButtonModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
     HttpClientModule,
+    FormsModule,
+    ReactiveFormsModule,
+
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })

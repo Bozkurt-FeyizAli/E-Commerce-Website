@@ -1,34 +1,32 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
-import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, SearchIcon, ShoppingCartIcon, HeartIcon, UserIcon, MenuIcon, XIcon } from 'lucide-angular';
+import { Component, OnInit } from '@angular/core';
+import { AuthService } from 'app/core/services/auth/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-header',
   standalone: false,
   templateUrl: './header.component.html',
-  styleUrls: ['./header.component.scss'],
+  styleUrls: ['./header.component.css']
 })
-export class HeaderComponent {
-  categories = ['New Arrivals', 'Women', 'Men', 'Accessories', 'Sale'];
-  searchQuery = '';
-  isMobileMenuOpen = false;
-  cartItemCount = 0;
-  wishlistCount = 0;
-  isLoggedIn: boolean = false;
+export class HeaderComponent implements OnInit {
+  username: string | null = '';
+  role: string | null = '';
 
-  // Inject the Router service to enable navigation.
-  constructor(private router: Router) {}
+  constructor(public authService: AuthService, private router: Router) {}
 
-  toggleMobileMenu(): void {
-    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+  ngOnInit(): void {
+    if (this.authService.isLoggedIn()) {
+      const token = this.authService.getToken();
+      if (token) {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        this.username = payload.sub || payload.username;
+        this.role = payload.role || null;
+      }
+    }
   }
 
-  search(): void {
-    if (this.searchQuery.trim()) {
-      // Navigate to a search results page with the query as a parameter.
-      this.router.navigate(['/search'], { queryParams: { q: this.searchQuery } });
-    }
+  logout() {
+    this.authService.logout();
+    this.router.navigate(['/auth/login']);
   }
 }

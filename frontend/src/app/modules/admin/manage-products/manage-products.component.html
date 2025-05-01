@@ -32,7 +32,7 @@
       <td>{{ product.name }}</td>
       <td>{{ product.price }}</td>
       <td>{{ product.stock }}</td>
-      <td>{{ product.category?.name }}</td>
+      <td>{{ product.category.name }}</td>
       <td>
         <!-- Düzenleme modalı için yer ayırabilirsin -->
         <button (click)="deleteProduct(product.id)">Delete</button>

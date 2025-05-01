@@ -1,27 +1,23 @@
 import { Directive, Input, TemplateRef, ViewContainerRef } from '@angular/core';
-import { Role } from '@models/role.enum';
 import { AuthService } from 'app/core/services/auth/auth.service';
 
 @Directive({
-  selector: '[appRole]',
-  standalone: false
+  standalone: false,
+  selector: '[appHasRole]'
 })
 export class RoleDirective {
-  @Input() appRole: Role[] = [];
+  @Input() set appHasRole(role: string) {
+    const userRole = this.authService.getUserRole();
+    if (userRole === role) {
+      this.viewContainer.createEmbeddedView(this.templateRef);
+    } else {
+      this.viewContainer.clear();
+    }
+  }
 
   constructor(
     private templateRef: TemplateRef<any>,
     private viewContainer: ViewContainerRef,
-    private auth: AuthService
-  ) {
-    this.updateView();
-  }
-
-  private updateView() {
-    const hasRole = this.auth.getRoles()
-      .map(r => Role[r as keyof typeof Role])
-      .some(r => this.appRole.includes(r));
-    hasRole ? this.viewContainer.createEmbeddedView(this.templateRef)
-            : this.viewContainer.clear();
-  }
+    private authService: AuthService
+  ) {}
 }

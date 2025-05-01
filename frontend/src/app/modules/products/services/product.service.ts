@@ -6,13 +6,13 @@ import { OrderItem } from '@model/order-item';
 import { Category } from '@model/category';
 import { ProductImage } from '@model/product-image';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../shared/environments/environment';
+import { environment } from '@env/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProductService {
-  private apiUrl = `${environment.apiUrl}`;
+  private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 

@@ -9,7 +9,7 @@ import { Complaint } from '@model/complaint';
 import { ShipmentTracking } from '@model/shipment-tracking';
 import { Review } from '@model/review';
 import { User } from '@model/user';
-import { environment } from 'app/shared/environments/environment';
+import { environment } from '@env/environment';
 
 @Injectable({
   providedIn: 'root'

@@ -1,77 +1,23 @@
-<header class="bg-white shadow-sm fixed w-full z-50">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between items-center h-16">
-      <!-- Sol: Logo ve Mobil Menü -->
-      <div class="flex items-center">
-        <button class="sm:hidden p-2 text-gray-600 hover:text-gray-900" (click)="toggleMobileMenu()" aria-label="Toggle menu">
-          <lucide-icon [name]="isMobileMenuOpen ? 'x' : 'menu'" [size]="24"></lucide-icon>
-        </button>
-        <a routerLink="/" class="ml-3 text-2xl font-bold text-indigo-600">Enterprise</a>
-      </div>
-
-      <!-- Orta: Menü (Sadece büyük ekranda) -->
-      <nav class="hidden sm:flex items-center space-x-8">
-        <a *ngFor="let category of categories"
-           [routerLink]="['/category', category.toLowerCase()]"
-           class="text-gray-600 hover:text-indigo-600 text-sm font-medium">
-          {{ category }}
-        </a>
-      </nav>
-
-      <!-- Sağ: Arama ve İkonlar -->
-      <div class="flex items-center space-x-4">
-        <!-- Search Desktop -->
-        <div class="relative hidden sm:block">
-          <input
-            type="text"
-            placeholder="Search products..."
-            class="w-64 px-4 py-2 rounded-lg border border-gray-200 focus:border-indigo-500"
-            [(ngModel)]="searchQuery"
-            (keyup.enter)="search()"
-          />
-          <lucide-icon name="search" class="absolute right-3 top-2.5 text-gray-400" [size]="20"></lucide-icon>
-        </div>
-
-        <!-- Wishlist -->
-        <button class="relative p-2 text-gray-600 hover:text-indigo-600" aria-label="Wishlist">
-          <lucide-icon name="heart" [size]="24"></lucide-icon>
-          <span class="badge">{{ wishlistCount }}</span>
-        </button>
-
-        <!-- Cart -->
-        <button class="relative p-2 text-gray-600 hover:text-indigo-600" aria-label="Shopping cart">
-          <lucide-icon name="shopping-cart" [size]="24"></lucide-icon>
-          <span class="badge bg-indigo-600">{{ cartItemCount }}</span>
-        </button>
-
-        <!-- User -->
-        <button class="p-2 text-gray-600 hover:text-indigo-600" aria-label="User account">
-          <lucide-icon name="user" [size]="24"></lucide-icon>
-        </button>
-      </div>
-    </div>
-
-    <!-- Mobile Menu -->
-    <div *ngIf="isMobileMenuOpen" class="sm:hidden bg-white border-t">
-      <div class="px-4 py-4 space-y-2">
-        <a *ngFor="let category of categories"
-           [routerLink]="['/category', category.toLowerCase()]"
-           class="block px-3 py-2 text-gray-600 hover:text-indigo-600 text-base font-medium">
-          {{ category }}
-        </a>
-
-        <!-- Mobile Search -->
-        <div class="relative">
-          <input
-            type="text"
-            placeholder="Search products..."
-            class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-indigo-500"
-            [(ngModel)]="searchQuery"
-            (keyup.enter)="search()"
-          />
-          <lucide-icon name="search" class="absolute right-3 top-2.5 text-gray-400" [size]="20"></lucide-icon>
-        </div>
-      </div>
-    </div>
+<header class="header">
+  <div class="logo">
+    <a routerLink="/">E-Commerce</a>
   </div>
+  <nav>
+    <a routerLink="/products">Products</a>
+    <ng-container *ngIf="!authService.isLoggedIn()">
+      <a routerLink="/cart">Cart</a>
+    </ng-container>
+
+
+    <ng-container *ngIf="authService.isLoggedIn()">
+      <a *ngIf="role === 'ADMIN'" routerLink="/admin">Admin Panel</a>
+      <a *ngIf="role === 'SELLER'" routerLink="/seller">Seller Dashboard</a>
+      <span>Welcome, {{ username }}</span>
+      <button (click)="logout()">Logout</button>
+    </ng-container>
+
+    <ng-container *ngIf="!authService.isLoggedIn()">
+      <a routerLink="/auth/login">Login</a>
+    </ng-container>
+  </nav>
 </header>

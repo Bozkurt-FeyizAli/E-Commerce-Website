@@ -33,8 +33,13 @@ export class SessionService {
 
   // Special method to get token
   getToken(): string | null {
+    if (typeof window === 'undefined') {
+      // Server tarafındaysak sessionStorage kullanma
+      return null;
+    }
     return sessionStorage.getItem('token');
   }
+
 
   // Special method to remove token
   removeToken(): void {
