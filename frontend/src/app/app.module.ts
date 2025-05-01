@@ -9,7 +9,6 @@ import { StorageService } from './core/services/storage/storage.service';
 import { CoreModule, } from './core/core.module';
 import { RouterModule } from '@angular/router';
 import { provideHttpClient, withFetch } from '@angular/common/http';
-import { CategoryDetailComponent } from './modules/category/category-detail/category-detail.component';
 
 
 // app.module.ts
