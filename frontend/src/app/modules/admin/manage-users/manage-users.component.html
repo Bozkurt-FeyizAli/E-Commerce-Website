@@ -1,1 +1,38 @@
-<p>manage-users works!</p>
+<h2>Manage Users</h2>
+
+<div *ngIf="loading">Loading users...</div>
+<div *ngIf="error">{{ error }}</div>
+
+<table *ngIf="!loading && users.length > 0" class="user-table">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Username</th>
+      <th>Email</th>
+      <th>Role</th>
+      <th>Active</th>
+      <th>Banned</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let user of users">
+      <td>{{ user.id }}</td>
+      <td>{{ user.firstName }}</td>
+      <td>{{ user.email }}</td>
+      <td>{{ getUserRoles(user) }}</td>
+      <td>{{ user.isActive ? 'Yes' : 'No' }}</td>
+      <td>{{ user.isBanned ? 'Yes' : 'No' }}</td>
+      <td>
+        <button (click)="toggleBan(user)">
+          {{ user.isBanned ? 'Unban' : 'Ban' }}
+        </button>
+        <button (click)="deleteUser(user.id)">Delete</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div *ngIf="!loading && users.length === 0">
+  No users found.
+</div>

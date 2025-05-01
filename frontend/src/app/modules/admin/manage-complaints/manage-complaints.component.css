@@ -1,0 +1,16 @@
+.complaints-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.complaints-table th,
+.complaints-table td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: center;
+}
+
+.complaints-table th {
+  background-color: #f0f0f0;
+}

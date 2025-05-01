@@ -1,8 +1,8 @@
 // home.component.ts
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Product } from '@models/product';
-import { Category } from '@models/category';
+import { Product } from '@model/product';
+import { Category } from '@model/category';
 import { CategoryService } from 'app/modules/category/service/category.service';
 import { CartService } from 'app/modules/cart/service/cart.service';
 import { HomeService } from './service/home.service';

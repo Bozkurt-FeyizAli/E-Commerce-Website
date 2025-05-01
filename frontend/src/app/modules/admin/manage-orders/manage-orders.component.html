@@ -1,1 +1,40 @@
-<p>manage-orders works!</p>
+<h2>Manage Orders</h2>
+
+<div *ngIf="loading">Loading orders...</div>
+<div *ngIf="error">{{ error }}</div>
+
+<table *ngIf="!loading && orders.length > 0" class="order-table">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>User</th>
+      <th>Total</th>
+      <th>Status</th>
+      <th>Date</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let order of orders">
+      <td>{{ order.id }}</td>
+      <td>{{ order.user?.firstName || 'N/A' }}</td>
+      <td>{{ order.totalAmount | currency }}</td>
+      <td>{{ order.status }}</td>
+      <td>{{ order.orderDate | date: 'short' }}</td>
+      <td>
+        <select [(ngModel)]="order.status" (change)="updateStatus(order.id, order.status)">
+          <option value="PENDING">Pending</option>
+          <option value="SHIPPED">Shipped</option>
+          <option value="DELIVERED">Delivered</option>
+          <option value="CANCELLED">Cancelled</option>
+          <option value="REFUNDED">Refunded</option>
+          <option value="COMPLETED">Completed</option>
+        </select>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div *ngIf="!loading && orders.length === 0">
+  No orders found.
+</div>

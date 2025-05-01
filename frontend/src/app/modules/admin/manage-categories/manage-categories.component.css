@@ -1,0 +1,28 @@
+.category-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.category-table th,
+.category-table td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: center;
+}
+
+.category-table th {
+  background-color: #f0f0f0;
+}
+
+.new-category-form {
+  margin: 20px 0;
+}
+
+.new-category-form input,
+.new-category-form textarea {
+  display: block;
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 8px;
+}

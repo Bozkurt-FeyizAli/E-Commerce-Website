@@ -1,1 +1,41 @@
-<p>manage-categories works!</p>
+<h2>Manage Categories</h2>
+
+<div *ngIf="loading">Loading categories...</div>
+<div *ngIf="error">{{ error }}</div>
+
+<!-- Add New Category Form -->
+<div class="new-category-form">
+  <h3>Add New Category</h3>
+  <input type="text" placeholder="Name" [(ngModel)]="newCategory.name">
+  <textarea placeholder="Description" [(ngModel)]="newCategory.description"></textarea>
+  <button (click)="addCategory()">Add Category</button>
+</div>
+
+<!-- Category List -->
+<table *ngIf="!loading && categories.length > 0" class="category-table">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Slug</th>
+      <th>Image</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let category of categories">
+      <td>{{ category.id }}</td>
+      <td>{{ category.name }}</td>
+      <td>
+        
+      </td>
+      <td>
+        <button (click)="deleteCategory(category.id)">Delete</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div *ngIf="!loading && categories.length === 0">
+  No categories found.
+</div>

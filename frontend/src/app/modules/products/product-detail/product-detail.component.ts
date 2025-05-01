@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ProductService } from '../services/product.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Location } from '@angular/common';
-import { Product } from '@models/product';
+import { Product } from '@model/product';
 import { Subject, takeUntil } from 'rxjs';
 
 @Component({

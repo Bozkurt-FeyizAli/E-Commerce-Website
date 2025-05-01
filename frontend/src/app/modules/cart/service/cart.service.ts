@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { Product } from '@models/product';
+import { Product } from '@model/product';
 import { Observable, BehaviorSubject, throwError, of, forkJoin } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { catchError, tap, switchMap, map } from 'rxjs/operators';
-import { CartItem } from '@models/cart-item';
+import { CartItem } from '@model/cart-item';
 import { environment } from '../../../shared/environments/environment';
 
 @Injectable({

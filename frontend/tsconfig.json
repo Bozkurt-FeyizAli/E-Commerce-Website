@@ -16,17 +16,14 @@
     "importHelpers": true,
     "target": "ES2022",
     "module": "ES2022",
-    "baseUrl": "./src",  
+    "baseUrl": "./src",
     "paths": {
-      "@models/*": ["app/shared/models/*"],
       "@model/*": ["app/shared/models/*"],
 
 
-      "@env/*": ["environments/*"],
-      "@envs/*": ["environment/*"],
+      "@env/*": ["app/shared/environments/*"],
 
       "@services/*": ["app/shared/services/*"],
-      "@service/*": ["app/shared/services/*"],
 
     }
 

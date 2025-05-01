@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Observable, catchError, forkJoin, map, of, throwError } from 'rxjs';
-import { Product } from '@models/product';
-import { CartItem } from '@models/cart-item';
-import { OrderItem } from '@models/order-item';
-import { Category } from '@models/category';
-import { ProductImage } from '@models/product-image';
+import { Product } from '@model/product';
+import { CartItem } from '@model/cart-item';
+import { OrderItem } from '@model/order-item';
+import { Category } from '@model/category';
+import { ProductImage } from '@model/product-image';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../shared/environments/environment';
 

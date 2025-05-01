@@ -1,1 +1,46 @@
-<p>manage-products works!</p>
+<h2>Manage Products</h2>
+
+<div *ngIf="loading">Loading products...</div>
+<div *ngIf="error">{{ error }}</div>
+
+<!-- Add New Product Form -->
+<div class="new-product-form">
+  <h3>Add New Product</h3>
+  <input type="text" placeholder="Name" [(ngModel)]="newProduct.name">
+  <input type="number" placeholder="Price" [(ngModel)]="newProduct.price">
+  <input type="number" placeholder="Stock" [(ngModel)]="newProduct.stock">
+  <input type="text" placeholder="Image URL" [(ngModel)]="newProduct.mainImageUrl">
+  <textarea placeholder="Description" [(ngModel)]="newProduct.description"></textarea>
+  <button (click)="addProduct()">Add Product</button>
+</div>
+
+<!-- Product List -->
+<table *ngIf="!loading && products.length > 0" class="product-table">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Price</th>
+      <th>Stock</th>
+      <th>Category</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let product of products">
+      <td>{{ product.id }}</td>
+      <td>{{ product.name }}</td>
+      <td>{{ product.price }}</td>
+      <td>{{ product.stock }}</td>
+      <td>{{ product.category?.name }}</td>
+      <td>
+        <!-- Düzenleme modalı için yer ayırabilirsin -->
+        <button (click)="deleteProduct(product.id)">Delete</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div *ngIf="!loading && products.length === 0">
+  No products found.
+</div>

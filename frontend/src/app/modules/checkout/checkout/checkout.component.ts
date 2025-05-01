@@ -4,8 +4,8 @@ import { CartService } from 'app/modules/cart/service/cart.service';
 import { CheckoutService } from '../service/checkout.service';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { CartItem } from '@models/cart-item';
-import { Product } from '@models/product';
+import { CartItem } from '@model/cart-item';
+import { Product } from '@model/product';
 import { forkJoin, of } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 

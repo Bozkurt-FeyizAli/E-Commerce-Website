@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CategoryService } from '../service/category.service';
-import { Product } from '@models/product';
-import { Category } from '@models/category';
+import { Product } from '@model/product';
+import { Category } from '@model/category';
 
 @Component({
   selector: 'app-category-detail',

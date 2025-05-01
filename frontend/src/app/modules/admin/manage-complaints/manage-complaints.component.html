@@ -1,1 +1,37 @@
-<p>manage-complaints works!</p>
+<h2>Manage Complaints</h2>
+
+<div *ngIf="loading">Loading complaints...</div>
+<div *ngIf="error">{{ error }}</div>
+
+<table *ngIf="!loading && complaints.length > 0" class="complaints-table">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>User</th>
+      <th>Order ID</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Status</th>
+      <th>Resolution</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let complaint of complaints">
+      <td>{{ complaint.id }}</td>
+      <td>{{ complaint.user?.username || 'N/A' }}</td>
+      <td>{{ complaint.orderId }}</td>
+      <td>{{ complaint.complaintType }}</td>
+      <td>{{ complaint.description }}</td>
+      <td>{{ complaint.status }}</td>
+      <td>{{ complaint.resolutionComment || '-' }}</td>
+      <td>
+        <button (click)="updateComplaint(complaint)">Update</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div *ngIf="!loading && complaints.length === 0">
+  No complaints found.
+</div>
