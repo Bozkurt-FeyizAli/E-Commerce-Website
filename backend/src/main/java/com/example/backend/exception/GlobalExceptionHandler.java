@@ -15,7 +15,7 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(RuntimeException.class)
   public ResponseEntity<ApiError> handleRuntimeException(RuntimeException ex) {
       ApiError error = ApiError.builder()
-              .statusCode(HttpStatus.UNAUTHORIZED.value()) // <<< 400 yerine artık 401 Unauthorized yapalım
+              .statusCode(HttpStatus.UNAUTHORIZED.value())
               .message(ex.getMessage())
               .timestamp(LocalDateTime.now())
               .build();

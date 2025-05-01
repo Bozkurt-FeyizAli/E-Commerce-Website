@@ -160,7 +160,6 @@ public void deleteUser(Long id) {
                 .toList();
     }
 
-    // Yardımcı method: Entity ➔ DTO dönüşümü
     private UserDto mapToDto(User user) {
         return UserDto.builder()
                 .id(user.getId())
