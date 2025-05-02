@@ -22,7 +22,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
   imports: [
     ProductsRoutingModule,
     CommonModule,
-    MatIconModule,
     MatButtonModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,

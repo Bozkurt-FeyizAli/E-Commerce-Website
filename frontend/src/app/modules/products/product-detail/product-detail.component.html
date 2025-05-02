@@ -1,64 +1,67 @@
-<div class="product-detail-container">
-  <!-- Loading State -->
-  <div *ngIf="loading" class="text-center py-10">
-    <mat-spinner diameter="50"></mat-spinner>
-    <p>Loading product details...</p>
+<div class="bolt-container product-detail">
+  <div class="bolt-grid">
+    <!-- Sol taraf: Ürün Görseli -->
+    <div class="bolt-col-6">
+      <div class="product-image-wrapper">
+        <img [src]="product?.mainImageUrl" [alt]="product?.name" class="product-main-image" />
+      </div>
+    </div>
+
+    <!-- Sağ taraf: Ürün Bilgileri -->
+    <div class="bolt-col-6">
+      <h2 class="product-name">{{ product?.name }}</h2>
+      <p class="product-category">{{ product?.category?.name }}</p>
+
+      <div class="product-rating">
+        <span *ngFor="let star of [1,2,3,4,5]" class="star" [class.filled]="star <= (product?.ratingAverage ?? 0)">
+          ★
+        </span>
+        <span class="rating-number">({{ product?.ratingAverage }})</span>
+      </div>
+
+      <p class="product-description">{{ product?.description }}</p>
+
+      <div class="product-price">
+        <span *ngIf="product?.discountPercentage; else normalPrice">
+          <span class="old-price">{{ product?.price | currency }}</span>
+          <span class="discounted-price">
+            {{
+              ((product?.price ?? 0) * (1 - (product?.discountPercentage ?? 0) / 100)) | currency
+            }}
+          </span>
+          <span class="discount-tag">-{{ product?.discountPercentage }}%</span>
+        </span>
+        <ng-template #normalPrice>
+          <span class="price">{{ product?.price | currency }}</span>
+        </ng-template>
+      </div>
+
+      <p class="stock" [ngClass]="{ 'in-stock': (product?.stock ?? 0) > 0, 'out-of-stock': (product?.stock ?? 0) === 0 }">
+        {{ (product?.stock ?? 0) > 0 ? 'In Stock' : 'Out of Stock' }}
+      </p>
+
+      <button
+        class="bolt-btn bolt-btn--primary"
+        [disabled]="product?.stock === 0"
+        (click)="onAdd()">
+        Add to Cart
+      </button>
+    </div>
   </div>
 
-  <!-- Error State -->
-  <div *ngIf="error" class="text-center py-10 text-red-600">
-    <p>{{ error }}</p>
-    <button mat-raised-button color="primary" (click)="retry()">Retry</button>
-    <button mat-stroked-button color="primary" [routerLink]="['/products']">
-      <mat-icon>arrow_back</mat-icon>
-      Back to Products
-    </button>
-  </div>
+  <!-- Ürün Detayları & Yorumlar -->
+  <div class="bolt-tabs">
+    <input type="radio" name="tabs" id="tab1" checked />
+    <label for="tab1">Product Details</label>
+    <input type="radio" name="tabs" id="tab2" />
+    <label for="tab2">Reviews</label>
 
-  <!-- Product Detail -->
-  <div *ngIf="product && !loading" class="max-w-4xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
-    <div class="grid grid-cols-1 md:grid-cols-2">
-      <div>
-        <img
-          [src]="product.mainImageUrl"
-          [alt]="product.name"
-          class="w-full h-full object-cover"
-          (error)="handleImageError($event)"
-        />
-      </div>
-      <div class="p-6 flex flex-col justify-between">
-        <div>
-          <h1 class="text-2xl font-bold mb-4">{{ product.name }}</h1>
-          <p class="text-gray-600 mb-4">{{ product.description || 'No description available.' }}</p>
-          <div class="text-xl font-semibold text-green-600 mb-4">
-            {{ product.price | currency:'TRY':'symbol':'1.2-2' }}
-          </div>
-          <div class="flex items-center mb-4">
-            <mat-icon [color]="product.stock > 0 ? 'primary' : 'warn'">
-              {{ product.stock > 0 ? 'check_circle' : 'cancel' }}
-            </mat-icon>
-            <span class="ml-2">
-              {{ product.stock > 0 ? 'In Stock (' + product.stock + ' available)' : 'Out of Stock' }}
-            </span>
-          </div>
-        </div>
-        <div class="mt-6">
-          <button
-            mat-raised-button
-            color="primary"
-            class="mr-2"
-            (click)="onAdd()"
-            [disabled]="product.stock <= 0"
-          >
-            <mat-icon>add_shopping_cart</mat-icon>
-            Add to Cart
-          </button>
-          <button mat-stroked-button color="primary" [routerLink]="['/products']">
-            <mat-icon>arrow_back</mat-icon>
-            Back to Products
-          </button>
-        </div>
-      </div>
+    <div class="tab-content" id="content1">
+      <p>{{ product?.productDetails }}</p>
+    </div>
+    <div class="tab-content" id="content2">
+      <!-- Reviews component veya liste -->
+      <app-review-list [productId]="product?.id"></app-review-list>
     </div>
   </div>
 </div>
