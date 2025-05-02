@@ -35,7 +35,7 @@ public class OrderServiceImpl implements IOrderService {
                 .shippingPostalCode(dto.getShippingPostalCode())
                 .shippingCountry(dto.getShippingCountry())
                 .isActive(true)
-                .user(userRepository.findById(dto.getUserId()).orElseThrow(() -> new RuntimeException("User not found")))
+                .user(userRepository.findById(dto.getUserId()).orElseThrow(() -> new RuntimeException("User not found6")))
                 .payment(dto.getPaymentId() != null ? paymentRepository.findById(dto.getPaymentId()).orElse(null) : null)
                 .build();
 

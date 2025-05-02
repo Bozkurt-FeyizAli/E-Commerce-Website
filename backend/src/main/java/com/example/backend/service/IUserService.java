@@ -6,7 +6,7 @@ import java.util.Map;
 
 public interface IUserService {
     void register(UserDto userDto);
-    Map<String, String> login(String username, String password);
+    Map<String, String> login(String useremail, String password);
     Map<String, String> refreshToken(String refreshToken);
 
     UserDto updateUser(Long id, UserDto userDto);

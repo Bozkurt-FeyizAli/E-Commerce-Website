@@ -5,8 +5,9 @@ import com.example.backend.entity.RefreshToken;
 import com.example.backend.entity.User;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.repository.UserRepository;
-import com.example.backend.security.JwtUtil;
+import com.example.backend.security.JwtAuthenticationFilter;
 import com.example.backend.service.IUserService;
+import com.example.backend.service.JwtService;
 import com.example.backend.service.RefreshTokenService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -26,18 +27,15 @@ public class UserServiceImpl implements IUserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtUtil jwtUtil;
+    private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
+
 
     @Override
     public void register(UserDto userDto) {
-        if (userRepository.findByUsername(userDto.getUsername()).isPresent()) {
-            throw new RuntimeException("Username already exists.");
-        }
         if (userRepository.findByEmail(userDto.getEmail()).isPresent()) {
-            throw new RuntimeException("Email already exists.");
+            throw new RuntimeException("User is already exists.");
         }
-
         User user = User.builder()
                 .username(userDto.getUsername())
                 .email(userDto.getEmail())
@@ -59,9 +57,11 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public Map<String, String> login(String username, String password) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found."));
+    public Map<String, String> login(String email, String password) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found.4"));
+        //System.out.println("Found user: " + user.getEmail() + ", password: " + user.getPassword());
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new RuntimeException("Incorrect password.");
@@ -75,9 +75,10 @@ public class UserServiceImpl implements IUserService {
                 .map(r -> r.getName())
                 .orElse("USER");
 
-        String accessToken = jwtUtil.generateToken(username, role);
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(username);
-
+        String accessToken = jwtService.generateToken(email, role);
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(email);
+        // System.out.println("Generated refresh token: " + refreshToken.getToken());
+        // System.out.println("Generated access token: " + accessToken);
         return Map.of(
                 "accessToken", accessToken,
                 "refreshToken", refreshToken.getToken()
@@ -91,7 +92,7 @@ public class UserServiceImpl implements IUserService {
                         .orElseThrow(() -> new ResourceNotFoundException("Refresh token not found."))
         );
 
-        String newAccessToken = jwtUtil.generateToken(token.getUser().getUsername(),
+        String newAccessToken = jwtService.generateToken(token.getUser().getUsername(),
                 token.getUser().getRoles().stream().findFirst().map(r -> r.getName()).orElse("USER"));
 
         return Map.of("accessToken", newAccessToken);
@@ -102,7 +103,7 @@ public UserDto updateUser(Long id, UserDto userDto) {
     String currentUsername = authentication.getName();
 
     User user = userRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found."));
+            .orElseThrow(() -> new ResourceNotFoundException("User not found3."));
 
     if (!user.getUsername().equals(currentUsername)) {
         throw new RuntimeException("You can only update your own profile.");
@@ -132,7 +133,7 @@ public void deleteUser(Long id) {
     String currentUsername = authentication.getName();
 
     User user = userRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found."));
+            .orElseThrow(() -> new ResourceNotFoundException("User not found2."));
 
     if (!user.getUsername().equals(currentUsername)) {
         throw new RuntimeException("You can only delete your own account.");
@@ -146,7 +147,7 @@ public void deleteUser(Long id) {
     @Override
     public UserDto getUserById(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found1."));
         return mapToDto(user);
     }
 

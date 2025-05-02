@@ -13,7 +13,7 @@ import java.util.Map;
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
-  
+
 
     private final IUserService userService;
 
@@ -24,8 +24,8 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> loginUser(@RequestParam String username, @RequestParam String password) {
-        Map<String, String> tokens = userService.login(username, password);
+    public ResponseEntity<Map<String, String>> loginUser(@RequestParam String email, @RequestParam String password) {
+        Map<String, String> tokens = userService.login(email, password);
         return ResponseEntity.ok(tokens);
     }
 

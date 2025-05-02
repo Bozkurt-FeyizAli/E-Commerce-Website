@@ -16,6 +16,9 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
@@ -42,11 +45,9 @@ public class SecurityConfig {
                     "/api/category",
                     "/api/category/**"
                 ).permitAll()
-                .requestMatchers("/api/users/**").hasAnyRole("USER", "SELLER", "ADMIN")
-                .requestMatchers("api/cart/**").hasAnyRole("USER", "SELLER", "ADMIN")
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/seller/**").hasRole("SELLER")
-                .requestMatchers("/api/orders/**").authenticated()
+                .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
+                .requestMatchers("/api/seller/**").hasAuthority("ROLE_SELLER")
+                .requestMatchers("/api/orders/**", "/api/cart/**").authenticated()
                 .anyRequest().authenticated()
             )
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -85,4 +86,7 @@ public CorsConfigurationSource corsConfigurationSource() {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
+
+
 }

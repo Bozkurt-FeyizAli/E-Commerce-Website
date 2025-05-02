@@ -60,7 +60,7 @@ public class AdminServiceImpl implements IAdminService {
     @Override
     public void banUser(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found9"));
         user.setIsBanned(true);
         userRepository.save(user);
     }
@@ -68,7 +68,7 @@ public class AdminServiceImpl implements IAdminService {
     @Override
     public void unbanUser(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found8"));
         user.setIsBanned(false);
         userRepository.save(user);
     }

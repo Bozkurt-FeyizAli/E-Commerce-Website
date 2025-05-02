@@ -31,7 +31,7 @@ public class PaymentServiceImpl implements IPaymentService {
                 .amount(dto.getAmount())
                 .transactionReference(dto.getTransactionReference())
                 .isActive(true)
-                .user(userRepository.findById(dto.getUserId()).orElseThrow(() -> new RuntimeException("User not found")))
+                .user(userRepository.findById(dto.getUserId()).orElseThrow(() -> new RuntimeException("User not found5")))
                 .paymentFormat(paymentFormatRepository.findById(dto.getPaymentFormatId()).orElseThrow(() -> new RuntimeException("PaymentFormat not found")))
                 .build();
 

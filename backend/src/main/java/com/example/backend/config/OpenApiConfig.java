@@ -1,18 +1,33 @@
-// package com.example.backend.config;
+package com.example.backend.config;
 
-// import io.swagger.v3.oas.models.OpenAPI;
-// import io.swagger.v3.oas.models.info.Info;
-// import org.springframework.context.annotation.Bean;
-// import org.springframework.context.annotation.Configuration;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-// @Configuration
-// public class OpenApiConfig {
+@Configuration
+public class OpenApiConfig {
 
-//     @Bean
-//     public OpenAPI baseOpenAPI() {
-//         return new OpenAPI()
-//                 .info(new Info().title("E-Commerce API")
-//                 .version("1.0.0")
-//                 .description("Spring Boot 3.4.4 + SpringDoc Swagger UI"));
-//     }
-// }
+    @Bean
+    public OpenAPI baseOpenAPI() {
+        final String securitySchemeName = "bearerAuth";
+
+        return new OpenAPI()
+                .info(new Info().title("E-Commerce API")
+                        .version("1.0.0")
+                        .description("Spring Boot 3.4.4 + SpringDoc Swagger UI"))
+                .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
+                .components(
+                        new io.swagger.v3.oas.models.Components()
+                                .addSecuritySchemes(securitySchemeName,
+                                        new SecurityScheme()
+                                                .name(securitySchemeName)
+                                                .type(SecurityScheme.Type.HTTP)
+                                                .scheme("bearer")
+                                                .bearerFormat("JWT")
+                                )
+                );
+    }
+}

@@ -28,14 +28,18 @@ public class Product {
 
     private Integer stock = 0;
 
+    @Column(name = "main_image_url")
     private String mainImageUrl;
+
 
     private Double discountPercentage = 0.0;
 
     private Double ratingAverage = 0.0;
 
+    @Builder.Default
     @Column(nullable = false)
     private Boolean isActive = true;
+
 
     private LocalDateTime createdAt = LocalDateTime.now();
 
