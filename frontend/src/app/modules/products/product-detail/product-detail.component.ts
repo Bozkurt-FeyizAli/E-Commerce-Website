@@ -4,7 +4,7 @@ import { ProductService } from '../services/product.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Location } from '@angular/common';
 import { Product } from '@model/product';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, switchMap, of } from 'rxjs';
 
 @Component({
   selector: 'app-product-detail',
@@ -26,13 +26,39 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef
   ) {}
 
-  ngOnInit(): void {
-    this.route.paramMap.pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(() => {
-      this.loadProduct();
-    });
-  }
+ngOnInit(): void {
+  this.route.paramMap.pipe(
+    takeUntil(this.destroy$),
+    switchMap(params => {
+      const idParam = params.get('id');
+
+      if (!idParam || isNaN(+idParam)) {
+        this.error = 'Invalid product ID';
+        this.loading = false;
+        this.cdr.detectChanges();
+        return of(null); // 🚨 Hatalıysa boş dön
+      }
+
+      const id = +idParam;
+      this.loading = true;
+      this.error = null;
+
+      return this.productService.getProductById(id);
+    })
+  ).subscribe({
+    next: (product) => {
+      if (!product) return;  // Hatalıysa işleme girme
+      this.product = product;
+      this.loading = false;
+      this.cdr.detectChanges();
+    },
+    error: (err) => {
+      this.error = err.message || 'Failed to load product';
+      this.loading = false;
+      this.cdr.detectChanges();
+    }
+  });
+}
 
   private loadProduct(): void {
     const idParam = this.route.snapshot.paramMap.get('id');

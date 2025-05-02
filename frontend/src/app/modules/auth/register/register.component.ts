@@ -23,14 +23,21 @@ export class RegisterComponent {
       email: new FormControl('', [Validators.required, Validators.email]),
       password: new FormControl('', [Validators.required, Validators.minLength(6)]),
       confirmPassword: new FormControl('', [Validators.required]),
-      registrationDate: new FormControl(new Date()),
+      // terms is frontend-only, will not be sent to backend
       terms: new FormControl(false, Validators.requiredTrue),
     }, { validators: this.passwordMatchValidator });
   }
 
   onSubmit() {
     if (this.registerForm.valid) {
-      this.authService.register(this.registerForm.value).subscribe({
+      const dataToSend = {
+        username: this.registerForm.value.username,
+        email: this.registerForm.value.email,
+        password: this.registerForm.value.password
+      };
+      console.log('Sending data:', dataToSend); // DEBUG
+
+      this.authService.register(dataToSend).subscribe({
         next: (res) => {
           console.log('Registration successful:', res);
           this.router.navigate(['login']);
@@ -43,6 +50,7 @@ export class RegisterComponent {
       console.log('Form is invalid');
     }
   }
+
 
   // Custom validator to check if passwords match
   private passwordMatchValidator(group: FormGroup): { [key: string]: boolean } | null {

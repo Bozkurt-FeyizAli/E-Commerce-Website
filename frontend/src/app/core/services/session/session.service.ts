@@ -8,6 +8,7 @@ export class SessionService {
   // Save a value to sessionStorage
   save(key: string, value: any): void {
     sessionStorage.setItem(key, JSON.stringify(value));
+    console.log(`Saved to sessionStorage: ${key} = ${value}`);
   }
 
   // Get a value from sessionStorage
@@ -29,6 +30,7 @@ export class SessionService {
   // Special method to save token
   saveToken(token: string): void {
     sessionStorage.setItem('token', token);
+    console.log(`Token saved to sessionStorage: ${token}`);
   }
 
   // Special method to get token

@@ -1,3 +1,4 @@
+import { CategoryService } from './../../category/service/category.service';
 import { Injectable } from '@angular/core';
 import { Observable, catchError, forkJoin, map, of, throwError } from 'rxjs';
 import { Product } from '@model/product';
@@ -13,8 +14,9 @@ import { environment } from '@env/environment';
 })
 export class ProductService {
   private apiUrl = environment.apiUrl;
+  ;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private categoryService: CategoryService) {}
 
   // ✅ 1️⃣ Get all products
   getProducts(): Observable<Product[]> {
@@ -42,7 +44,7 @@ export class ProductService {
 
   // ✅ 3️⃣ Get categories (tamamlandı)
   getCategories(): Observable<Category[]> {
-    return this.http.get<Category[]>(`${this.apiUrl}/categories`).pipe(
+    return this.http.get<Category[]>(`${this.apiUrl}/category`).pipe(
       catchError((error) => {
         console.error('API Error (getCategories):', error);
         return of([]);
@@ -67,7 +69,7 @@ export class ProductService {
   // ✅ 6️⃣ Filter by categoryId (numeric ID bazlı)
   getProductsByCategoryId(categoryId: number): Observable<Product[]> {
     return this.http
-      .get<Product[]>(`${this.apiUrl}/categories/${categoryId}/products`)
+      .get<Product[]>(`${this.apiUrl}/category/${categoryId}/products`)
       .pipe(catchError(this.handleError));
   }
 

@@ -47,15 +47,18 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   loadCategories(): void {
-    this.productService.getCategories().subscribe({
-      next: (categories) => {
-        this.categories = categories.map(c => c.name);
-      },
-      error: (err) => {
+    this.productService.getCategories().pipe(
+      catchError(err => {
         console.error('Kategori yükleme hatası:', err);
-      }
+        return of([]);  // Boş dön, UI crash etmesin
+      }),
+      takeUntil(this.destroy$)
+    ).subscribe(categories => {
+      this.categories = categories.map(c => c.name);
+      this.cdr.detectChanges();  // UI'yi güncelle
     });
   }
+
 
 
   loadProducts(): void {

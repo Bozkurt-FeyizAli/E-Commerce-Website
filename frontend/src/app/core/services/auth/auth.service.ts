@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { environment } from '@env/environment';
 import { SessionService } from 'app/core/services/session/session.service';
 
@@ -16,7 +17,19 @@ export class AuthService {
   constructor(private http: HttpClient, private sessionService: SessionService) {}
 
   login(credentials: { email: string; password: string }): Observable<any> {
-    return this.http.post(`${this.apiUrl}/login`, credentials);
+    const params = new HttpParams()
+      .set('email', credentials.email)
+      .set('password', credentials.password);
+    return this.http.post<{ accessToken: string; refreshToken: string }>(
+      `${this.apiUrl}/login`,
+      null,
+      { params }
+    ).pipe(
+      tap(response => {
+        this.sessionService.saveToken(response.accessToken);  // sadece accessToken
+      })
+    )
+
   }
 
   register(userDto: any): Observable<any> {
@@ -24,16 +37,15 @@ export class AuthService {
   }
 
   logout(): void {
-    this.sessionService.clear();  // ✅ Oturumu tamamen temizler
+    this.sessionService.clear();  // ✅ Oturumu temizle
   }
 
   isLoggedIn(): boolean {
     if (typeof window === 'undefined') {
-      return false; // SSR sırasında false dön
+      return false;
     }
     return !!this.sessionService.getToken();
   }
-
 
   getToken(): string | null {
     return this.sessionService.getToken();
