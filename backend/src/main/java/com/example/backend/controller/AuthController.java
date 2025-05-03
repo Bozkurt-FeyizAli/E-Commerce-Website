@@ -40,4 +40,12 @@ public class AuthController {
         userService.logout(refreshToken);
         return ResponseEntity.ok("Logged out successfully.");
     }
+
+    @GetMapping("/me")
+public ResponseEntity<UserDto> getCurrentUser(@RequestHeader("Authorization") String authHeader) {
+    String token = authHeader.replace("Bearer ", "");
+    UserDto user = userService.getUserFromToken(token);
+    return ResponseEntity.ok(user);
+}
+
 }

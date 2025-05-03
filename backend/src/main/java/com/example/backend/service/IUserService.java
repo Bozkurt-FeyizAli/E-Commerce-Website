@@ -14,4 +14,5 @@ public interface IUserService {
     UserDto getUserById(Long id);
     List<UserDto> getAllActiveUsers();
     void logout(String refreshToken);
+    UserDto getUserFromToken(String token);
 }

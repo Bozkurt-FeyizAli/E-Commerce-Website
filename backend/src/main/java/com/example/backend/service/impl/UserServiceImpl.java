@@ -185,5 +185,14 @@ public void logout(String refreshToken) {
     refreshTokenService.delete(token);
 }
 
+    @Override
+    public UserDto getUserFromToken(String token) {
+        String username = jwtService.extractUsername(token);
+        User user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found."));
+
+        return mapToDto(user);
+    }
+
 
 }
