@@ -1,67 +1,123 @@
-<div class="bolt-container product-detail">
-  <div class="bolt-grid">
-    <!-- Sol taraf: Ürün Görseli -->
-    <div class="bolt-col-6">
-      <div class="product-image-wrapper">
-        <img [src]="product?.mainImageUrl" [alt]="product?.name" class="product-main-image" />
-      </div>
+<!-- Product Detail Component Template -->
+<div class="product-detail-container" *ngIf="!loading && !error && product">
+  <!-- Left side: Product Images -->
+  <div class="product-images-container">
+    <!-- Main image display -->
+    <div class="main-image-container">
+      <img
+        [src]="product.mainImageUrl"
+        [alt]="product.name"
+        class="main-image"
+        (error)="handleImageError($event)"
+        loading="lazy">
     </div>
 
-    <!-- Sağ taraf: Ürün Bilgileri -->
-    <div class="bolt-col-6">
-      <h2 class="product-name">{{ product?.name }}</h2>
-      <p class="product-category">{{ product?.category?.name }}</p>
-
-      <div class="product-rating">
-        <span *ngFor="let star of [1,2,3,4,5]" class="star" [class.filled]="star <= (product?.ratingAverage ?? 0)">
-          ★
-        </span>
-        <span class="rating-number">({{ product?.ratingAverage }})</span>
-      </div>
-
-      <p class="product-description">{{ product?.description }}</p>
-
-      <div class="product-price">
-        <span *ngIf="product?.discountPercentage; else normalPrice">
-          <span class="old-price">{{ product?.price | currency }}</span>
-          <span class="discounted-price">
-            {{
-              ((product?.price ?? 0) * (1 - (product?.discountPercentage ?? 0) / 100)) | currency
-            }}
-          </span>
-          <span class="discount-tag">-{{ product?.discountPercentage }}%</span>
-        </span>
-        <ng-template #normalPrice>
-          <span class="price">{{ product?.price | currency }}</span>
-        </ng-template>
-      </div>
-
-      <p class="stock" [ngClass]="{ 'in-stock': (product?.stock ?? 0) > 0, 'out-of-stock': (product?.stock ?? 0) === 0 }">
-        {{ (product?.stock ?? 0) > 0 ? 'In Stock' : 'Out of Stock' }}
-      </p>
-
+    <!-- Thumbnail gallery -->
+    <div class="image-gallery" *ngIf="productImages.length > 0">
       <button
-        class="bolt-btn bolt-btn--primary"
-        [disabled]="product?.stock === 0"
-        (click)="onAdd()">
-        Add to Cart
+        class="thumbnail-container"
+        *ngFor="let image of productImages"
+        [class.active]="image.imageUrl === product.mainImageUrl"
+        (click)="product.mainImageUrl = image.imageUrl">
+        <img
+          [src]="image.imageUrl"
+          [alt]="product.name + ' thumbnail'"
+          class="thumbnail-image"
+          (error)="handleImageError($event)"
+          loading="lazy">
       </button>
     </div>
   </div>
 
-  <!-- Ürün Detayları & Yorumlar -->
-  <div class="bolt-tabs">
-    <input type="radio" name="tabs" id="tab1" checked />
-    <label for="tab1">Product Details</label>
-    <input type="radio" name="tabs" id="tab2" />
-    <label for="tab2">Reviews</label>
-
-    <div class="tab-content" id="content1">
-      <p>{{ product?.productDetails }}</p>
+  <!-- Right side: Product Info -->
+  <div class="product-info-container">
+    <!-- Product name and category -->
+    <div class="product-header">
+      <h1 class="product-name">{{ product.name }}</h1>
+      <span class="product-category">{{ product.category?.name }}</span>
     </div>
-    <div class="tab-content" id="content2">
-      <!-- Reviews component veya liste -->
-      <app-review-list [productId]="product?.id"></app-review-list>
+
+    <!-- Rating -->
+    <div class="rating-container" *ngIf="product.ratingAverage">
+      <span class="stars" role="img" [attr.aria-label]="'Product rating: ' + product.ratingAverage + ' out of 5 stars'">
+        <span class="star" *ngFor="let star of [1,2,3,4,5]">
+          <span class="star-fill" [style.width.%]="getStarFillPercentage(star, product.ratingAverage)"></span>
+        </span>
+      </span>
+      <span class="rating-value">{{ product.ratingAverage | number:'1.1-1' }}</span>
+    </div>
+
+    <!-- Description -->
+    <p class="product-description" *ngIf="product.description">{{ product.description }}</p>
+
+    <!-- Price information -->
+    <div class="price-container">
+      <div class="price-wrapper">
+        <ng-container *ngIf="product.discountPercentage; else regularPrice">
+          <div class="price-discount-container">
+            <span class="original-price">{{ product.price | currency }}</span>
+            <span class="discounted-price">{{ getDiscountedPrice(product.price, product.discountPercentage) | currency }}</span>
+          </div>
+          <span class="discount-badge">{{ product.discountPercentage }}% OFF</span>
+        </ng-container>
+        <ng-template #regularPrice>
+          <span class="current-price">{{ product.price | currency }}</span>
+        </ng-template>
+      </div>
+    </div>
+
+    <!-- Stock status -->
+    <div class="stock-container">
+      <ng-container *ngIf="product.stock > 0; else outOfStock">
+        <span class="in-stock" [class.low-stock]="product.stock < 10">
+          {{ product.stock < 10 ? 'Low Stock: ' + product.stock + ' left' : 'In Stock' }}
+        </span>
+      </ng-container>
+      <ng-template #outOfStock>
+        <span class="out-of-stock">Out of Stock</span>
+      </ng-template>
+    </div>
+
+    <!-- Add to cart button -->
+    <button
+      class="bolt-btn primary-btn add-to-cart-btn"
+      [disabled]="product.stock <= 0 || !product.isActive"
+      (click)="onAdd()">
+      Add to Cart
+    </button>
+  </div>
+</div>
+
+<!-- Loading state -->
+<div class="loading-container" *ngIf="loading">
+  <p>Loading product details...</p>
+</div>
+
+<!-- Error state -->
+<div class="error-container" *ngIf="error">
+  <p>{{ error }}</p>
+  <button class="bolt-btn" (click)="retry()">Retry</button>
+  <button class="bolt-btn secondary" (click)="goBack()">Go Back</button>
+</div>
+
+<!-- Tabbed section -->
+<div class="product-tabs-container" *ngIf="!loading && !error && product">
+  <div class="tabs">
+    <input type="radio" id="tab1" name="product-tabs" checked>
+    <label for="tab1" class="tab-label">Product Details</label>
+    <div class="tab-content">
+      <div class="product-details" *ngIf="product.productDetails">
+        {{ product.productDetails }}
+      </div>
+      <div class="no-details" *ngIf="!product.productDetails">
+        No detailed information available for this product.
+      </div>
+    </div>
+
+    <input type="radio" id="tab2" name="product-tabs">
+    <label for="tab2" class="tab-label">Reviews</label>
+    <div class="tab-content">
+      <app-review-list [productId]="product.id"></app-review-list>
     </div>
   </div>
 </div>

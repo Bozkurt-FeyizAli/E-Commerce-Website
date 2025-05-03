@@ -1,7 +1,7 @@
 import {
   MatCommonModule
-} from "./chunk-EB54UMWH.js";
-import "./chunk-7P5WSSQN.js";
+} from "./chunk-QXOJIRFW.js";
+import "./chunk-Y2IV3LYH.js";
 import {
   DomSanitizer
 } from "./chunk-NRO5QWPU.js";
@@ -41,10 +41,10 @@ import {
   ɵɵprojection,
   ɵɵprojectionDef
 } from "./chunk-Z67EBTI5.js";
+import "./chunk-6Q4RANH6.js";
 import {
   forkJoin
 } from "./chunk-FFZIAYYX.js";
-import "./chunk-6Q4RANH6.js";
 import {
   Subscription,
   catchError,
@@ -57,7 +57,7 @@ import {
   throwError
 } from "./chunk-CXCX2JKZ.js";
 
-// node_modules/@angular/material/fesm2022/icon-registry-BRgH4K8p.mjs
+// node_modules/@angular/material/fesm2022/icon-registry-B2IMBfNA.mjs
 var policy;
 function getPolicy() {
   if (policy === void 0) {

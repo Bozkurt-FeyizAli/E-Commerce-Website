@@ -1,3 +1,4 @@
+import { AuthService } from 'app/core/services/auth/auth.service';
 import { CategoryService } from './../../category/service/category.service';
 import { Injectable } from '@angular/core';
 import { Observable, catchError, forkJoin, map, of, throwError } from 'rxjs';
@@ -16,8 +17,12 @@ export class ProductService {
   private apiUrl = environment.apiUrl;
   ;
 
-  constructor(private http: HttpClient, private categoryService: CategoryService) {}
+  constructor(private http: HttpClient, private categoryService: CategoryService, private authService: AuthService) {}
 
+
+  isLoggedIn(): boolean {
+    return this.authService.isLoggedIn();
+  }
   // ✅ 1️⃣ Get all products
   getProducts(): Observable<Product[]> {
     return this.http.get<Product[]>(`${this.apiUrl}/products`).pipe(

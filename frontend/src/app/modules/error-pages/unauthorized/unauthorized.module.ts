@@ -10,7 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
   ],
   imports: [
     CommonModule,
-    MatIconModule
+    MatIconModule // Ensure MatIconModule is correctly imported
   ]
 })
 export class UnauthorizedModule { }

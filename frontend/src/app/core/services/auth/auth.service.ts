@@ -26,9 +26,11 @@ export class AuthService {
       { params }
     ).pipe(
       tap(response => {
-        this.sessionService.saveToken(response.accessToken);  // sadece accessToken
+        this.sessionService.saveToken(response.accessToken);  // accessToken
+        this.sessionService.save('refreshToken', response.refreshToken);  // refreshToken
       })
     )
+
 
   }
 
@@ -37,8 +39,19 @@ export class AuthService {
   }
 
   logout(): void {
-    this.sessionService.clear();  // ✅ Oturumu temizle
+    const refreshToken = this.sessionService.get('refreshToken');
+    if (refreshToken) {
+      this.http.post(`${this.apiUrl}/logout`, null, {
+        params: new HttpParams().set('refreshToken', String(refreshToken))
+      }).subscribe({
+        next: () => console.log('Logged out from server'),
+        error: err => console.error('Logout failed', err)
+      });
+    }
+    this.sessionService.clear();  // Frontend tarafını temizle
   }
+
+
 
   isLoggedIn(): boolean {
     if (typeof window === 'undefined') {
@@ -57,4 +70,6 @@ export class AuthService {
     const payload = JSON.parse(atob(token.split('.')[1]));
     return payload.role;
   }
+
+
 }
