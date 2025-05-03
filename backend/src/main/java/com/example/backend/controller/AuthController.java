@@ -48,4 +48,12 @@ public ResponseEntity<UserDto> getCurrentUser(@RequestHeader("Authorization") St
     return ResponseEntity.ok(user);
 }
 
+// @GetMapping("/profile")
+// public ResponseEntity<UserDto> getProfile(@RequestHeader("Authorization") String authHeader) {
+//     String token = authHeader.replace("Bearer ", "");
+//     UserDto user = userService.getUserFromToken(token);  // Kullanıcının detayları burada dönüyor
+//     return ResponseEntity.ok(user);
+// }
+
+
 }

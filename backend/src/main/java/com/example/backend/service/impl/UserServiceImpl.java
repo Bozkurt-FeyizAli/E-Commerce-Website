@@ -1,5 +1,6 @@
 package com.example.backend.service.impl;
 
+import com.example.backend.dto.PasswordChangeDto;
 import com.example.backend.dto.UserDto;
 import com.example.backend.entity.RefreshToken;
 import com.example.backend.entity.User;
@@ -16,6 +17,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -192,6 +194,52 @@ public void logout(String refreshToken) {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found."));
 
         return mapToDto(user);
+    }
+
+    @Override
+    public UserDto getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+
+        User user = userRepository.findByEmail(currentUsername)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found."));
+
+        return mapToDto(user);
+    }
+
+    @Override
+    public void updatePassword(PasswordChangeDto passwordChangeDto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+
+        User user = userRepository.findByEmail(currentUsername)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found."));
+
+        if (!passwordEncoder.matches(passwordChangeDto.getOldPassword(), user.getPassword())) {
+            throw new RuntimeException("Incorrect old password.");
+        }
+
+        user.setPassword(passwordEncoder.encode(passwordChangeDto.getNewPassword()));
+        userRepository.save(user);
+    }
+
+    @Override
+    public String updateProfileImage(MultipartFile file) {
+        // Implement your logic to upload the file and return the URL
+        // For example, you can use AWS S3, Google Cloud Storage, etc.
+        // Here, we are just returning a dummy URL for demonstration purposes
+        String imageUrl = "https://example.com/profile-images/" + file.getOriginalFilename();
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+
+        User user = userRepository.findByEmail(currentUsername)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found."));
+
+        user.setProfileImageUrl(imageUrl);
+        userRepository.save(user);
+
+        return imageUrl;
     }
 
 
