@@ -10,6 +10,7 @@ import { environment } from '../../../shared/environments/environment';
   providedIn: 'root'
 })
 export class CartService {
+
   private apiUrl = `${environment.apiUrl}/cart`;
   private cartItems = new BehaviorSubject<CartItem[]>([]);
   currentCart$ = this.cartItems.asObservable();
@@ -98,5 +99,8 @@ export class CartService {
     ));
   }
 
+  getCartItems(): Observable<CartItem[]> {
+    return this.cartItems.asObservable();
+  }
 
 }

@@ -1,185 +1,275 @@
-<div class="min-h-screen bg-gray-50">
-  <!-- Search Header -->
-  <div class="bg-white shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-      <div class="flex items-center space-x-4">
-        <div class="flex-1 relative">
-          <input
-            type="text"
-            placeholder="Search products..."
-            class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200"
-            [(ngModel)]="searchQuery"
-            (input)="onSearch()"
-          />
-        </div>
-        <button
-          class="p-2 text-gray-600 hover:text-gray-900 sm:hidden"
-          (click)="toggleFilters()"
-          aria-label="Toggle filters"
+<!-- Product List Header -->
+<div class="product-list-header">
+  <div class="search-container">
+    <!-- Search -->
+    <div class="search-input-wrapper">
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
+        (keyup.enter)="onSearch()"
+        placeholder="Search products..."
+        class="search-input"
+        aria-label="Search products"
+      >
+      <button
+        (click)="onSearch()"
+        class="search-button"
+        aria-label="Search"
+      >
+        <i class="fa fa-search"></i>
+      </button>
+    </div>
+
+    <!-- View & Filter Controls -->
+    <div class="view-controls">
+      <button
+        [class.active]="viewMode === 'grid'"
+        (click)="viewMode = 'grid'"
+        class="view-button"
+        aria-label="Grid view"
+      >
+        <i class="fa fa-th"></i>
+      </button>
+      <button
+        [class.active]="viewMode === 'list'"
+        (click)="viewMode = 'list'"
+        class="view-button"
+        aria-label="List view"
+      >
+        <i class="fa fa-list"></i>
+      </button>
+      <button
+        (click)="toggleFilters()"
+        class="filter-button"
+        [class.active]="showFilters"
+        aria-label="Toggle filters"
+        [attr.aria-expanded]="showFilters"
+      >
+        <i class="fa fa-filter"></i>
+        <span>Filters</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Filters Section -->
+<div *ngIf="showFilters" class="filters-section" [@expandCollapse]>
+  <!-- Categories -->
+  <div class="filter-group">
+    <h3 class="filter-title">Categories</h3>
+    <div class="filter-options">
+      <label
+        *ngFor="let category of categories"
+        class="checkbox-label"
+      >
+        <input
+          type="checkbox"
+          [checked]="filters.category.includes(category.name)"
+          (change)="toggleFilter('category', category.name)"
         >
-          <mat-icon>filter_list</mat-icon>
-        </button>
-        <div class="hidden sm:flex items-center space-x-4">
-          <button
-            class="p-2"
-            [class.text-indigo-600]="viewMode === 'grid'"
-            [class.text-gray-400]="viewMode === 'list'"
-            (click)="viewMode = 'grid'"
-            aria-label="Grid view"
-          >
-            <mat-icon>grid_view</mat-icon>
-          </button>
-          <button
-            class="p-2"
-            [class.text-indigo-600]="viewMode === 'list'"
-            [class.text-gray-400]="viewMode === 'grid'"
-            (click)="viewMode = 'list'"
-            aria-label="List view"
-          >
-            <mat-icon>list</mat-icon>
-          </button>
-        </div>
+        <span class="checkbox-custom"></span>
+        <span>{{category.name}}</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Brands -->
+  <div class="filter-group">
+    <h3 class="filter-title">Brands</h3>
+    <div class="filter-options">
+      <label
+        *ngFor="let brand of brands"
+        class="checkbox-label"
+      >
+        <input
+          type="checkbox"
+          [checked]="filters.brand.includes(brand)"
+          (change)="toggleFilter('brand', brand)"
+        >
+        <span class="checkbox-custom"></span>
+        <span>{{brand}}</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Price Range -->
+  <div class="filter-group">
+    <h3 class="filter-title">Price Range</h3>
+    <div class="price-slider">
+      <input
+        type="range"
+        min="0"
+        max="1000"
+        [(ngModel)]="filters.priceRange[0]"
+        (change)="applyFilters()"
+        aria-label="Minimum price"
+      >
+      <input
+        type="range"
+        min="0"
+        max="1000"
+        [(ngModel)]="filters.priceRange[1]"
+        (change)="applyFilters()"
+        aria-label="Maximum price"
+      >
+      <div class="price-range-display">
+        <span>${{filters.priceRange[0]}}</span>
+        <span>${{filters.priceRange[1]}}</span>
       </div>
     </div>
   </div>
 
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div class="flex flex-col sm:flex-row gap-8">
-      <!-- Filters Sidebar -->
-      <div class="w-full sm:w-64 flex-shrink-0" [class.hidden]="!showFilters" [class.sm:block]="true">
-        <div class="bg-white rounded-lg shadow p-6">
-          <h2 class="text-lg font-semibold mb-4">Filters</h2>
+  <!-- In Stock -->
+  <div class="filter-group">
+    <label class="checkbox-label">
+      <input
+        type="checkbox"
+        [(ngModel)]="filters.inStock"
+        (change)="applyFilters()"
+      >
+      <span class="checkbox-custom"></span>
+      <span>In Stock Only</span>
+    </label>
+  </div>
 
-          <!-- Categories -->
-          <div class="mb-6">
-            <h3 class="font-medium mb-2">Categories</h3>
-            <div class="space-y-2">
-              <label *ngFor="let category of categories" class="flex items-center">
-                <input
-                  type="checkbox"
-                  [checked]="filters.category.includes(category)"
-                  (change)="toggleFilter('category', category)"
-                  class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                />
-                <span class="ml-2 text-sm">{{ category }}</span>
-              </label>
-            </div>
-          </div>
+  <!-- Actions -->
+  <div class="filter-actions">
+    <button
+      (click)="applyFilters()"
+      class="apply-filters-btn"
+    >
+      Apply Filters
+    </button>
+    <button
+      (click)="filters = {category: [], brand: [], priceRange: [0, 1000], inStock: false}; applyFilters()"
+      class="clear-filters-btn"
+    >
+      Clear Filters
+    </button>
+  </div>
+</div>
 
-          <!-- Brands -->
-          <div class="mb-6">
-            <h3 class="font-medium mb-2">Brands</h3>
-            <div class="space-y-2">
-              <label *ngFor="let brand of brands" class="flex items-center">
-                <input
-                  type="checkbox"
-                  [checked]="filters.brand.includes(brand)"
-                  (change)="toggleFilter('brand', brand)"
-                  class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                />
-                <span class="ml-2 text-sm">{{ brand }}</span>
-              </label>
-            </div>
-          </div>
+<!-- Loading State -->
+<div *ngIf="loading" class="loading-container">
+  <div class="spinner"></div>
+  <p>Loading products...</p>
+</div>
 
-          <!-- Price Range -->
-          <div class="mb-6">
-            <h3 class="font-medium mb-2">Price Range</h3>
-            <div class="space-y-2">
-              <input
-                type="range"
-                [min]="0"
-                [max]="1000"
-                [(ngModel)]="filters.priceRange[1]"
-                (input)="applyFilters()"
-                class="w-full"
-              />
-              <div class="flex justify-between text-sm text-gray-600">
-                <span>$0</span>
-                <span>${{ filters.priceRange[1] }}</span>
-              </div>
-            </div>
-          </div>
+<!-- Error State -->
+<div *ngIf="error && !loading" class="error-container">
+  <div class="error-message">
+    <i class="fa fa-exclamation-circle"></i>
+    <p>{{error}}</p>
+  </div>
+  <button
+    (click)="retryLoading()"
+    class="retry-btn"
+  >
+    Try Again
+  </button>
+</div>
 
-          <!-- Stock Status -->
-          <div>
-            <label class="flex items-center">
-              <input
-                type="checkbox"
-                [(ngModel)]="filters.inStock"
-                (change)="applyFilters()"
-                class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-              />
-              <span class="ml-2 text-sm">In Stock Only</span>
-            </label>
-          </div>
+<!-- No Products Found -->
+<div *ngIf="!loading && !error && filteredProducts.length === 0" class="no-products-container">
+  <div class="no-products-message">
+    <i class="fa fa-search"></i>
+    <p>No products found matching your criteria.</p>
+  </div>
+</div>
+
+<!-- Products Grid View -->
+<div
+  *ngIf="!loading && !error && filteredProducts.length > 0 && viewMode === 'grid'"
+  class="products-grid"
+  role="list"
+  aria-label="Product List"
+>
+  <div
+    *ngFor="let product of filteredProducts; trackBy: trackByProductId"
+    class="product-card"
+    role="listitem"
+    [class.out-of-stock]="product.stock === 0"
+  >
+    <!-- Image -->
+    <div class="product-image-container">
+      <img
+        [src]="product.mainImageUrl || '/assets/images/placeholder.png'"
+        [alt]="product.name"
+        class="product-image"
+        (error)="handleImageError($event)"
+      >
+      <div
+        *ngIf="product.discountPercentage && product.discountPercentage > 0"
+        class="discount-badge"
+      >
+        -{{product.discountPercentage}}%
+      </div>
+      <div
+        *ngIf="product.stock === 0"
+        class="out-of-stock-badge"
+      >
+        Out of Stock
+      </div>
+    </div>
+
+    <!-- Details -->
+    <div class="product-details">
+      <div class="product-category" *ngIf="product.category?.name">
+        {{product.category?.name}}
+      </div>
+      <h3 class="product-name">{{product.name}}</h3>
+      <div
+        *ngIf="product.ratingAverage"
+        class="product-rating"
+        [attr.aria-label]="'Rating: ' + product.ratingAverage + ' out of 5'"
+      >
+        <div class="stars-container">
+          <div
+            class="stars-filled"
+            [style.width.%]="(product.ratingAverage / 5) * 100"
+          ></div>
+        </div>
+        <span class="rating-value">{{product.ratingAverage.toFixed(1)}}</span>
+      </div>
+      <div class="product-price-container">
+        <div
+          *ngIf="product.discountPercentage && product.discountPercentage > 0"
+          class="product-price-discount"
+        >
+          <span class="original-price">{{product.price | currency}}</span>
+          <span class="discounted-price">
+            {{(product.price - (product.price * product.discountPercentage / 100)) | currency}}
+          </span>
+        </div>
+        <div
+          *ngIf="!product.discountPercentage || product.discountPercentage === 0"
+          class="product-price"
+        >
+          {{product.price | currency}}
         </div>
       </div>
-
-      <!-- Product Grid -->
-      <div class="flex-1">
-        <!-- Loading -->
-        <div *ngIf="loading" class="text-center py-10">
-          <mat-spinner diameter="50"></mat-spinner>
-          <p class="mt-2 text-gray-500">Loading products...</p>
-        </div>
-
-        <!-- Error -->
-        <div *ngIf="error" class="text-center py-10 text-red-600">
-          <p>{{ error }}</p>
-          <button mat-raised-button color="primary" (click)="retryLoading()">Retry</button>
-        </div>
-
-        <!-- Products -->
-        <div *ngIf="!loading && !error">
-          <div [class]="viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'">
-            <div *ngFor="let product of filteredProducts" class="bg-white rounded-lg shadow overflow-hidden">
-              <div>
-                <img
-                  [src]="product.mainImageUrl"
-                  [alt]="product.name"
-                  class="w-full h-48 object-cover"
-                  (error)="handleImageError($event)"
-                />
-              </div>
-              <div class="p-4">
-                <div class="text-sm text-indigo-600 mb-1">
-                  <ng-container *ngIf="product.category; else noCategory">
-                    {{ product.category.name }}
-                  </ng-container>
-                  <ng-template #noCategory>
-                    Uncategorized
-                  </ng-template>
-                </div>
-
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">
-                  {{ product.name }}
-                </h3>
-                <p class="text-sm text-gray-500 mb-4" *ngIf="viewMode === 'list'">
-                  {{ product.description }}
-                </p>
-                <div class="flex items-center justify-between">
-                  <span class="text-lg font-bold text-gray-900">
-                    {{ product.price | currency:'TRY':'symbol':'1.2-2' }}
-                  </span>
-                  <button
-                    mat-raised-button
-                    color="primary"
-                    (click)="addToCart(product)"
-                    [disabled]="product.stock <= 0"
-                  >
-                    Add to Cart
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- No Products -->
-            <div *ngIf="filteredProducts.length === 0" class="text-center w-full py-10 text-gray-500">
-              <p>No products match your filters.</p>
-            </div>
-          </div>
-        </div>
+      <div class="stock-status" [class.in-stock]="product.stock > 0">
+        <i class="fa" [class.fa-check-circle]="product.stock > 0" [class.fa-times-circle]="product.stock === 0"></i>
+        <span *ngIf="product.stock > 0">In Stock ({{product.stock}})</span>
+        <span *ngIf="product.stock === 0">Out of Stock</span>
+      </div>
+      <div class="product-actions">
+        <button
+          class="add-to-cart-btn"
+          [disabled]="product.stock === 0"
+          (click)="addToCart(product)"
+          aria-label="Add to cart"
+        >
+          <i class="fa fa-shopping-cart"></i>
+          Add to Cart
+        </button>
+        <a
+          [routerLink]="['/products', product.id]"
+          class="view-details-btn"
+          aria-label="View product details"
+        >
+          Details
+        </a>
       </div>
     </div>
   </div>

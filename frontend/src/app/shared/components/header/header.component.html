@@ -1,23 +1,55 @@
 <header class="header">
+  <!-- Logo -->
   <div class="logo">
-    <a routerLink="/">E-Commerce</a>
+    <a [routerLink]="['/']">
+      <img src="assets/logo.png" alt="E-Commerce Logo" class="logo-image" />
+    </a>
   </div>
-  <nav>
-    <a routerLink="/products">Products</a>
-    <ng-container *ngIf="!authService.isLoggedIn()">
-      <a routerLink="/cart">Cart</a>
-    </ng-container>
 
-
-    <ng-container *ngIf="authService.isLoggedIn()">
-      <a *ngIf="role === 'ADMIN'" routerLink="/admin">Admin Panel</a>
-      <a *ngIf="role === 'SELLER'" routerLink="/seller">Seller Dashboard</a>
-      <span>Welcome, {{ username }}</span>
-      <button (click)="logout()">Logout</button>
-    </ng-container>
-
-    <ng-container *ngIf="!authService.isLoggedIn()">
-      <a routerLink="/auth/login">Login</a>
-    </ng-container>
+  <!-- Navigation links -->
+  <nav class="nav-menu">
+    <a class="nav-item" [routerLink]="['/']">Home</a>
+    <a class="nav-item" [routerLink]="['/products']">Products</a>
+    <a class="nav-item" [routerLink]="['/categories']">Categories</a>
+    <a class="nav-item" [routerLink]="['/cart']">
+      Cart
+      <span class="cart-icon" aria-label="Cart">
+        <i class="fa fa-shopping-cart"></i>
+        <span class="badge">{{ cartItemCount }}</span>
+      </span>
+    </a>
   </nav>
+
+  <!-- Auth section -->
+  <div class="auth-buttons">
+    <!-- If user is NOT logged in -->
+    <div *ngIf="!authService.isLoggedIn()">
+      <a class="nav-item" [routerLink]="['/auth/login']" aria-label="Login">Login</a>
+      <a class="nav-item" [routerLink]="['/auth/register']" aria-label="Register">Register</a>
+    </div>
+
+    <!-- If user is logged in -->
+    <div *ngIf="authService.isLoggedIn()" class="user-menu">
+      <!-- Show username here -->
+      <div class="dropdown">
+        <button class="dropdown-toggle" aria-label="User menu">
+          {{ username }}
+          <i class="fa fa-caret-down"></i>
+        </button>
+        <div class="dropdown-menu">
+          <a class="dropdown-item" [routerLink]="['/user']">Profile</a>
+          <a class="dropdown-item" [routerLink]="['/orders']">Orders</a>
+          <button class="dropdown-item" (click)="logout()" aria-label="Logout">Logout</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Spinner placeholder for loading user info -->
+  <!-- <div class="spinner">Loading user info...</div> -->
+
+  <!-- Hamburger menu for mobile (placeholder) -->
+  <div class="hamburger-menu">
+    <i class="fa fa-bars" aria-label="Open menu"></i>
+  </div>
 </header>

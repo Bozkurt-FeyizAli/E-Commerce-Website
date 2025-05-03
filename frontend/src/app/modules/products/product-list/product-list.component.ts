@@ -4,6 +4,8 @@ import { CartService } from '../../cart/service/cart.service';
 import { Product } from '../../../shared/models/product';
 import { catchError, finalize, of, Subject, takeUntil, tap } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { AuthService } from 'app/core/services/auth/auth.service';
+import { Category } from '@model/category';
 
 @Component({
   selector: 'app-product-list',
@@ -21,13 +23,13 @@ export class ProductListComponent implements OnInit, OnDestroy {
   viewMode: 'grid' | 'list' = 'grid';
 
   // Opsiyonel: backend'den dinamik çekebilirsin ama şimdilik statik
-  categories = ['Electronics', 'Fashion', 'Home & Living', 'Sports', 'Books'];
-  brands = ['Apple', 'Samsung', 'Nike', 'Adidas', 'Sony'];
+  categories: Category[] = [];
+  brands = ['Apple', 'Samsung', 'Nike', 'Adidas', 'Sony'];;
 
   filters = {
     category: [] as string[],
     brand: [] as string[],
-    priceRange: [0, 1000] as [number, number],
+    priceRange: [0, 100000] as [number, number],
     inStock: false
   };
   filteredProducts: Product[] = [];
@@ -38,7 +40,8 @@ export class ProductListComponent implements OnInit, OnDestroy {
     private productService: ProductService,
     private cartService: CartService,
     private snackBar: MatSnackBar,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -48,15 +51,17 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
   loadCategories(): void {
     this.productService.getCategories().pipe(
-      catchError(err => {
-        console.error('Kategori yükleme hatası:', err);
-        return of([]);  // Boş dön, UI crash etmesin
+      tap((categories) => {
+        this.categories = categories;
+        this.filters.category = [];
+        this.cdr.detectChanges();
+      }),
+      catchError((err) => {
+        console.error('Category loading error:', err);
+        return of([]);
       }),
       takeUntil(this.destroy$)
-    ).subscribe(categories => {
-      this.categories = categories.map(c => c.name);
-      this.cdr.detectChanges();  // UI'yi güncelle
-    });
+    ).subscribe();
   }
 
 
@@ -88,6 +93,13 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   addToCart(product: Product): void {
+    if (!this.authService.isLoggedIn()) {
+      this.snackBar.open('Please log in to add items to your cart.', 'Dismiss', {
+        duration: 3000,
+        panelClass: ['error-snackbar']
+      });
+      return;
+    }
     if (!product.stock) return;
 
     this.cartService.addToCart(product).subscribe({
