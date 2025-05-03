@@ -13,4 +13,5 @@ public interface IUserService {
     void deleteUser(Long id);
     UserDto getUserById(Long id);
     List<UserDto> getAllActiveUsers();
+    void logout(String refreshToken);
 }

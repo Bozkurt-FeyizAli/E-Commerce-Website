@@ -1,10 +1,13 @@
 package com.example.backend.service.impl;
 
 import com.example.backend.dto.ProductDto;
+import com.example.backend.dto.ProductImageDto;
 import com.example.backend.entity.Category;
 import com.example.backend.entity.Product;
+import com.example.backend.entity.ProductImage;
 import com.example.backend.entity.User;
 import com.example.backend.repository.CategoryRepository;
+import com.example.backend.repository.ProductImageRepository;
 import com.example.backend.repository.ProductRepository;
 import com.example.backend.repository.UserRepository;
 import com.example.backend.service.IProductService;
@@ -24,6 +27,7 @@ public class ProductServiceImpl implements IProductService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+    private final ProductImageRepository productImageRepository;
 
     @Override
     public ProductDto createProduct(ProductDto dto) {
@@ -102,4 +106,18 @@ public class ProductServiceImpl implements IProductService {
                 .createdAt(product.getCreatedAt())
                 .build();
     }
+
+    @Override
+    public List<ProductImageDto> getProductImages(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        if (!product.getIsActive()) throw new RuntimeException("Product is inactive.");
+
+        List<ProductImage> images = productImageRepository.findByProductId(product.getId());
+        return images.stream()
+                .map(image -> new ProductImageDto(image.getId(), image.getImageUrl(), image.getProduct().getId()))
+                .collect(Collectors.toList());
+    }
+
 }

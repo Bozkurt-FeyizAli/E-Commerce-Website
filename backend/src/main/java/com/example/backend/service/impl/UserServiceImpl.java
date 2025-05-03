@@ -178,4 +178,12 @@ public void deleteUser(Long id) {
                 .build();
     }
 
+    @Override
+public void logout(String refreshToken) {
+    RefreshToken token = refreshTokenService.findByToken(refreshToken)
+            .orElseThrow(() -> new ResourceNotFoundException("Refresh token not found"));
+    refreshTokenService.delete(token);
+}
+
+
 }

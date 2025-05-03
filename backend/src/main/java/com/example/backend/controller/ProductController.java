@@ -1,6 +1,7 @@
 package com.example.backend.controller;
 
 import com.example.backend.dto.ProductDto;
+import com.example.backend.dto.ProductImageDto;
 import com.example.backend.service.IProductService;
 
 import jakarta.validation.Valid;
@@ -46,6 +47,12 @@ public ResponseEntity<ProductDto> createProduct(@Valid @RequestBody ProductDto p
     public ResponseEntity<List<ProductDto>> getAllActiveProducts() {
         List<ProductDto> products = productService.getAllActiveProducts();
         return ResponseEntity.ok(products);
+    }
+
+    @GetMapping("/{id}/images")
+    public ResponseEntity<List<ProductImageDto>> getProductImages(@PathVariable Long id) {
+        List<ProductImageDto> images = productService.getProductImages(id);
+        return ResponseEntity.ok(images);
     }
 
 
