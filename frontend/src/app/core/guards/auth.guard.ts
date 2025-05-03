@@ -8,9 +8,10 @@ import { SessionService } from 'app/core/services/session/session.service';
 export class AuthGuard implements CanActivate {
   constructor(private sessionService: SessionService, private router: Router) {}
 
-  canActivate(p0: unknown, p1: unknown): boolean {
+  canActivate(): boolean {
     const token = this.sessionService.getToken();
-    if (token) {
+    const user = this.sessionService.get('user');
+    if (token && user) {
       return true;
     } else {
       this.router.navigate(['/auth/login']);

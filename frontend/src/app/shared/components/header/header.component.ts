@@ -21,21 +21,25 @@ export class HeaderComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Get user info if logged in
     if (this.authService.isLoggedIn()) {
       const token = this.authService.getToken();
       if (token) {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        this.username = payload.sub || payload.username;
-        this.role = payload.role || null;
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          this.username = payload.sub || payload.username;
+          this.role = payload.role || null;
+        } catch (e) {
+          console.error('Failed to parse token', e);
+        }
       }
-
-      // Subscribe to cart item count
-    this.cartService.getCartItems().subscribe(items => {
-      this.cartItemCount = items.length; // or sum quantities if needed
-    });
     }
+
+    // Always listen to cart items (even if not logged in)
+    this.cartService.getCartItems().subscribe(items => {
+      this.cartItemCount = items.length;
+    });
   }
+
 
   logout() {
     this.authService.logout();

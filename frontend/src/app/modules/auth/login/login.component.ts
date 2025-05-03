@@ -28,14 +28,8 @@ export class LoginComponent {
   onSubmit() {
     if (this.loginForm.valid) {
       this.authService.login(this.loginForm.value).subscribe({
-        next: (response: { token: string; user: any }) => {
-          console.log('Login başarılı:', response);
-
-          // ✅ TOKEN ve USER SESSION’A KAYDEDİLİYOR
-          this.sessionService.saveToken(response.token);
-          this.sessionService.save('user', response.user);  // opsiyonel: backend user dönerse
-
-          // Başarıyla giriş → yönlendir
+        next: () => {
+          console.log('Login başarılı');
           this.router.navigate(['/home']);
         },
         error: (err: any) => {
@@ -45,6 +39,7 @@ export class LoginComponent {
       });
     }
   }
+
 
   onRegister() {
     this.router.navigate(['auth/register']);

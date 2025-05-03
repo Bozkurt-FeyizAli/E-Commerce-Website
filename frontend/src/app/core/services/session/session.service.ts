@@ -5,46 +5,37 @@ import { Injectable } from '@angular/core';
 })
 export class SessionService {
 
-  // Save a value to sessionStorage
   save(key: string, value: any): void {
-    sessionStorage.setItem(key, JSON.stringify(value));
-    console.log(`Saved to sessionStorage: ${key} = ${value}`);
+    localStorage.setItem(key, JSON.stringify(value));
+    console.log(`Saved to localStorage: ${key} = ${value}`);
   }
 
-  // Get a value from sessionStorage
   get<T>(key: string): T | null {
-    const data = sessionStorage.getItem(key);
+    const data = localStorage.getItem(key);
     return data ? JSON.parse(data) as T : null;
   }
 
-  // Remove a specific key
   remove(key: string): void {
-    sessionStorage.removeItem(key);
+    localStorage.removeItem(key);
   }
 
-  // Clear the entire sessionStorage
   clear(): void {
-    sessionStorage.clear();
+    localStorage.clear();
   }
 
-  // Special method to save token
   saveToken(token: string): void {
-    sessionStorage.setItem('token', token);
-    console.log(`Token saved to sessionStorage: ${token}`);
+    localStorage.setItem('token', token);
+    console.log(`Token saved to localStorage: ${token}`);
   }
 
-  // Special method to get token
   getToken(): string | null {
     if (typeof window === 'undefined') {
-      // Server tarafındaysak sessionStorage kullanma
       return null;
     }
-    return sessionStorage.getItem('token');
+    return localStorage.getItem('token');
   }
 
-
-  // Special method to remove token
   removeToken(): void {
-    sessionStorage.removeItem('token');
+    localStorage.removeItem('token');
   }
 }

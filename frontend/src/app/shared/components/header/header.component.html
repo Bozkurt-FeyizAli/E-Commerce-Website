@@ -32,20 +32,37 @@
       <!-- Show username here -->
       <div class="dropdown">
         <button class="dropdown-toggle" aria-label="User menu">
-          {{ username }}
+          {{ username || 'User' }}
           <i class="fa fa-caret-down"></i>
         </button>
         <div class="dropdown-menu">
+          <!-- Profile & Orders -->
           <a class="dropdown-item" [routerLink]="['/user']">Profile</a>
           <a class="dropdown-item" [routerLink]="['/orders']">Orders</a>
+
+          <!-- Admin section -->
+          <div *ngIf="role === 'ADMIN'">
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" [routerLink]="['/admin/dashboard']">Admin Dashboard</a>
+            <a class="dropdown-item" [routerLink]="['/admin/sellers']">Manage Sellers</a>
+            <a class="dropdown-item" [routerLink]="['/admin/products']">Manage Products</a>
+          </div>
+
+          <!-- Seller section -->
+          <div *ngIf="role === 'SELLER'">
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" [routerLink]="['/seller/dashboard']">Seller Dashboard</a>
+            <a class="dropdown-item" [routerLink]="['/seller/products']">My Products</a>
+            <a class="dropdown-item" [routerLink]="['/seller/orders']">My Orders</a>
+          </div>
+
+          <!-- Logout -->
+          <div class="dropdown-divider"></div>
           <button class="dropdown-item" (click)="logout()" aria-label="Logout">Logout</button>
         </div>
       </div>
     </div>
   </div>
-
-  <!-- Spinner placeholder for loading user info -->
-  <!-- <div class="spinner">Loading user info...</div> -->
 
   <!-- Hamburger menu for mobile (placeholder) -->
   <div class="hamburger-menu">

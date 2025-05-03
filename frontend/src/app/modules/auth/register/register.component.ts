@@ -46,6 +46,7 @@ export class RegisterComponent {
           console.error('Registration failed:', err);
         }
       });
+      this.router.navigate(['login']);
     } else {
       console.log('Form is invalid');
     }

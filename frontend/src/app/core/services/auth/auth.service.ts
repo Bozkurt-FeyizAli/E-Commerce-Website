@@ -16,13 +16,13 @@ export class AuthService {
   private apiUrl = `${environment.apiUrl}/auth`;
 
   constructor(private http: HttpClient, private sessionService: SessionService) {
-    // Eğer token varsa user bilgisini yüklemeye çalış:
     const token = this.sessionService.getToken();
     if (token) {
-      const user = this.getCurrentUserFromApi();
-      user.subscribe({
+      // Sayfa yenilenince user'ı tekrar yükle
+      this.getCurrentUserFromApi().subscribe({
         next: (user) => {
           this.currentUserSubject.next(user);
+          this.sessionService.save('user', user);  // ✅ user'ı session'a kaydet
         },
         error: () => {
           this.sessionService.clear();
@@ -74,7 +74,7 @@ export class AuthService {
       });
     }
     this.sessionService.clear();
-    this.currentUserSubject.next(null);  // ✅ Logout sonrası sıfırla
+    this.currentUserSubject.next(null);  // ✅ logout sonrası sıfırla
   }
 
   isLoggedIn(): boolean {
@@ -86,19 +86,26 @@ export class AuthService {
   }
 
   getUserRole(): string | null {
-    const token = this.sessionService.getToken();
-    if (!token) return null;
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.role;
+    const user = this.sessionService.get<User>('user');
+    return user?.roles || null;  // ✅ `roles` değil `role`
   }
 
   getCurrentUserFromApi(): Observable<User> {
     return this.http.get<User>(`${this.apiUrl}/me`).pipe(
       tap(user => {
-        this.currentUserSubject.next(user); // güncelle
+        this.currentUserSubject.next(user);
       })
     );
   }
 
-
+  private loadCurrentUser(): void {
+    this.getCurrentUserFromApi().subscribe({
+      next: (user) => console.log('User loaded', user),
+      error: (err) => {
+        console.error('Failed to load user', err);
+        this.sessionService.clear();
+        this.currentUserSubject.next(null);
+      }
+    });
+  }
 }

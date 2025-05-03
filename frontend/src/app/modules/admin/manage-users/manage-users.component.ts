@@ -60,6 +60,6 @@ export class ManageUsersComponent implements OnInit {
   }
 
   getUserRoles(user: User): string {
-    return user.roles.map(role => role).join(', ');
+    return user.roles
     }
 }

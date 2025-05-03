@@ -1,1 +1,67 @@
-<p>user works!</p>
+<div class="user-profile">
+  <!-- User Info Section -->
+  <div class="profile-info">
+    <div class="profile-picture">
+      <img
+        [src]="user?.profileImageUrl "
+        [alt]="user ? user.firstName + ' ' + user.lastName : 'Profile Picture'"
+      />
+    </div>
+
+    <div class="user-details">
+      <h2>{{ user?.firstName }} {{ user?.lastName }}</h2>
+      <p><strong>Email:</strong> {{ user?.email }}</p>
+      <p><strong>Phone:</strong> {{ user?.phoneNumber || '-' }}</p>
+      <p><strong>Address:</strong></p>
+      <p class="address">
+        {{ user?.addressLine }}, {{ user?.city }},
+        {{ user?.state }} {{ user?.postalCode }},
+        {{ user?.country }}
+      </p>
+
+      <button class="bolt-btn edit-btn" [routerLink]="['/user/edit']" aria-label="Edit Profile">
+        Edit Profile
+      </button>
+    </div>
+  </div>
+
+  <!-- Order History Section -->
+  <div class="order-history">
+    <h3>Your Orders</h3>
+
+    <!-- Placeholder for loading spinner -->
+    <!-- <div *ngIf="loadingOrders">Loading your orders...</div> -->
+
+    <div *ngIf="orders && orders.length > 0; else noOrders">
+      <div class="order-card" *ngFor="let order of orders">
+        <div class="order-info">
+          <p><strong>Order ID:</strong> {{ order.id }}</p>
+          <p><strong>Date:</strong> {{ order.orderDate | date: 'medium' }}</p>
+          <p><strong>Status:</strong> {{ order.status }}</p>
+          <p><strong>Total:</strong> {{ order.totalAmount | currency }}</p>
+        </div>
+        <button
+          class="bolt-btn details-btn"
+          [routerLink]="['/orders', order.id]"
+          aria-label="View Order Details"
+        >
+          View Details
+        </button>
+      </div>
+    </div>
+
+    <ng-template #noOrders>
+      <p>You have no orders yet.</p>
+    </ng-template>
+  </div>
+
+  <!-- Account Actions Section -->
+  <div class="account-actions">
+    <button class="bolt-btn change-password-btn" [routerLink]="['/user/change-password']" aria-label="Change Password">
+      Change Password
+    </button>
+    <button class="bolt-btn logout-btn" (click)="logout()" aria-label="Logout">
+      Logout
+    </button>
+  </div>
+</div>

@@ -8,6 +8,7 @@ export interface User {
   firstName: string;
   lastName: string;
   phoneNumber: string;
+  profileImageUrl: string;
   addressLine: string;
   city: string;
   state: string;
@@ -15,7 +16,7 @@ export interface User {
   country: string;
   email: string;
   password?: string; // passwordHash yerine password
-  roles: Role[]; // array olarak (gelişmiş yapı)
+  roles: string; // array olarak (gelişmiş yapı)
   isBanned: boolean;
   isActive: boolean;
   createdAt: Date;
