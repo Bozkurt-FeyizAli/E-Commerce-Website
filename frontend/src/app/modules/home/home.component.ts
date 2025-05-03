@@ -6,6 +6,7 @@ import { Category } from '@model/category';
 import { CategoryService } from 'app/modules/category/service/category.service';
 import { CartService } from 'app/modules/cart/service/cart.service';
 import { HomeService } from './service/home.service';
+import { AuthService } from 'app/core/services/auth/auth.service';
 
 @Component({
   selector: 'app-home',
@@ -14,6 +15,7 @@ import { HomeService } from './service/home.service';
   styleUrls: ['./home.component.css'],
 })
 export class HomeComponent {
+
   featuredProducts: Product[] = [];
   categories: Category[] = [];
 
@@ -23,7 +25,8 @@ export class HomeComponent {
     private fb: FormBuilder,
     private homeService: HomeService,
     private categoryService: CategoryService,
-    private cartService: CartService
+    private cartService: CartService,
+    private authService: AuthService
   ) {
     this.newsletterForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]]
@@ -49,6 +52,14 @@ export class HomeComponent {
   }
 
   addToCart(product: Product) {
+    if (!this.authService.isLoggedIn()) {
+      alert('Lütfen önce giriş yapın.');
+      return;
+    }
+    if (product.stock <= 0) {
+      alert('Bu ürün stokta yok.');
+      return;
+    }
     this.cartService.addToCart(product);
   }
 
@@ -59,5 +70,11 @@ export class HomeComponent {
       this.newsletterForm.reset();
     }
   }
+
+  handleImageError($event: ErrorEvent) {
+    const target = $event.target as HTMLImageElement;
+    target.src = 'assets/images/product-placeholder.png';
+    target.onerror = null; // Prevents infinite loop if the placeholder image fails to load
+    }
 
 }

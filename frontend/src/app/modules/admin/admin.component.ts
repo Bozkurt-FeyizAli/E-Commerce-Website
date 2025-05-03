@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { User } from '@model/user';
 import { AuthService } from 'app/core/services/auth/auth.service';
+import { AdminService } from './service/admin.service';
 
 @Component({
   selector: 'app-admin',
@@ -12,10 +13,15 @@ export class AdminComponent implements OnInit {
 
   users: User[] = [];
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private adminService: AdminService) {}
 
   ngOnInit() {
-    this.users = this.authService.getUsers();
+    this.loadUsers();
+  }
+  loadUsers() {
+    this.adminService.getAllUsers().subscribe(users => {
+      this.users = users;
+    });
   }
 
   deleteUser(user: User) {

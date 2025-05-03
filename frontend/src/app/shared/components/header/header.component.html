@@ -24,8 +24,7 @@
   <div class="auth-buttons">
     <!-- If user is NOT logged in -->
     <div *ngIf="!authService.isLoggedIn()">
-      <a class="nav-item" [routerLink]="['/auth/login']" aria-label="Login">Login</a>
-      <a class="nav-item" [routerLink]="['/auth/register']" aria-label="Register">Register</a>
+      <a class="nav-item btn btn-success" [routerLink]="['/auth/login']" aria-label="Login">Login</a>
     </div>
 
     <!-- If user is logged in -->

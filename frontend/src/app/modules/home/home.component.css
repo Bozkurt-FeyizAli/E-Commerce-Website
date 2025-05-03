@@ -1,5 +1,215 @@
-.home-page {
+/* Hero Section */
+.hero {
+  position: relative;
+  background: url('/assets/images/hero-banner.jpg') center/cover no-repeat;
+  color: white;
+  text-align: center;
+  padding: 120px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hero::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+.hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: 700px;
+}
+.hero h1 {
+  font-size: 3rem;
+  margin-bottom: 20px;
+}
+.hero p {
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+}
+.hero-btn {
+  background: #4f46e5;
+  color: white;
+  padding: 12px 30px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background 0.3s;
+}
+.hero-btn:hover {
+  background: #4338ca;
+}
+
+/* Section Titles */
+section h2 {
+  text-align: center;
+  margin: 40px 0 20px;
+  font-size: 2rem;
+}
+
+/* Featured Products */
+.products-grid {
+  display: grid;
+  gap: 20px;
+  padding: 0 20px 40px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+.product-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.product-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+.product-info {
+  padding: 15px;
+  text-align: center;
+}
+.product-info h3 {
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+}
+.price {
+  color: #4f46e5;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+.rating {
+  font-size: 0.9rem;
+  color: #f59e0b;
+  margin-bottom: 10px;
+}
+.view-btn {
+  background: #4f46e5;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.view-btn:hover {
+  background: #4338ca;
+}
+
+/* Categories */
+.categories-grid {
+  display: grid;
+  gap: 20px;
+  padding: 0 20px 40px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+.category-card {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.category-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.category-card img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+}
+.category-card h3 {
+  padding: 15px;
+  font-size: 1.1rem;
+}
+
+/* Why Choose Us */
+.why-choose-us {
+  padding: 40px 20px;
+  background: #f9fafb;
+  text-align: center;
+}
+.features {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  margin-top: 30px;
+}
+.feature {
+  padding: 20px;
+}
+.feature i {
+  font-size: 2.5rem;
+  color: #4f46e5;
+  margin-bottom: 10px;
+}
+.feature h3 {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
+
+/* Newsletter */
+.newsletter {
+  background: #f3f4f6;
+  text-align: center;
+  padding: 40px 20px;
+}
+.newsletter-form {
+  margin-top: 20px;
+  display: flex;
+  max-width: 500px;
+  margin-inline: auto;
+}
+.newsletter-form input[type="email"] {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 5px 0 0 5px;
+  outline: none;
+}
+.newsletter-form input.invalid {
+  border-color: #dc2626;
+}
+.newsletter-form button {
+  padding: 12px 20px;
+  border: none;
+  background: #4f46e5;
+  color: white;
+  border-radius: 0 5px 5px 0;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.newsletter-form button:hover {
+  background: #4338ca;
+}
+
+/* Loading Spinner */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+.spinner {
+  border: 4px solid rgba(0,0,0,0.1);
+  border-left-color: #4f46e5;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 10px;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }

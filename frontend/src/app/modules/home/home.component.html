@@ -1,35 +1,112 @@
-<div class="home-page">
-  <!-- 1️⃣ CATEGORY GRID -->
-  <app-category-grid></app-category-grid>
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero-content">
+    <h1>Welcome to MyShop!</h1>
+    <p>Best deals on electronics, fashion, and more.</p>
+    <a routerLink="/products" class="hero-btn">Shop Now</a>
+  </div>
+</section>
 
-  <!-- 2️⃣ FEATURED PRODUCTS -->
-  <app-featured-products></app-featured-products>
+<!-- Featured Products Section -->
+<section class="featured-products">
+  <h2>Featured Products</h2>
 
-  <!-- 3️⃣ NEW ARRIVALS -->
-  <app-new-arrivals></app-new-arrivals>
+  <!-- Loading Spinner -->
+  <div *ngIf="featuredProducts.length === 0" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading featured products...</p>
+  </div>
 
-  <!-- 4️⃣ Newsletter Signup -->
-  <div class="newsletter py-8 max-w-3xl mx-auto">
-    <h2 class="text-2xl font-bold text-gray-900 mb-4 text-center">Subscribe to Our Newsletter</h2>
-    <form [formGroup]="newsletterForm" (ngSubmit)="onNewsletterSubmit()" class="flex flex-col sm:flex-row gap-4">
-      <input
-        type="email"
-        formControlName="email"
-        placeholder="Enter your email"
-        class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-indigo-500 focus:border-indigo-500"
-      />
-      <button
-        mat-raised-button
-        color="primary"
-        type="submit"
-        [disabled]="newsletterForm.invalid"
-        class="w-full sm:w-auto"
+  <div class="products-grid">
+    <div
+      *ngFor="let product of featuredProducts"
+      class="product-card"
+      [routerLink]="'/products/' + product.id"
+    >
+      <img
+        [src]="product.mainImageUrl "
+        [alt]="product.name"
+        class="product-image"
+        (error)="handleImageError($event)"
       >
-        Subscribe
-      </button>
-    </form>
-    <div *ngIf="newsletterForm.controls['email'].invalid && newsletterForm.controls['email'].touched" class="text-red-500 mt-2 text-center">
-      Please enter a valid email address.
+      <div class="product-info">
+        <h3>{{product.name}}</h3>
+        <p class="price">{{product.price | currency}}</p>
+        <div class="rating" *ngIf="product.ratingAverage">
+          ⭐ {{product.ratingAverage.toFixed(1)}}/5
+        </div>
+        <button class="view-btn">View Details</button>
+      </div>
     </div>
   </div>
-</div>
+</section>
+
+<!-- Categories Section -->
+<section class="categories">
+  <h2>Shop by Category</h2>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="categories.length === 0" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading categories...</p>
+  </div>
+
+  <div class="categories-grid">
+    <div
+      *ngFor="let category of categories"
+      class="category-card"
+      [routerLink]="'/categories/' + category.id"
+    >
+      <img
+        [src]="category.imageUrl || '/assets/images/category-placeholder.png'"
+        [alt]="category.name"
+        (error)="handleImageError($event)"
+      >
+      <h3>{{category.name}}</h3>
+    </div>
+  </div>
+</section>
+
+<!-- Why Choose Us Section -->
+<section class="why-choose-us">
+  <h2>Why Choose Us</h2>
+  <div class="features">
+    <div class="feature">
+      <i class="fa fa-truck"></i>
+      <h3>Free Shipping</h3>
+      <p>On all orders over $50</p>
+    </div>
+    <div class="feature">
+      <i class="fa fa-headset"></i>
+      <h3>24/7 Support</h3>
+      <p>Always here to help</p>
+    </div>
+    <div class="feature">
+      <i class="fa fa-shield-alt"></i>
+      <h3>Secure Payments</h3>
+      <p>Your data is safe with us</p>
+    </div>
+    <div class="feature">
+      <i class="fa fa-sync-alt"></i>
+      <h3>Easy Returns</h3>
+      <p>30-day return policy</p>
+    </div>
+  </div>
+</section>
+
+<!-- Newsletter Section -->
+<section class="newsletter">
+  <h2>Join Our Newsletter</h2>
+  <p>Get exclusive offers and the latest news.</p>
+  <form [formGroup]="newsletterForm" (ngSubmit)="onNewsletterSubmit()" class="newsletter-form">
+    <label for="email" class="sr-only">Email Address</label>
+    <input
+      type="email"
+      formControlName="email"
+      id="email"
+      placeholder="Enter your email"
+      [class.invalid]="newsletterForm.controls['email'].invalid && newsletterForm.controls['email'].touched"
+    >
+    <button type="submit" [disabled]="newsletterForm.invalid">Subscribe</button>
+  </form>
+</section>

@@ -1,20 +1,36 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { environment } from '@env/environment';
 import { SessionService } from 'app/core/services/session/session.service';
+import { User } from '../../../shared/models/user';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  getUsers(): import("../../../shared/models/user").User[] {
-    throw new Error('Method not implemented.');
-  }
+  private currentUserSubject = new BehaviorSubject<User | null>(null);
+  currentUser$ = this.currentUserSubject.asObservable();
+
   private apiUrl = `${environment.apiUrl}/auth`;
 
-  constructor(private http: HttpClient, private sessionService: SessionService) {}
+  constructor(private http: HttpClient, private sessionService: SessionService) {
+    // Eğer token varsa user bilgisini yüklemeye çalış:
+    const token = this.sessionService.getToken();
+    if (token) {
+      const user = this.getCurrentUserFromApi();
+      user.subscribe({
+        next: (user) => {
+          this.currentUserSubject.next(user);
+        },
+        error: () => {
+          this.sessionService.clear();
+          this.currentUserSubject.next(null);
+        }
+      });
+    }
+  }
 
   login(credentials: { email: string; password: string }): Observable<any> {
     const params = new HttpParams()
@@ -26,12 +42,21 @@ export class AuthService {
       { params }
     ).pipe(
       tap(response => {
-        this.sessionService.saveToken(response.accessToken);  // accessToken
-        this.sessionService.save('refreshToken', response.refreshToken);  // refreshToken
+        this.sessionService.saveToken(response.accessToken);
+        this.sessionService.save('refreshToken', response.refreshToken);
+        const user = this.getCurrentUserFromApi();
+        user.subscribe(user => {
+          this.sessionService.save('user', user);  // ✅ User bilgisini session'a kaydet
+          this.sessionService.save('role', user.roles);  // ✅ User rolünü session'a kaydet
+          this.sessionService.save('username', user.username);  // ✅ User adını session'a kaydet
+          this.sessionService.save('email', user.email);  // ✅ User e-posta adresini session'a kaydet
+          this.sessionService.save('id', user.id);  // ✅ User ID'sini session'a kaydet
+          this.sessionService.save('isLoggedIn', true);  // ✅ Kullanıcının giriş yapıp yapmadığını session'a kaydet
+        });
+        this.sessionService.save('isLoggedIn', true);  // ✅ Kullanıcının giriş yapıp yapmadığını session'a kaydet
+
       })
-    )
-
-
+    );
   }
 
   register(userDto: any): Observable<any> {
@@ -48,15 +73,11 @@ export class AuthService {
         error: err => console.error('Logout failed', err)
       });
     }
-    this.sessionService.clear();  // Frontend tarafını temizle
+    this.sessionService.clear();
+    this.currentUserSubject.next(null);  // ✅ Logout sonrası sıfırla
   }
 
-
-
   isLoggedIn(): boolean {
-    if (typeof window === 'undefined') {
-      return false;
-    }
     return !!this.sessionService.getToken();
   }
 
@@ -69,6 +90,14 @@ export class AuthService {
     if (!token) return null;
     const payload = JSON.parse(atob(token.split('.')[1]));
     return payload.role;
+  }
+
+  getCurrentUserFromApi(): Observable<User> {
+    return this.http.get<User>(`${this.apiUrl}/me`).pipe(
+      tap(user => {
+        this.currentUserSubject.next(user); // güncelle
+      })
+    );
   }
 
 

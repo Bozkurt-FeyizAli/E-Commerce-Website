@@ -8,7 +8,7 @@ import { SessionService } from 'app/core/services/session/session.service';
 export class AuthGuard implements CanActivate {
   constructor(private sessionService: SessionService, private router: Router) {}
 
-  canActivate(): boolean {
+  canActivate(p0: unknown, p1: unknown): boolean {
     const token = this.sessionService.getToken();
     if (token) {
       return true;

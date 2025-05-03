@@ -1,3 +1,4 @@
+import { AuthService } from './../../../core/services/auth/auth.service';
 import { Injectable } from '@angular/core';
 import { Product } from '@model/product';
 import { Observable, BehaviorSubject, throwError, of, forkJoin } from 'rxjs';
@@ -15,11 +16,23 @@ export class CartService {
   private cartItems = new BehaviorSubject<CartItem[]>([]);
   currentCart$ = this.cartItems.asObservable();
 
-  constructor(private http: HttpClient) {
-    this.loadInitialCart();
-  }
+  constructor(private http: HttpClient, private authService: AuthService) {
+    // Login durumu değiştiğinde sepete göre aksiyon al
+    this.authService.currentUser$.subscribe(user => {
+      if (user) {
+        this.loadInitialCart();
+      } else {
+        this.cartItems.next([]); // logout oldun, sepeti sıfırla
+      }
+    });
+}
+
 
   private loadInitialCart(): void {
+    if (!this.authService.isLoggedIn()) {
+      this.cartItems.next([]);
+      return;
+    }
     this.http.get<{ items: CartItem[] }>(`${this.apiUrl}/1`).pipe(
       map(response => response.items),
       catchError(() => of([]))
