@@ -59,33 +59,37 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public Map<String, String> login(String email, String password) {
+public Map<String, String> login(String email, String password) {
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found.4"));
-        //System.out.println("Found user: " + user.getEmail() + ", password: " + user.getPassword());
+    User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found."));
 
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new RuntimeException("Incorrect password.");
-        }
-
-        if (!user.getIsActive()) {
-            throw new RuntimeException("User is inactive.");
-        }
-
-        String role = user.getRoles().stream().findFirst()
-                .map(r -> r.getName())
-                .orElse("USER");
-
-        String accessToken = jwtService.generateToken(email, role);
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(email);
-        // System.out.println("Generated refresh token: " + refreshToken.getToken());
-        // System.out.println("Generated access token: " + accessToken);
-        return Map.of(
-                "accessToken", accessToken,
-                "refreshToken", refreshToken.getToken()
-        );
+    if (!passwordEncoder.matches(password, user.getPassword())) {
+        throw new RuntimeException("Incorrect password.");
     }
+
+    if (!user.getIsActive()) {
+        throw new RuntimeException("User is inactive.");
+    }
+
+    String role = user.getRoles().stream().findFirst()
+            .map(r -> r.getName())
+            .orElse("USER");
+
+    String accessToken = jwtService.generateToken(email, role);
+
+    // ✅ Eğer daha önceki refresh token varsa, onu expire et
+    refreshTokenService.invalidateUserTokens(email);
+
+    // ✅ Yeni refresh token üret
+    RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(email);
+
+    return Map.of(
+            "accessToken", accessToken,
+            "refreshToken", newRefreshToken.getToken()
+    );
+}
+
 
     @Override
     public Map<String, String> refreshToken(String refreshToken) {

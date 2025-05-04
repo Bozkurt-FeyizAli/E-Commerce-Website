@@ -17,13 +17,17 @@ public class RefreshToken {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private User user;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = false)
     private String token;
 
     @Column(nullable = false)
     private Instant expiryDate;
+
+    @Column(name = "is_active", nullable = false)
+    private Boolean active = false;
 }

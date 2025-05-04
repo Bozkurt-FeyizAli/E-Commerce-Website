@@ -30,6 +30,7 @@ public class RefreshTokenService {
                 .user(user)
                 .token(UUID.randomUUID().toString())
                 .expiryDate(Instant.now().plusSeconds(604800)) // 7 gün geçerli
+                .active(true) // Yeni token aktif
                 .build();
 
         return refreshTokenRepository.save(refreshToken);
@@ -48,7 +49,14 @@ public class RefreshTokenService {
   }
 
     public void delete(RefreshToken token) {
-        refreshTokenRepository.delete(token);
-        
+        invalidateUserTokens(token.getUser().getEmail());
+
+    }
+
+    public void invalidateUserTokens(String email) {
+        userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        refreshTokenRepository.inActivateByUserEmail(email);
     }
 }
