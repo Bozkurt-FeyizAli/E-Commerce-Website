@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { CartService } from '../service/cart.service';
 import { CartItem } from '@model/cart-item';
 import { Product } from '@model/product';
@@ -17,6 +17,8 @@ export class CartViewComponent implements OnInit {
   totalPrice$!: Observable<number>;
   loading = true;
 total$: Observable<string | number> | Subscribable<string | number> | Promise<string | number> | undefined;
+@Input() items: { item: CartItem; product: Product }[] = [];
+
 
   constructor(
     private cartService: CartService,

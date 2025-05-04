@@ -18,14 +18,17 @@ export class CartService {
   currentCart$ = this.cartItems.asObservable();
 
   constructor(private http: HttpClient, private authService: AuthService) {
-    // Login durumu değiştiğinde sepete göre aksiyon al
     this.authService.currentUser$.subscribe(user => {
-      if (user) {
+      console.log('🚦 [CartService] currentUser değişti:', user);
+      if (user && user.id) {
+        console.log('✅ User bulundu, loadInitialCart başlatılıyor');
         this.loadInitialCart();
       } else {
-        this.cartItems.next([]); // logout oldun, sepeti sıfırla
+        console.log('🚫 User null veya ID eksik, sepet sıfırlanıyor');
+        this.cartItems.next([]);
       }
     });
+
   }
 
   private loadInitialCart(): void {
@@ -34,18 +37,38 @@ export class CartService {
       return;
     }
 
-    const userId = this.authService.getUserId(); // ✅ ID’yi dinamik çek
+    const userId = this.authService.getUserId();
     if (!userId) {
-      console.error('User ID bulunamadı!');
+      console.error('🚫 User ID bulunamadı!');
       this.cartItems.next([]);
       return;
     }
 
-    this.http.get<Cart>(`${this.apiUrl}/user/${userId}`).pipe(
-      map(response => response.items), // ✅ response.items olmalı
-      catchError(() => of([]))
-    ).subscribe(items => this.cartItems.next(items));
+    console.log('🔍 Cart yükleniyor, userId:', userId);
+
+    this.http.get<{ id: number }>(`${this.apiUrl}/user/${userId}`).pipe(
+      switchMap(cart => {
+        console.log('✅ Cart bulundu:', cart);
+        if (!cart?.id) {
+          console.error('🚫 Cart ID bulunamadı!');
+          return of([]); // Cart yoksa boş array dön
+        }
+        // 🛒 CartItem'ları çekiyoruz
+        return this.http.get<CartItem[]>(`${this.apiUrl}/${cart.id}/items`);
+      }),
+      catchError(err => {
+        console.error('🚫 Sepet çekme hatası:', err);
+        return of([]);
+      })
+    ).subscribe(items => {
+      console.log('🛒 Sepet yüklendi (items):', items);
+      this.cartItems.next(items);
+    });
   }
+
+
+
+
 
 
   addToCart(product: Product, quantity: number = 1): Observable<CartItem> {

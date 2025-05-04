@@ -5,7 +5,8 @@ export interface CartItem {
   cartId: number;
   productId: number;
   quantity: number;
-  priceWhenAdded: number; // DB'ye göre değiştirildi
-  product?: Product;
-  isActive: boolean; // camelCase'e dönüştü
+  priceWhenAdded: number;
+  isActive: boolean;
+  product: Product;
 }
+

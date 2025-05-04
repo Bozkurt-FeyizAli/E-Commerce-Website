@@ -3,7 +3,7 @@ import { CartService } from './service/cart.service';
 import { CartItem } from '@model/cart-item';
 import { Product } from '@model/product';
 import { Observable, forkJoin, of } from 'rxjs';
-import { map, switchMap, tap } from 'rxjs/operators';
+import { map, switchMap, tap, catchError } from 'rxjs/operators';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
@@ -29,14 +29,18 @@ export class CartComponent implements OnInit {
   private loadCart(): void {
     this.cartItems$ = this.cartService.currentCart$.pipe(
       switchMap(items => {
-        if (items.length === 0) {
+        if (!items || items.length === 0) {
           this.loading = false;
           return of([]);
         }
         return forkJoin(
           items.map(item =>
             this.cartService.getProductById(item.productId).pipe(
-              map(product => ({ item, product }))
+              map(product => ({ item, product })),
+              catchError(err => {
+                console.error('Ürün alınamadı:', err);
+                return of({ item, product: this.getPlaceholderProduct() });  // fallback
+              })
             )
           )
         );
@@ -46,7 +50,11 @@ export class CartComponent implements OnInit {
 
     this.totalPrice$ = this.cartItems$.pipe(
       map(items =>
-        items.reduce((total, entry) => total + (entry.item.quantity * entry.product.price), 0)
+        items.reduce((total, entry) => {
+          const quantity = entry.item.quantity ?? 1;
+          const price = entry.product.price ?? 0;
+          return total + (quantity * price);
+        }, 0)
       )
     );
   }
@@ -55,21 +63,30 @@ export class CartComponent implements OnInit {
     if (newQuantity < 1) return;
 
     this.cartService.updateQuantity(item.id, newQuantity).subscribe({
-      next: () => this.showSuccess('Quantity updated successfully'),
+      next: () => {
+        this.showSuccess('Quantity updated successfully');
+        this.loadCart();  // güncel listeyi yenile
+      },
       error: () => this.showError('Failed to update quantity')
     });
   }
 
   removeItem(itemId: number): void {
     this.cartService.removeFromCart(itemId).subscribe({
-      next: () => this.showSuccess('Item removed from cart'),
+      next: () => {
+        this.showSuccess('Item removed from cart');
+        this.loadCart();  // güncel listeyi yenile
+      },
       error: () => this.showError('Failed to remove item')
     });
   }
 
   clearCart(): void {
     this.cartService.clearCart().subscribe({
-      next: () => this.showSuccess('Cart cleared successfully'),
+      next: () => {
+        this.showSuccess('Cart cleared successfully');
+        this.loadCart();  // tamamen yenile
+      },
       error: () => this.showError('Failed to clear cart')
     });
   }
@@ -87,5 +104,21 @@ export class CartComponent implements OnInit {
 
   handleImageError(event: Event): void {
     (event.target as HTMLImageElement).src = 'assets/images/product-placeholder.png';
+  }
+
+  private getPlaceholderProduct(): Product {
+    return {
+      id: 0,
+      name: 'Unknown Product',
+      description: 'No details available',
+      price: 0,
+      stock: 0,
+      mainImageUrl: 'assets/images/product-placeholder.png',
+      discountPercentage: undefined,
+      ratingAverage: undefined,
+      category: { id: 0, name: 'Unknown Category' },
+      isActive: false,
+      createdAt: new Date()
+    };
   }
 }

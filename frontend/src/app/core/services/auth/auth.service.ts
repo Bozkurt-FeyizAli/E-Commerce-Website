@@ -11,6 +11,7 @@ import { User } from '../../../shared/models/user';
 })
 export class AuthService {
 
+
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   currentUser$ = this.currentUserSubject.asObservable();
 
@@ -111,7 +112,10 @@ export class AuthService {
   }
 
   getUserId(): number | null {
-    const user = this.sessionService.get<User>('user');
-    return user?.id || null;  // ✅ `id`'yi döndür
+    return this.currentUserSubject.getValue()?.id || null;
+  }
+
+  getCurrentUser(): User | null {
+    return this.currentUserSubject.getValue();
   }
 }
