@@ -5,13 +5,10 @@
     <p>Review your items and proceed to checkout.</p>
   </div>
 
-  <!-- Loading Spinner -->
-  <div *ngIf="loading" class="loading-overlay">
-    <mat-spinner diameter="50"></mat-spinner>
-  </div>
+  <!-- Cart Items or Loading Spinner -->
+  <ng-container *ngIf="cartItems$ | async as items; else loadingTemplate">
 
-  <!-- Empty Cart -->
-  <ng-container *ngIf="!(loading) && (cartItems$ | async) as items">
+    <!-- Empty Cart -->
     <div *ngIf="items.length === 0" class="empty-cart-message">
       <mat-icon class="empty-icon">remove_shopping_cart</mat-icon>
       <h3>Your cart is empty</h3>
@@ -39,14 +36,17 @@
       </div>
     </div>
 
-    <ng-container *ngIf="(cartItems$ | async) as items">
-      <div *ngIf="items.length === 0" class="empty-cart-message">
-        <!-- boş sepet -->
-      </div>
-      <div *ngIf="items.length > 0">
-        <app-cart-view [items]="items"></app-cart-view>
-      </div>
-    </ng-container>
+    <!-- Cart Items View -->
+    <div *ngIf="items.length > 0">
+      <app-cart-view [items]="items"></app-cart-view>
+    </div>
 
   </ng-container>
+
+  <!-- Loading Spinner Template -->
+  <ng-template #loadingTemplate>
+    <div class="loading-overlay">
+      <mat-spinner diameter="50"></mat-spinner>
+    </div>
+  </ng-template>
 </div>

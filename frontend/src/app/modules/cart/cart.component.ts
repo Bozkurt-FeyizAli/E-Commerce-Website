@@ -15,7 +15,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 export class CartComponent implements OnInit {
   cartItems$!: Observable<{ item: CartItem, product: Product }[]>;
   totalPrice$!: Observable<number>;
-  loading = true;
 
   constructor(
     private cartService: CartService,
@@ -30,7 +29,6 @@ export class CartComponent implements OnInit {
     this.cartItems$ = this.cartService.currentCart$.pipe(
       switchMap(items => {
         if (!items || items.length === 0) {
-          this.loading = false;
           return of([]);
         }
         return forkJoin(
@@ -39,13 +37,12 @@ export class CartComponent implements OnInit {
               map(product => ({ item, product })),
               catchError(err => {
                 console.error('Ürün alınamadı:', err);
-                return of({ item, product: this.getPlaceholderProduct() });  // fallback
+                return of({ item, product: this.getPlaceholderProduct() });
               })
             )
           )
         );
-      }),
-      tap(() => this.loading = false)
+      })
     );
 
     this.totalPrice$ = this.cartItems$.pipe(
@@ -65,7 +62,7 @@ export class CartComponent implements OnInit {
     this.cartService.updateQuantity(item.id, newQuantity).subscribe({
       next: () => {
         this.showSuccess('Quantity updated successfully');
-        this.loadCart();  // güncel listeyi yenile
+        this.loadCart();
       },
       error: () => this.showError('Failed to update quantity')
     });
@@ -75,7 +72,7 @@ export class CartComponent implements OnInit {
     this.cartService.removeFromCart(itemId).subscribe({
       next: () => {
         this.showSuccess('Item removed from cart');
-        this.loadCart();  // güncel listeyi yenile
+        this.loadCart();
       },
       error: () => this.showError('Failed to remove item')
     });
@@ -85,7 +82,7 @@ export class CartComponent implements OnInit {
     this.cartService.clearCart().subscribe({
       next: () => {
         this.showSuccess('Cart cleared successfully');
-        this.loadCart();  // tamamen yenile
+        this.loadCart();
       },
       error: () => this.showError('Failed to clear cart')
     });
