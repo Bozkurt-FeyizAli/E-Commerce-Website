@@ -1,30 +1,93 @@
-<div *ngIf="loading">Loading dashboard...</div>
-<div *ngIf="error">{{ error }}</div>
-
-<div *ngIf="!loading && !error">
-  <h2>Admin Dashboard</h2>
-
-  <div class="stats-grid">
-    <div class="stat-card">
-      <h3>Total Users</h3>
-      <p>{{ stats.totalUsers }}</p>
-    </div>
-    <div class="stat-card">
-      <h3>Total Orders</h3>
-      <p>{{ stats.totalOrders }}</p>
-    </div>
-    <div class="stat-card">
-      <h3>Total Revenue</h3>
-      <p>{{ stats.totalRevenue | currency }}</p>
-    </div>
+<!-- dashboard.component.html -->
+<div class="dashboard-container">
+  <div class="header">
+    <h1>Welcome, {{ adminName }}</h1>
   </div>
 
-  <div *ngIf="(stats?.topProducts?.length ?? 0) > 0">
-    <h3>Top Selling Products</h3>
-    <ul>
-      <li *ngFor="let product of stats.topProducts">
-        {{ product.productName }} - {{ product.totalSold }} sold
-      </li>
-    </ul>
+  <div class="stats-grid">
+    <mat-card class="stat-card">
+      <mat-icon>people</mat-icon>
+      <div class="stat-content">
+        <h3>{{ stats?.totalUsers | number }}</h3>
+        <p>Total Users</p>
+      </div>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-icon>shopping_bag</mat-icon>
+      <div class="stat-content">
+        <h3>{{ stats?.totalProducts | number }}</h3>
+        <p>Total Products</p>
+      </div>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-icon>local_shipping</mat-icon>
+      <div class="stat-content">
+        <h3>{{ stats?.totalOrders | number }}</h3>
+        <p>Total Orders</p>
+      </div>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-icon>warning</mat-icon>
+      <div class="stat-content">
+        <h3>{{ stats?.openComplaints | number }}</h3>
+        <p>Open Complaints</p>
+      </div>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-icon>attach_money</mat-icon>
+      <div class="stat-content">
+        <h3>{{ stats?.totalRevenue | currency }}</h3>
+        <p>Total Revenue</p>
+      </div>
+    </mat-card>
+  </div>
+
+  <div class="content-grid">
+    <mat-card class="quick-actions">
+      <h2>Quick Actions</h2>
+      <div class="actions-grid">
+        <a *ngFor="let link of quickLinks"
+           [routerLink]="link.route"
+           mat-raised-button>
+          <mat-icon>{{ link.icon }}</mat-icon>
+          {{ link.title }}
+        </a>
+      </div>
+    </mat-card>
+
+    <mat-card class="recent-activity">
+      <h2>Recent Activity</h2>
+      <div class="activity-list">
+        <div *ngFor="let activity of recentActivities" class="activity-item">
+          <mat-icon [class]="getActivityIcon(activity.type)">
+            {{ getActivityIcon(activity.type) }}
+          </mat-icon>
+          <div class="activity-info">
+            <div class="activity-header">
+              <strong>{{ activity.type | formatActivityType }}</strong>
+              <span class="time">{{ activity.timestamp | timeAgo }}</span>
+            </div>
+            <p class="description">{{ activity.description }}</p>
+          </div>
+        </div>
+      </div>
+    </mat-card>
+
+    <mat-card class="performance-chart">
+      <h2>Sales Performance</h2>
+      <div class="chart-container">
+        <div style="display: block;">
+          <!-- <canvas baseChart
+        [data]="chartData"
+        [options]="chartOptions"
+        [type]="chartType">
+</canvas> -->
+        </div>
+      </div>
+    </mat-card>
   </div>
 </div>

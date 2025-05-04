@@ -1,12 +1,18 @@
-<div class="cart-container">
-  <h2 class="cart-title">Your Cart</h2>
+<div class="cart-overview-container">
+  <!-- Header -->
+  <div class="cart-header">
+    <h2>Your Shopping Cart</h2>
+    <p>Review your items and proceed to checkout.</p>
+  </div>
 
+  <!-- Loading Spinner -->
   <div *ngIf="loading" class="loading-overlay">
     <mat-spinner diameter="50"></mat-spinner>
   </div>
 
+  <!-- Empty Cart -->
   <ng-container *ngIf="!(loading) && (cartItems$ | async) as items">
-    <div *ngIf="items.length === 0" class="empty-cart">
+    <div *ngIf="items.length === 0" class="empty-cart-message">
       <mat-icon class="empty-icon">remove_shopping_cart</mat-icon>
       <h3>Your cart is empty</h3>
       <a mat-raised-button color="primary" routerLink="/products">
@@ -14,54 +20,28 @@
       </a>
     </div>
 
-    <div *ngIf="items.length > 0" class="cart-content">
-      <div class="cart-items">
-        <div *ngFor="let entry of items" class="cart-item">
-          <img [src]="entry.product.mainImageUrl || 'assets/images/product-placeholder.png'"
-               [alt]="entry.product.name"
-               class="product-image"
-               (error)="handleImageError($event)">
+    <!-- Cart Summary -->
+    <div *ngIf="items.length > 0" class="cart-summary-box">
+      <p><strong>Items in Cart:</strong> {{ items.length }}</p>
+      <p>
+        <strong>Total:</strong>
+        {{ totalPrice$ | async | currency:'TRY':'symbol':'1.2-2' }}
+      </p>
 
-          <div class="item-details">
-            <h3 class="product-name">{{ entry.product.name }}</h3>
-            <p class="product-price">{{ entry.product.price | currency:'TRY':'symbol':'1.2-2' }}</p>
-
-            <div class="quantity-controls">
-              <button mat-icon-button (click)="updateQuantity(entry.item, entry.item.quantity - 1)">
-                <mat-icon>remove</mat-icon>
-              </button>
-              <span class="quantity">{{ entry.item.quantity }}</span>
-              <button mat-icon-button (click)="updateQuantity(entry.item, entry.item.quantity + 1)">
-                <mat-icon>add</mat-icon>
-              </button>
-            </div>
-          </div>
-
-          <div class="item-actions">
-            <button mat-icon-button (click)="removeItem(entry.item.id)">
-              <mat-icon color="warn">delete</mat-icon>
-            </button>
-            <p class="item-total">
-              {{ (entry.product.price * entry.item.quantity) | currency:'TRY':'symbol':'1.2-2' }}
-            </p>
-          </div>
-        </div>
+      <!-- Action Buttons -->
+      <div class="cart-actions">
+        <button mat-raised-button color="accent" routerLink="/products">
+          Continue Shopping
+        </button>
+        <button mat-raised-button color="primary" routerLink="/checkout">
+          Proceed to Checkout
+        </button>
       </div>
+    </div>
 
-      <div class="cart-summary">
-        <div class="total-section">
-          <h3>Total: {{ totalPrice$ | async | currency:'TRY':'symbol':'1.2-2' }}</h3>
-        </div>
-
-        <div class="action-buttons">
-          <button mat-raised-button color="warn" (click)="clearCart()">
-            Clear Cart
-          </button>
-          <button mat-raised-button color="primary" routerLink="/checkout">
-            Proceed to Checkout
-          </button>
-        </div>
-      </div>
+    <!-- Cart Item List -->
+    <div class="cart-view-wrapper">
+      <app-cart-view></app-cart-view>
     </div>
   </ng-container>
 </div>

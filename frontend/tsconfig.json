@@ -19,7 +19,7 @@
     "baseUrl": "./src",
     "paths": {
       "@model/*": ["app/shared/models/*"],
-
+      "@pipe/*": ["app/shared/pipe/*"],
 
       "@env/*": ["app/shared/environments/*"],
 

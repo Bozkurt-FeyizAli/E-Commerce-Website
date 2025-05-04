@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AdminService } from '../service/admin.service';
 import { User } from '@model/user';
+import { MatTableDataSource } from '@angular/material/table';
 
 @Component({
   selector: 'app-manage-users',
@@ -9,10 +10,12 @@ import { User } from '@model/user';
   styleUrls: ['./manage-users.component.css']
 })
 export class ManageUsersComponent implements OnInit {
-
-  users: User[] = [];
+  displayedColumns: string[] = ['id', 'username', 'email', 'roles', 'status', 'actions'];
+  dataSource = new MatTableDataSource<User>();
   loading = true;
   error = '';
+  searchQuery = '';
+  selectedRole = 'all';
 
   constructor(private adminService: AdminService) {}
 
@@ -23,7 +26,7 @@ export class ManageUsersComponent implements OnInit {
   fetchUsers() {
     this.adminService.getAllUsers().subscribe({
       next: (data) => {
-        this.users = data;
+        this.dataSource.data = data;
         this.loading = false;
       },
       error: (err) => {
@@ -34,15 +37,29 @@ export class ManageUsersComponent implements OnInit {
     });
   }
 
+  applyFilter() {
+    this.dataSource.filter = this.searchQuery.trim().toLowerCase();
+    if (this.selectedRole !== 'all') {
+      this.dataSource.filterPredicate = (data: User, filter: string) => {
+        return data.roles.includes(this.selectedRole.toUpperCase()) &&
+               (data.username.toLowerCase().includes(filter) ||
+                data.email.toLowerCase().includes(filter));
+      };
+    }
+    this.dataSource.filter = this.searchQuery;
+  }
+
   toggleBan(user: User) {
-    const newStatus = !user.isBanned;
-    this.adminService.banUser(user.id, newStatus).subscribe({
+    const action$ = user.isBanned ?
+      this.adminService.unbanUser(user.id) :
+      this.adminService.banUser(user.id, true);
+
+    action$.subscribe({
       next: () => {
-        user.isBanned = newStatus;
+        user.isBanned = !user.isBanned;
+        this.dataSource.data = [...this.dataSource.data];
       },
-      error: (err) => {
-        console.error('Failed to update ban status', err);
-      }
+      error: (err) => console.error('Failed to update ban status', err)
     });
   }
 
@@ -50,16 +67,19 @@ export class ManageUsersComponent implements OnInit {
     if (confirm('Are you sure you want to delete this user?')) {
       this.adminService.deleteUser(userId).subscribe({
         next: () => {
-          this.users = this.users.filter(u => u.id !== userId);
+          this.dataSource.data = this.dataSource.data.filter(u => u.id !== userId);
         },
-        error: (err) => {
-          console.error('Failed to delete user', err);
-        }
+        error: (err) => console.error('Failed to delete user', err)
       });
     }
   }
 
   getUserRoles(user: User): string {
-    return user.roles
-    }
+    return user.roles;
+  }
+
+  editUser(user: User) {
+    // Implement edit user logic
+    console.log('Edit user:', user);
+  }
 }

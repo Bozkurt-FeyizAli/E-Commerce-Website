@@ -1,64 +1,82 @@
-<div class="cart-container">
-  <h2>Sepetiniz</h2>
-
+<div class="cart-view-container">
+  <!-- Loading Spinner -->
   <div *ngIf="loading" class="loading">
     <mat-spinner diameter="40"></mat-spinner>
   </div>
 
+  <!-- Cart Item List -->
   <ng-container *ngIf="(cartItems$ | async) as items">
     <div *ngIf="items.length === 0" class="empty-cart">
       <mat-icon>remove_shopping_cart</mat-icon>
-      <p>Sepetinizde ürün bulunmamaktadır</p>
+      <p>Your cart is empty</p>
       <a mat-raised-button color="primary" routerLink="/products">
-        Alışverişe Başla
+        Start Shopping
       </a>
     </div>
 
-    <div *ngIf="items.length > 0" class="cart-items">
-      <div class="cart-item" *ngFor="let entry of items">
-        <img [src]="entry.product.mainImageUrl"
-             [alt]="entry.product.name"
-             class="product-image">
-
-        <div class="item-details">
-          <h3>{{ entry.product.name }}</h3>
-          <p>{{ entry.product.price | currency:'TRY':'symbol':'1.2-2' }}</p>
-
-          <div class="quantity-controls">
-            <button mat-icon-button (click)="updateQuantity(entry.item, entry.item.quantity - 1)">
-              <mat-icon>remove</mat-icon>
+    <table *ngIf="items.length > 0" class="cart-table">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Price</th>
+          <th>Quantity</th>
+          <th>Subtotal</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let entry of items">
+          <td class="product-info">
+            <img
+              [src]="entry.product.mainImageUrl || 'assets/images/product-placeholder.png'"
+              [alt]="entry.product.name"
+              (error)="handleImageError($event)"
+            />
+            <a [routerLink]="['/products', entry.product.id]">
+              {{ entry.product.name }}
+            </a>
+          </td>
+          <td>
+            {{ entry.product.price | currency:'TRY':'symbol':'1.2-2' }}
+          </td>
+          <td>
+            <div class="quantity-controls">
+              <button mat-icon-button (click)="updateQuantity(entry.item, entry.item.quantity - 1)">
+                <mat-icon>remove</mat-icon>
+              </button>
+              <input type="number"
+                     [(ngModel)]="entry.item.quantity"
+                     (change)="updateQuantity(entry.item, entry.item.quantity)"
+                     min="1">
+              <button mat-icon-button (click)="updateQuantity(entry.item, entry.item.quantity + 1)">
+                <mat-icon>add</mat-icon>
+              </button>
+            </div>
+          </td>
+          <td>
+            <strong>
+              {{ (entry.product.price * entry.item.quantity) | currency:'TRY':'symbol':'1.2-2' }}
+            </strong>
+          </td>
+          <td>
+            <button mat-icon-button (click)="removeItem(entry.item.id)">
+              <mat-icon color="warn">delete</mat-icon>
             </button>
-            <input type="number"
-                   [(ngModel)]="entry.item.quantity"
-                   (change)="updateQuantity(entry.item, entry.item.quantity)"
-                   min="1">
-            <button mat-icon-button (click)="updateQuantity(entry.item, entry.item.quantity + 1)">
-              <mat-icon>add</mat-icon>
-            </button>
-          </div>
-        </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
 
-        <div class="item-actions">
-          <button mat-icon-button (click)="removeItem(entry.item.id)">
-            <mat-icon color="warn">delete</mat-icon>
-          </button>
-          <p class="total-price">
-            {{ (entry.product.price * entry.item.quantity) | currency:'TRY':'symbol':'1.2-2' }}
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <div class="cart-summary" *ngIf="items.length > 0">
-      <h3>Toplam Tutar: {{ (total$ | async) | number:'1.2-2' | currency:'TRY':'symbol' }}</h3>
-      <div class="summary-actions">
-        <button mat-raised-button color="warn" (click)="clearCartItems()">
-          Sepeti Temizle
-        </button>
-        <button mat-raised-button color="primary" routerLink="/checkout">
-          Ödemeye Geç
-        </button>
-      </div>
+    <!-- Total Summary -->
+    <div class="total-summary" *ngIf="items.length > 0">
+      <h3>
+        Total ({{ items.length }} items):
+        <span>
+          {{ totalPrice$ | async | currency:'TRY':'symbol':'1.2-2' }}
+        </span>
+      </h3>
+      <!-- Discount message placeholder -->
+      <!-- <p class="discount-message">You saved 50 TRY with this order!</p> -->
     </div>
   </ng-container>
 </div>

@@ -94,18 +94,36 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
   addToCart(product: Product): void {
     if (!this.authService.isLoggedIn()) {
-      this.snackBar.open('Please log in to add items to your cart.', 'Dismiss', {
+      this.snackBar.open('Sepete eklemek için giriş yapmalısınız!', 'Kapat', {
         duration: 3000,
         panelClass: ['error-snackbar']
       });
       return;
     }
-    if (!product.stock) return;
 
-    this.cartService.addToCart(product).subscribe({
-      next: () => this.showSuccessNotification(product),
-      error: (err) => this.showErrorNotification(err)
-    });
+    if (!product) return;
+
+    if (product.stock > 0) {
+      this.cartService.addToCart(product, 1).subscribe({
+        next: () => {
+          this.snackBar.open(`${product.name} sepete eklendi!`, 'Kapat', {
+            duration: 3000,
+            panelClass: ['success-snackbar']
+          });
+        },
+        error: () => {
+          this.snackBar.open('Sepete ekleme başarısız oldu.', 'Kapat', {
+            duration: 3000,
+            panelClass: ['error-snackbar']
+          });
+        }
+      });
+    } else {
+      this.snackBar.open('Ürün stokta yok.', 'Kapat', {
+        duration: 3000,
+        panelClass: ['error-snackbar']
+      });
+    }
   }
 
   onSearch(): void {

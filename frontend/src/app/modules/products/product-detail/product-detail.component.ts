@@ -6,6 +6,7 @@ import { Location } from '@angular/common';
 import { Product } from '@model/product';
 import { Subject, takeUntil, switchMap, of } from 'rxjs';
 import { ProductImage } from '@model/product-image';
+import { CartService } from 'app/modules/cart/service/cart.service';
 
 @Component({
   selector: 'app-product-detail',
@@ -26,6 +27,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar,
     private location: Location,
     private cdr: ChangeDetectorRef,
+    private cartService: CartService
 
   ) {}
 
@@ -125,22 +127,40 @@ private loadProduct(): void {
 }
 
 
-  onAdd(): void {
-    if(!this.productService.isLoggedIn()) {
-      this.snackBar.open('Sepete eklemek için giriş yapmalısınız!', 'Kapat', {
-        duration: 3000,
-        panelClass: ['error-snackbar']
-      });
-      return;
-    }
-    if (!this.product) return;
-    if (this.product && this.product.stock > 0) {
-      this.snackBar.open(`${this.product.name} sepete eklendi!`, 'Kapat', {
-        duration: 3000,
-        panelClass: ['success-snackbar']
-      });
-    }
+onAdd(): void {
+  if (!this.productService.isLoggedIn()) {
+    this.snackBar.open('Sepete eklemek için giriş yapmalısınız!', 'Kapat', {
+      duration: 3000,
+      panelClass: ['error-snackbar']
+    });
+    return;
   }
+
+  if (!this.product) return;
+
+  if (this.product.stock > 0) {
+    this.cartService.addToCart(this.product, 1).subscribe({
+      next: () => {
+        this.snackBar.open(`${this.product?.name} sepete eklendi!`, 'Kapat', {
+          duration: 3000,
+          panelClass: ['success-snackbar']
+        });
+      },
+      error: () => {
+        this.snackBar.open(`Sepete ekleme başarısız oldu.`, 'Kapat', {
+          duration: 3000,
+          panelClass: ['error-snackbar']
+        });
+      }
+    });
+  } else {
+    this.snackBar.open('Ürün stokta yok.', 'Kapat', {
+      duration: 3000,
+      panelClass: ['error-snackbar']
+    });
+  }
+}
+
 
   handleImageError(event: Event): void {
     (event.target as HTMLImageElement).src = 'assets/images/product-placeholder.png';

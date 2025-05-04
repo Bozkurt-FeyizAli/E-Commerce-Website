@@ -1,41 +1,43 @@
-<h2>Manage Categories</h2>
+<div class="manage-categories">
+  <h1>Manage Categories</h1>
 
-<div *ngIf="loading">Loading categories...</div>
-<div *ngIf="error">{{ error }}</div>
+  <form (submit)="submitCategory()" class="category-form">
+    <mat-form-field appearance="outline">
+      <input matInput placeholder="Category Name"
+             [(ngModel)]="newCategory.name" name="name" required>
+    </mat-form-field>
 
-<!-- Add New Category Form -->
-<div class="new-category-form">
-  <h3>Add New Category</h3>
-  <input type="text" placeholder="Name" [(ngModel)]="newCategory.name">
-  <textarea placeholder="Description" [(ngModel)]="newCategory.description"></textarea>
-  <button (click)="addCategory()">Add Category</button>
-</div>
+    <mat-form-field appearance="outline">
+      <textarea matInput placeholder="Description"
+                [(ngModel)]="newCategory.description" name="description"></textarea>
+    </mat-form-field>
 
-<!-- Category List -->
-<table *ngIf="!loading && categories.length > 0" class="category-table">
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Name</th>
-      <th>Slug</th>
-      <th>Image</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let category of categories">
-      <td>{{ category.id }}</td>
-      <td>{{ category.name }}</td>
-      <td>
-        
-      </td>
-      <td>
-        <button (click)="deleteCategory(category.id)">Delete</button>
-      </td>
-    </tr>
-  </tbody>
-</table>
+    <button mat-raised-button color="primary" type="submit">
+      {{ editingCategory ? 'Update' : 'Add' }} Category
+    </button>
 
-<div *ngIf="!loading && categories.length === 0">
-  No categories found.
+    <button *ngIf="editingCategory" mat-button type="button"
+            (click)="resetForm()">Cancel</button>
+  </form>
+
+  <div class="category-grid">
+    <mat-card *ngFor="let category of categories" class="category-card">
+      <mat-card-header>
+        <mat-card-title>{{ category.name }}</mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content>
+        <p>{{ category.description || 'No description' }}</p>
+      </mat-card-content>
+
+      <mat-card-actions>
+        <button mat-icon-button (click)="editCategory(category)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="deleteCategory(category.id)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
 </div>

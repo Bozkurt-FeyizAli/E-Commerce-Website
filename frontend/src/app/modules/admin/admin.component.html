@@ -1,26 +1,77 @@
-<!-- <main role="main">
-  <header>
-    <h1>Admin Dashboard</h1>
-  </header>
-  <section>
-    <p>Welcome to the admin panel.</p>
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Kullanıcı Adı</th>
-          <th>Şifre</th>
-          <th>İşlem</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let user of users">
-          <td>{{ user.username }}</td>
-          <td>{{ user.password }}</td>
-          <td>
-            <button (click)="deleteUser(user)" class="btn btn-danger">Sil</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </section>
-</main> -->
+<div class="admin-dashboard">
+  <!-- Loading state -->
+  <div *ngIf="loading" class="loading">Loading dashboard...</div>
+
+  <!-- Content -->
+  <div *ngIf="!loading">
+    <!-- Welcome Section -->
+    <div class="welcome-section">
+      <h1>Welcome back, {{ adminName }}!</h1>
+      <p>Last login: {{ today | date:'medium' }}</p>
+    </div>
+
+    <!-- Summary Grid -->
+    <div class="summary-grid">
+      <div class="stat-card">
+        <mat-icon>group</mat-icon>
+        <h3>{{ stats.totalUsers }}</h3>
+        <p>Total Users</p>
+      </div>
+      <div class="stat-card">
+        <mat-icon>inventory</mat-icon>
+        <h3>{{ stats.totalProducts }}</h3>
+        <p>Total Products</p>
+      </div>
+      <div class="stat-card">
+        <mat-icon>local_shipping</mat-icon>
+        <h3>{{ stats.totalOrders }}</h3>
+        <p>Total Orders</p>
+      </div>
+      <div class="stat-card">
+        <mat-icon>warning</mat-icon>
+        <h3>{{ stats.openComplaints }}</h3>
+        <p>Open Complaints</p>
+      </div>
+      <div class="stat-card">
+        <mat-icon>attach_money</mat-icon>
+        <h3>{{ stats.totalRevenue | currency }}</h3>
+        <p>Total Revenue</p>
+      </div>
+    </div>
+
+    <!-- Quick Access -->
+    <div class="quick-access">
+      <h2>Quick Actions</h2>
+      <div class="quick-grid">
+        <a *ngFor="let link of quickLinks" [routerLink]="link.route" class="quick-card">
+          <mat-icon>{{ link.icon }}</mat-icon>
+          {{ link.title }}
+        </a>
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="recent-activity">
+      <h2>Recent Activity</h2>
+      <div class="activity-list">
+        <div *ngFor="let activity of recentActivities" class="activity-item">
+          <mat-icon [ngClass]="getActivityIcon(activity.type)">{{ getActivityIcon(activity.type) }}</mat-icon>
+          <div class="activity-info">
+            <strong>{{ activity.type }}</strong>
+            <span>by {{ activity.user }}</span>
+            <small>{{ activity.timestamp | timeAgo }}</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart Placeholder -->
+    <div class="chart-section">
+      <h2>Site Performance</h2>
+      <div class="chart-placeholder">
+        <!-- Chart integration would go here -->
+        <p>Chart Component Placeholder</p>
+      </div>
+    </div>
+  </div>
+</div>

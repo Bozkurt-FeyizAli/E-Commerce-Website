@@ -10,14 +10,11 @@ import { Category } from '@model/category';
 })
 export class ManageCategoriesComponent implements OnInit {
   categories: Category[] = [];
-  loading = true;
-  error = '';
-
   newCategory: Category = {
-    id: 0,
-    name: '',
-    description: '',
+    name: '', description: '',
+    id: 0
   };
+  editingCategory: Category | null = null;
 
   constructor(private adminService: AdminService) {}
 
@@ -27,44 +24,41 @@ export class ManageCategoriesComponent implements OnInit {
 
   fetchCategories() {
     this.adminService.getAllCategories().subscribe({
-      next: (data) => {
-        this.categories = data;
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Failed to fetch categories', err);
-        this.error = 'Failed to load categories.';
-        this.loading = false;
-      }
+      next: (data) => this.categories = data,
+      error: (err) => console.error('Failed to fetch categories', err)
     });
   }
 
-  addCategory() {
-    if (!this.newCategory.name) {
-      alert('Category name is required.');
-      return;
+  submitCategory() {
+    if (this.editingCategory) {
+      this.adminService.updateCategory(this.editingCategory.id, this.newCategory)
+        .subscribe(() => {
+          this.fetchCategories();
+          this.resetForm();
+        });
+    } else {
+      this.adminService.createCategory(this.newCategory)
+        .subscribe(() => {
+          this.fetchCategories();
+          this.resetForm();
+        });
     }
-    this.adminService.createCategory(this.newCategory).subscribe({
-      next: (category) => {
-        this.categories.push(category);
-        this.newCategory = { id: 0, name: '', description: ''};
-      },
-      error: (err) => {
-        console.error('Failed to create category', err);
-      }
-    });
+  }
+
+  editCategory(category: Category) {
+    this.editingCategory = category;
+    this.newCategory = { ...category };
   }
 
   deleteCategory(categoryId: number) {
     if (confirm('Are you sure you want to delete this category?')) {
-      this.adminService.deleteCategory(categoryId).subscribe({
-        next: () => {
-          this.categories = this.categories.filter(c => c.id !== categoryId);
-        },
-        error: (err) => {
-          console.error('Failed to delete category', err);
-        }
-      });
+      this.adminService.deleteCategory(categoryId)
+        .subscribe(() => this.fetchCategories());
     }
+  }
+
+  resetForm() {
+    this.newCategory = { id: 0, name: '', description: '' };
+    this.editingCategory = null;
   }
 }

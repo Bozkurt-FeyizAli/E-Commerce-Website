@@ -39,20 +39,21 @@ export class CartService {
     ).subscribe(items => this.cartItems.next(items));
   }
 
-  addToCart(product: Product, quantity: number = 1): Observable<CartItem[]> {
-    const newItem: Partial<CartItem> = {
+  addToCart(product: Product, quantity: number = 1): Observable<CartItem> {
+    const cartItem: Partial<CartItem> = {
       productId: product.id,
       quantity,
     };
 
-    return this.http.patch<{ items: CartItem[] }>(`${this.apiUrl}/1`, {
-      items: [...this.cartItems.value, newItem]
-    }).pipe(
-      map(response => response.items),
-      tap(items => this.cartItems.next(items)),
+    return this.http.post<CartItem>(`${this.apiUrl}/1/items`, cartItem).pipe(
+      tap(() => {
+        this.loadInitialCart(); // Ekleme sonrası otomatik güncelle
+      }),
       catchError(this.handleError)
     );
   }
+
+
 
   removeFromCart(itemId: number): Observable<CartItem[]> {
     const updatedItems = this.cartItems.value.filter(item => item.id !== itemId);

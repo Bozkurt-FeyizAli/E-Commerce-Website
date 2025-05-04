@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatPaginator } from '@angular/material/paginator';
 import { AdminService } from '../service/admin.service';
 import { Complaint } from '@model/complaint';
 
@@ -8,10 +10,12 @@ import { Complaint } from '@model/complaint';
   templateUrl: './manage-complaints.component.html',
   styleUrls: ['./manage-complaints.component.css']
 })
-export class ManageComplaintsComponent implements OnInit {
-  complaints: Complaint[] = [];
-  loading = true;
-  error = '';
+export class ManageComplaintsComponent implements OnInit, AfterViewInit {
+  displayedColumns: string[] = ['id', 'user', 'product', 'message', 'date', 'status', 'actions'];
+  dataSource = new MatTableDataSource<Complaint>();
+  statusFilter = 'all';
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   constructor(private adminService: AdminService) {}
 
@@ -19,37 +23,30 @@ export class ManageComplaintsComponent implements OnInit {
     this.fetchComplaints();
   }
 
+  ngAfterViewInit() {
+    this.dataSource.paginator = this.paginator;
+  }
+
   fetchComplaints() {
     this.adminService.getAllComplaints().subscribe({
-      next: (data) => {
-        this.complaints = data;
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Failed to fetch complaints', err);
-        this.error = 'Failed to load complaints.';
-        this.loading = false;
-      }
+      next: (data) => this.dataSource.data = data,
+      error: (err) => console.error('Failed to fetch complaints', err)
     });
   }
 
-  updateComplaint(complaint: Complaint) {
-    const newStatus = prompt('Enter new status (e.g., In Progress, Resolved, Closed):', complaint.status);
-    const resolutionComment = prompt('Enter resolution comment:', complaint.resolutionComment || '');
-    if (newStatus) {
-      this.adminService.updateComplaintStatus(complaint.id, newStatus, resolutionComment || '').subscribe({
-        next: () => {
-          if (['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'].includes(newStatus)) {
-            complaint.status = newStatus as 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED';
-          } else {
-            console.error('Invalid status:', newStatus);
-          }
-          complaint.resolutionComment = resolutionComment || '';
-        },
-        error: (err) => {
-          console.error('Failed to update complaint', err);
-        }
+  applyFilter() {
+    this.dataSource.filter = this.statusFilter;
+  }
+
+  viewDetails(complaint: Complaint) {
+    // Implement view details logic
+  }
+
+  closeComplaint(complaintId: number) {
+    this.adminService.updateComplaintStatus(complaintId, 'CLOSED', 'Resolved by admin')
+      .subscribe({
+        next: () => this.fetchComplaints(),
+        error: (err) => console.error('Failed to close complaint', err)
       });
-    }
   }
 }

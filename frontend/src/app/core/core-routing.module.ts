@@ -39,7 +39,7 @@ const routes: Routes = [
         path: 'seller',
         loadChildren: () => import('../modules/seller/seller.module').then(m => m.SellerModule),
         canActivate: [AuthGuard],
-        data: { roles: [Role.Seller, Role.Admin] }
+        data: { roles: [Role.Seller, Role.Admin] } // admini çıkar
       },
       {
         path: 'admin',
@@ -54,7 +54,6 @@ const routes: Routes = [
         data: { roles: [Role.User, Role.Seller, Role.Admin] }
       },
 
-      // Default & Error Routes
       { path: '', redirectTo: 'home', pathMatch: 'full' },
       {
         path: 'not-found',

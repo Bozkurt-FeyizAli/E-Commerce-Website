@@ -1,7 +1,7 @@
-import { ProductImage } from '@model/product-image';
-import { AdminService } from './../service/admin.service';
 import { Component, OnInit } from '@angular/core';
+import { AdminService } from '../service/admin.service';
 import { Product } from '@model/product';
+import { MatTableDataSource } from '@angular/material/table';
 import { Category } from '@model/category';
 
 @Component({
@@ -11,83 +11,54 @@ import { Category } from '@model/category';
   styleUrls: ['./manage-products.component.css']
 })
 export class ManageProductsComponent implements OnInit {
-  products: Product[] = [];
+  displayedColumns: string[] = ['image', 'title', 'category', 'price', 'seller', 'status', 'actions'];
+  dataSource = new MatTableDataSource<Product>();
+  categories: Category[] = [];
   loading = true;
-  error = '';
-
-  newProduct: Product = {
-    id: 0,
-    name: '',
-    price: 0,
-    stock: 0,
-    description: '',
-    isActive: false,
-    createdAt: new Date(),
-    category: {
-      id: 0,
-      name: '',
-      description: ''
-    }
-  };
+  searchQuery = '';
+  selectedCategory = 'all';
+  sellerFilter = '';
 
   constructor(private adminService: AdminService) {}
 
   ngOnInit(): void {
     this.fetchProducts();
+    this.fetchCategories();
   }
 
   fetchProducts() {
     this.adminService.getAllProducts().subscribe({
       next: (data) => {
-        this.products = data;
+        this.dataSource.data = data;
         this.loading = false;
       },
-      error: (err) => {
-        console.error('Failed to fetch products', err);
-        this.error = 'Failed to load products.';
-        this.loading = false;
-      }
+      error: (err) => console.error('Failed to fetch products', err)
     });
   }
 
-  addProduct() {
-    if (!this.newProduct.name || !this.newProduct.price) {
-      alert('Name and price are required.');
-      return;
-    }
-    this.adminService.createProduct(this.newProduct).subscribe({
-      next: (product) => {
-        this.products.push(product);
-        this.newProduct = {
-          id: 0,
-          name: '',
-          price: 0,
-          stock: 0,
-          description: '',
-          isActive: false,
-          createdAt: new Date(),
-          category: {
-            id: 0,
-            name: '',
-            description: ''
-          }
-        };
-      },
-      error: (err) => {
-        console.error('Failed to create product', err);
-      }
+  fetchCategories() {
+    this.adminService.getAllCategories().subscribe({
+      next: (data) => this.categories = data,
+      error: (err) => console.error('Failed to fetch categories', err)
     });
+  }
+
+  applyFilters() {
+    this.dataSource.filterPredicate = (data: Product, filter: string) => {
+      const categoryMatch = this.selectedCategory === 'all' ||
+                          data.category.name.toLowerCase() === this.selectedCategory;
+      return categoryMatch;
+    };
+    this.dataSource.filter = 'trigger';
   }
 
   deleteProduct(productId: number) {
     if (confirm('Are you sure you want to delete this product?')) {
       this.adminService.deleteProduct(productId).subscribe({
         next: () => {
-          this.products = this.products.filter(p => p.id !== productId);
+          this.dataSource.data = this.dataSource.data.filter(p => p.id !== productId);
         },
-        error: (err) => {
-          console.error('Failed to delete product', err);
-        }
+        error: (err) => console.error('Failed to delete product', err)
       });
     }
   }

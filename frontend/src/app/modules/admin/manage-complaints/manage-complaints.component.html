@@ -1,37 +1,86 @@
-<h2>Manage Complaints</h2>
+<div class="manage-complaints">
+  <div class="header">
+    <h1>Manage Complaints</h1>
+    <mat-form-field appearance="outline" class="status-filter">
+      <mat-label>Filter by Status</mat-label>
+      <mat-select [(ngModel)]="statusFilter" (selectionChange)="applyFilter()">
+        <mat-option value="all">All Statuses</mat-option>
+        <mat-option value="OPEN">Open</mat-option>
+        <mat-option value="CLOSED">Closed</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
 
-<div *ngIf="loading">Loading complaints...</div>
-<div *ngIf="error">{{ error }}</div>
+  <div class="table-container">
+    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+      <!-- ID Column -->
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef>ID</th>
+        <td mat-cell *matCellDef="let complaint">{{ complaint.id }}</td>
+      </ng-container>
 
-<table *ngIf="!loading && complaints.length > 0" class="complaints-table">
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>User</th>
-      <th>Order ID</th>
-      <th>Type</th>
-      <th>Description</th>
-      <th>Status</th>
-      <th>Resolution</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let complaint of complaints">
-      <td>{{ complaint.id }}</td>
-      <td>{{ complaint.user?.username || 'N/A' }}</td>
-      <td>{{ complaint.orderId }}</td>
-      <td>{{ complaint.complaintType }}</td>
-      <td>{{ complaint.description }}</td>
-      <td>{{ complaint.status }}</td>
-      <td>{{ complaint.resolutionComment || '-' }}</td>
-      <td>
-        <button (click)="updateComplaint(complaint)">Update</button>
-      </td>
-    </tr>
-  </tbody>
-</table>
+      <!-- User Column -->
+      <ng-container matColumnDef="user">
+        <th mat-header-cell *matHeaderCellDef>User</th>
+        <td mat-cell *matCellDef="let complaint">{{ complaint.user.username }}</td>
+      </ng-container>
 
-<div *ngIf="!loading && complaints.length === 0">
-  No complaints found.
+      <!-- Product Column -->
+      <ng-container matColumnDef="product">
+        <th mat-header-cell *matHeaderCellDef>Product</th>
+        <td mat-cell *matCellDef="let complaint">{{ complaint.product.title }}</td>
+      </ng-container>
+
+      <!-- Message Column -->
+      <ng-container matColumnDef="message">
+        <th mat-header-cell *matHeaderCellDef>Message</th>
+        <td mat-cell *matCellDef="let complaint">
+          {{ complaint.message | truncate:100 }}
+        </td>
+      </ng-container>
+
+      <!-- Date Column -->
+      <ng-container matColumnDef="date">
+        <th mat-header-cell *matHeaderCellDef>Date</th>
+        <td mat-cell *matCellDef="let complaint">
+          {{ complaint.createdAt | date:'short' }}
+        </td>
+      </ng-container>
+
+      <!-- Status Column -->
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let complaint">
+          {{ complaint.status | titlecase }}
+        </td>
+      </ng-container>
+
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let complaint">
+          <button mat-button color="primary" (click)="viewDetails(complaint)">
+            View
+          </button>
+          <button
+            mat-button
+            color="warn"
+            (click)="closeComplaint(complaint.id)"
+            [disabled]="complaint.status === 'closed'"
+          >
+            Close
+          </button>
+        </td>
+      </ng-container>
+
+      <!-- Header and Row Definitions -->
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+
+    <mat-paginator
+      [pageSizeOptions]="[5, 10, 25]"
+      showFirstLastButtons
+    ></mat-paginator>
+  </div>
 </div>
