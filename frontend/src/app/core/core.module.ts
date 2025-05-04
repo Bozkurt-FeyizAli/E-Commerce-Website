@@ -7,10 +7,11 @@ import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CoreComponent } from './core.component';
+import { TokenInterceptor } from './interceptors/TokenInterceptor';
 @NgModule({
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
-
+    {provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true } // 💥 EKLENDİ
     // Diğer core servislerin varsa burada ekle
   ],
   declarations: [

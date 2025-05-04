@@ -36,8 +36,13 @@ export class HeaderComponent implements OnInit {
 
     // Always listen to cart items (even if not logged in)
     this.cartService.getCartItems().subscribe(items => {
+      if (!items) {
+        this.cartItemCount = 0;
+        return;
+      }
       this.cartItemCount = items.length;
     });
+
   }
 
 

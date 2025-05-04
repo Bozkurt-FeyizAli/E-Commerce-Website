@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { ProductService } from '../services/product.service';
 import { CartService } from '../../cart/service/cart.service';
-import { Product } from '../../../shared/models/product';
+import { Product } from '@model/product';
 import { catchError, finalize, of, Subject, takeUntil, tap } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from 'app/core/services/auth/auth.service';
@@ -15,16 +15,18 @@ import { Category } from '@model/category';
 })
 export class ProductListComponent implements OnInit, OnDestroy {
   products: Product[] = [];
+  filteredProducts: Product[] = [];
+  categories: Category[] = [];
+
   loading = true;
   error: string | null = null;
 
+  // Arama ve filtreleme için:
   searchQuery = '';
   showFilters = false;
   viewMode: 'grid' | 'list' = 'grid';
 
-  // Opsiyonel: backend'den dinamik çekebilirsin ama şimdilik statik
-  categories: Category[] = [];
-  brands = ['Apple', 'Samsung', 'Nike', 'Adidas', 'Sony'];;
+  brands = ['Apple', 'Samsung', 'Nike', 'Adidas', 'Sony'];
 
   filters = {
     category: [] as string[],
@@ -32,7 +34,6 @@ export class ProductListComponent implements OnInit, OnDestroy {
     priceRange: [0, 100000] as [number, number],
     inStock: false
   };
-  filteredProducts: Product[] = [];
 
   private destroy$ = new Subject<void>();
 
@@ -49,7 +50,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
     this.loadCategories();
   }
 
-  loadCategories(): void {
+  private loadCategories(): void {
     this.productService.getCategories().pipe(
       tap((categories) => {
         this.categories = categories;
@@ -57,31 +58,27 @@ export class ProductListComponent implements OnInit, OnDestroy {
         this.cdr.detectChanges();
       }),
       catchError((err) => {
-        console.error('Category loading error:', err);
+        console.error('Kategori yükleme hatası:', err);
         return of([]);
       }),
       takeUntil(this.destroy$)
     ).subscribe();
   }
 
-
-
-  loadProducts(): void {
+  private loadProducts(): void {
     this.loading = true;
     this.error = null;
 
     this.productService.getProducts().pipe(
       tap((products) => {
         this.products = products;
-        this.applyFilters();  // İlk başta tüm ürünler gösterilsin
+        this.applyFilters();  // Ürünler geldikten sonra filtre uygula
         this.loading = false;
         this.cdr.detectChanges();
       }),
       catchError((err) => {
-        this.loading = false;
-        this.error = 'Failed to load products. Please try again later.';
-        console.error('Product loading error:', err);
-        this.cdr.detectChanges();
+        console.error('Ürün yükleme hatası:', err);
+        this.error = 'Ürünler yüklenemedi. Lütfen daha sonra tekrar deneyin.';
         return of([]);
       }),
       finalize(() => {
@@ -101,8 +98,6 @@ export class ProductListComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (!product) return;
-
     if (product.stock > 0) {
       this.cartService.addToCart(product, 1).subscribe({
         next: () => {
@@ -111,7 +106,8 @@ export class ProductListComponent implements OnInit, OnDestroy {
             panelClass: ['success-snackbar']
           });
         },
-        error: () => {
+        error: (err) => {
+          console.error('Sepete ekleme hatası:', err);
           this.snackBar.open('Sepete ekleme başarısız oldu.', 'Kapat', {
             duration: 3000,
             panelClass: ['error-snackbar']
@@ -124,10 +120,6 @@ export class ProductListComponent implements OnInit, OnDestroy {
         panelClass: ['error-snackbar']
       });
     }
-  }
-
-  onSearch(): void {
-    this.applyFilters();
   }
 
   toggleFilters(): void {
@@ -145,56 +137,12 @@ export class ProductListComponent implements OnInit, OnDestroy {
     this.applyFilters();
   }
 
+  onSearch(): void {
+    this.applyFilters();
+  }
+
   applyFilters(): void {
     this.filteredProducts = this.getFilteredProducts();
-  }
-
-  onFilterCategory(cat: string): void {
-    this.loading = true;
-    this.productService.filterByCategory(cat).pipe(
-      finalize(() => this.loading = false),
-      takeUntil(this.destroy$)
-    ).subscribe(products => {
-      this.products = products;
-      this.applyFilters();
-    });
-  }
-
-  trackByProductId(index: number, product: Product): number {
-    return product.id;
-  }
-
-  handleImageError(event: Event): void {
-    const img = event.target as HTMLImageElement;
-    img.src = '/assets/images/placeholder.png';
-    img.alt = 'Placeholder image';
-  }
-
-  retryLoading(): void {
-    this.loadProducts();
-  }
-
-  private showSuccessNotification(product: Product): void {
-    this.snackBar.open(
-      `${product.name} added to cart!`,
-      'Dismiss',
-      {
-        duration: 3000,
-        panelClass: ['success-snackbar']
-      }
-    );
-  }
-
-  private showErrorNotification(error: any): void {
-    console.error('Cart error:', error);
-    this.snackBar.open(
-      'Failed to add item to cart. Please try again.',
-      'Dismiss',
-      {
-        duration: 5000,
-        panelClass: ['error-snackbar']
-      }
-    );
   }
 
   getFilteredProducts(): Product[] {
@@ -206,7 +154,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
                               this.filters.category.includes(product.category?.name || '');
 
       const matchesBrand = this.filters.brand.length === 0 ||
-                           this.filters.brand.includes(product.productDetails || ''); // productDetails'ı marka olarak kullanıyorsan
+                           this.filters.brand.includes(product.productDetails || '');
 
       const matchesPrice =
         product.price >= this.filters.priceRange[0] &&
@@ -216,6 +164,34 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
       return matchesSearch && matchesCategory && matchesBrand && matchesPrice && matchesStock;
     });
+  }
+
+  onFilterCategory(categoryName: string): void {
+    this.loading = true;
+    this.productService.filterByCategory(categoryName).pipe(
+      finalize(() => {
+        this.loading = false;
+        this.cdr.detectChanges();
+      }),
+      takeUntil(this.destroy$)
+    ).subscribe(products => {
+      this.products = products;
+      this.applyFilters();
+    });
+  }
+
+  retryLoading(): void {
+    this.loadProducts();
+  }
+
+  handleImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.src = '/assets/images/placeholder.png';
+    img.alt = 'Placeholder image';
+  }
+
+  trackByProductId(index: number, product: Product): number {
+    return product.id;
   }
 
   ngOnDestroy(): void {

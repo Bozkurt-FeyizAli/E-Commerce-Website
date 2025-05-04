@@ -6,6 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { catchError, tap, switchMap, map } from 'rxjs/operators';
 import { CartItem } from '@model/cart-item';
 import { environment } from '../../../shared/environments/environment';
+import { Cart } from '@model/cart';
 
 @Injectable({
   providedIn: 'root'
@@ -25,27 +26,40 @@ export class CartService {
         this.cartItems.next([]); // logout oldun, sepeti sıfırla
       }
     });
-}
-
+  }
 
   private loadInitialCart(): void {
     if (!this.authService.isLoggedIn()) {
       this.cartItems.next([]);
       return;
     }
-    this.http.get<{ items: CartItem[] }>(`${this.apiUrl}/1`).pipe(
-      map(response => response.items),
+
+    const userId = this.authService.getUserId(); // ✅ ID’yi dinamik çek
+    if (!userId) {
+      console.error('User ID bulunamadı!');
+      this.cartItems.next([]);
+      return;
+    }
+
+    this.http.get<Cart>(`${this.apiUrl}/user/${userId}`).pipe(
+      map(response => response.items), // ✅ response.items olmalı
       catchError(() => of([]))
     ).subscribe(items => this.cartItems.next(items));
   }
 
+
   addToCart(product: Product, quantity: number = 1): Observable<CartItem> {
+    const userId = this.authService.getUserId();
+    if (!userId) {
+      return throwError(() => new Error('Giriş yapmadan sepete ekleme yapılamaz.'));
+    }
+
     const cartItem: Partial<CartItem> = {
       productId: product.id,
       quantity,
     };
 
-    return this.http.post<CartItem>(`${this.apiUrl}/1/items`, cartItem).pipe(
+    return this.http.post<CartItem>(`${this.apiUrl}/${userId}/items`, cartItem).pipe(
       tap(() => {
         this.loadInitialCart(); // Ekleme sonrası otomatik güncelle
       }),
@@ -53,9 +67,12 @@ export class CartService {
     );
   }
 
-
-
   removeFromCart(itemId: number): Observable<CartItem[]> {
+    const userId = this.authService.getUserId();
+    if (!userId) {
+      return throwError(() => new Error('Giriş yapmadan sepetten silme yapılamaz.'));
+    }
+
     const updatedItems = this.cartItems.value.filter(item => item.id !== itemId);
     return this.updateCartItems(updatedItems);
   }
@@ -72,7 +89,12 @@ export class CartService {
   }
 
   private updateCartItems(items: CartItem[]): Observable<CartItem[]> {
-    return this.http.patch<{ items: CartItem[] }>(`${this.apiUrl}/1`, { items }).pipe(
+    const userId = this.authService.getUserId();
+    if (!userId) {
+      return throwError(() => new Error('Giriş yapmadan sepet güncellenemez.'));
+    }
+
+    return this.http.patch<{ items: CartItem[] }>(`${this.apiUrl}/${userId}`, { items }).pipe(
       map(response => response.items),
       tap(items => this.cartItems.next(items)),
       catchError(this.handleError)

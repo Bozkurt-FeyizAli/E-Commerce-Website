@@ -10,6 +10,7 @@ import { User } from '../../../shared/models/user';
   providedIn: 'root'
 })
 export class AuthService {
+
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   currentUser$ = this.currentUserSubject.asObservable();
 
@@ -107,5 +108,10 @@ export class AuthService {
         this.currentUserSubject.next(null);
       }
     });
+  }
+
+  getUserId(): number | null {
+    const user = this.sessionService.get<User>('user');
+    return user?.id || null;  // ✅ `id`'yi döndür
   }
 }
