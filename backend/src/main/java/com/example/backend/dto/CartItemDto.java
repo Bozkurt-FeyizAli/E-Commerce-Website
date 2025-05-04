@@ -13,4 +13,5 @@ public class CartItemDto {
     private Integer quantity;
     private Double priceWhenAdded;
     private Boolean isActive;
+    private ProductDto product;
 }

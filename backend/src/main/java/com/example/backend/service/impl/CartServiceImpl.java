@@ -2,6 +2,7 @@ package com.example.backend.service.impl;
 
 import com.example.backend.dto.CartDto;
 import com.example.backend.dto.CartItemDto;
+import com.example.backend.dto.ProductDto;
 import com.example.backend.entity.Cart;
 import com.example.backend.entity.CartItem;
 import com.example.backend.entity.Product;
@@ -86,17 +87,27 @@ public class CartServiceImpl implements ICartService {
         return mapToDto(cart);
     }
 
-    @Override
     public List<CartItemDto> getCartItems(Long cartId) {
-        List<CartItem> cartItems = cartItemRepository.findByCartId(cartId)
-                .stream()
-                .filter(CartItem::getIsActive)
-                .collect(Collectors.toList());
+    List<CartItem> items = cartItemRepository.findByCartId(cartId);
+    return items.stream().map(item -> {
+        CartItemDto dto = new CartItemDto();
+        dto.setId(item.getId());
+        dto.setCartId(item.getCart().getId());
+        dto.setProductId(item.getProduct().getId());
+        dto.setQuantity(item.getQuantity());
+        dto.setPriceWhenAdded(item.getPriceWhenAdded());
+        dto.setIsActive(item.getIsActive());
 
-        return cartItems.stream()
-                .map(this::mapToItemDto)
-                .collect(Collectors.toList());
-    }
+        // ✅ Product bilgisi ekle
+        Product product = item.getProduct(); // Eager fetch ise direkt var, yoksa productService.getById() ile alırsın
+        ProductDto productDto = toDto(product); // varsa ProductMapper
+        dto.setProduct(productDto);
+
+        return dto;
+    }).collect(Collectors.toList());
+}
+
+
 
     private CartDto mapToDto(Cart cart) {
         return CartDto.builder()
@@ -116,4 +127,20 @@ public class CartServiceImpl implements ICartService {
                 .isActive(item.getIsActive())
                 .build();
     }
+
+
+    public ProductDto toDto(Product product) {
+      return ProductDto.builder()
+          .id(product.getId())
+          .name(product.getName())
+          .price(product.getPrice())
+          .mainImageUrl(product.getMainImageUrl())
+          .description(product.getDescription())
+          .build();
+  }
+
+
+
 }
+
+
