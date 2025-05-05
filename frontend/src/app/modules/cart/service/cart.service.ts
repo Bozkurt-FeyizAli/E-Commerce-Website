@@ -65,11 +65,6 @@ export class CartService {
     });
   }
 
-
-
-
-
-
   addToCart(product: Product, quantity: number = 1): Observable<CartItem> {
     const userId = this.authService.getUserId();
     if (!userId) {
@@ -95,16 +90,23 @@ export class CartService {
     if (!userId) {
       return throwError(() => new Error('Cannot remove items from cart without login.'));
     }
-
-    const updatedItems = this.cartItems.value.filter(item => item.id !== itemId);
-    return this.updateCartItems(updatedItems);
+    // Use DELETE endpoint for removing a single item
+    return this.http.delete<CartItem[]>(`${this.apiUrl}/${userId}/items/${itemId}`).pipe(
+      tap(() => this.loadInitialCart()),
+      catchError(this.handleError)
+    );
   }
 
-  updateQuantity(itemId: number, newQuantity: number): Observable<CartItem[]> {
-    const updatedItems = this.cartItems.value.map(item =>
-      item.id === itemId ? { ...item, quantity: newQuantity } : item
+  updateQuantity(itemId: number, newQuantity: number): Observable<CartItem> {
+    const userId = this.authService.getUserId();
+    if (!userId) {
+      return throwError(() => new Error('Cannot update item quantity without login.'));
+    }
+    // Use PATCH endpoint for updating quantity on a single item
+    return this.http.patch<CartItem>(`${this.apiUrl}/${userId}/items/${itemId}`, { quantity: newQuantity }).pipe(
+      tap(() => this.loadInitialCart()),
+      catchError(this.handleError)
     );
-    return this.updateCartItems(updatedItems);
   }
 
   public clearCart(): Observable<CartItem[]> {
