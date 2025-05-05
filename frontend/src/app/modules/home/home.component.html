@@ -58,7 +58,7 @@
       [routerLink]="'/categories/' + category.id"
     >
       <img
-        [src]="category.imageUrl || '/assets/images/category-placeholder.png'"
+        [src]="category.imageUrl "
         [alt]="category.name"
         (error)="handleImageError($event)"
       >

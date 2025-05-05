@@ -9,23 +9,30 @@ import { Category } from '@model/category';
   styleUrls: ['./category.component.css']
 })
 export class CategoryComponent implements OnInit {
+
   categories: Category[] = [];
-  errorMessage: string | null = null;
+  isLoading = false;
+  error: string = '';
 
   constructor(private categoryService: CategoryService) {}
 
   ngOnInit(): void {
-    this.loadCategories();
+    this.fetchCategories();
+    console.log('✅ CategoryComponent INIT başladı');
+
   }
 
-  loadCategories(): void {
-    this.categoryService.getMainCategories().subscribe({
-      next: (categories) => {
-        this.categories = categories;
+  fetchCategories(): void {
+    this.isLoading = true;
+    this.categoryService.getAllCategories().subscribe({
+      next: (data) => {
+        this.categories = data;
+        this.isLoading = false;
       },
       error: (err) => {
-        this.errorMessage = 'Error loading categories. Please try again later.';
+        this.error = 'Failed to load categories';
         console.error(err);
+        this.isLoading = false;
       }
     });
   }

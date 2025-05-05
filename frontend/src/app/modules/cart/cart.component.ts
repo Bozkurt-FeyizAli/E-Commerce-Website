@@ -113,7 +113,10 @@ export class CartComponent implements OnInit {
   mainImageUrl: 'assets/images/product-placeholder.png',
   discountPercentage: undefined,
   ratingAverage: undefined,
-  category: { id: 0, name: 'Unknown Category' },
+  category: {
+    id: 0, name: 'Unknown Category',
+    productCount: undefined
+  },
   isActive: false,
   createdAt: new Date(),
   title: undefined

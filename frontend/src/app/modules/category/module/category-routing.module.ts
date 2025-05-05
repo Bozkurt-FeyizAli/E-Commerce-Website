@@ -4,9 +4,8 @@ import { CategoryComponent } from '../category.component';
 import { CategoryDetailComponent } from '../category-detail/category-detail.component';
 
 const routes: Routes = [
-  { path: 'categories', component: CategoryComponent },
-    { path: 'categories', component: CategoryComponent },
-    { path: 'categories/:id', component: CategoryDetailComponent }
+  { path: '', component: CategoryComponent },
+    { path: ':id', component: CategoryDetailComponent }
 
 ];
 

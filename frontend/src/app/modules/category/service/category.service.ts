@@ -32,6 +32,11 @@ export class CategoryService {
     return this.http.delete<void>(`${this.categoriesUrl}/${id}`);
   }
 
+  getAllCategories(): Observable<Category[]> {
+    return this.http.get<Category[]>(this.categoriesUrl);
+  }
+
+
 
 
 }

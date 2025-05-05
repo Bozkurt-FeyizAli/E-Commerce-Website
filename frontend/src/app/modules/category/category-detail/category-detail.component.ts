@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CategoryService } from '../service/category.service';
-import { Product } from '@model/product';
+import { ProductService } from 'app/modules/products/services/product.service';
 import { Category } from '@model/category';
+import { Product } from '@model/product';
 
 @Component({
   selector: 'app-category-detail',
@@ -11,44 +12,58 @@ import { Category } from '@model/category';
   styleUrls: ['./category-detail.component.css']
 })
 export class CategoryDetailComponent implements OnInit {
-  category: Category | null = null;
+
+  category!: Category;
   products: Product[] = [];
-  loading = true;
-  error: string | null = null;
+  sortOption: string = 'newest';
+  isLoading = false;
+  error: string = '';
 
   constructor(
     private route: ActivatedRoute,
-    private categoryService: CategoryService
+    private categoryService: CategoryService,
+    private productService: ProductService
   ) {}
 
   ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    if (isNaN(id)) {
-      this.error = 'Invalid category ID';
-      this.loading = false;
-      return;
+    const categoryId = Number(this.route.snapshot.paramMap.get('id'));
+    if (categoryId) {
+      this.loadCategory(categoryId);
+      this.loadProducts(categoryId);
     }
-
-    this.loadCategoryAndProducts(id);
   }
 
-  private loadCategoryAndProducts(id: number): void {
-    this.loading = true;
+  loadCategory(id: number): void {
     this.categoryService.getCategoryById(id).subscribe({
-      next: (category) => {
-        this.category = category;
-        this.products = []; // Eğer products backend'den geliyorsa
-        this.loading = false;
+      next: (data) => {
+        this.category = data;
       },
       error: (err) => {
-        console.error(err);
-        this.error = 'Failed to load category.';
-        this.loading = false;
+        console.error('Failed to load category', err);
+        this.error = 'Category not found.';
       }
     });
   }
 
-  handleImageError(event: Event): void {
-    (event.target as HTMLImageElement).src = 'assets/images/product-placeholder.png';
+  loadProducts(categoryId: number): void {
+    this.isLoading = true;
+    this.productService.getProductsByCategory(categoryId, this.sortOption).subscribe({
+      next: (data) => {
+        this.products = data;
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Failed to load products', err);
+        this.error = 'Failed to load products.';
+        this.isLoading = false;
+      }
+    });
   }
+
+  onSortChange(): void {
+    if (this.category?.id) {
+      this.loadProducts(this.category.id);
+    }
+  }
+  
 }

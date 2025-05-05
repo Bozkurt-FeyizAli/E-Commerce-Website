@@ -14,6 +14,7 @@ import { environment } from '@env/environment';
   providedIn: 'root'
 })
 export class ProductService {
+
   private apiUrl = environment.apiUrl;
   ;
 
@@ -127,6 +128,11 @@ export class ProductService {
 
   getNewArrivals(): Observable<Product[]> {
     return this.http.get<Product[]>(`${this.apiUrl}/products?sort=createdAt,desc&limit=8`)
+      .pipe(catchError(this.handleError));
+  }
+
+  getProductsByCategory(categoryId: number, sortOption: string) {
+    return this.http.get<Product[]>(`${this.apiUrl}/products?categoryId=${categoryId}&sort=${sortOption}`)
       .pipe(catchError(this.handleError));
   }
 

@@ -23,11 +23,14 @@ const routes: Routes = [
         path: 'user',
         loadChildren: () => import('../modules/user/user.module').then(m => m.UserModule)
       },
-
-      // Protected Routes
       {
         path: 'products',
         loadChildren: () => import('../modules/products/products.module').then(m => m.ProductsModule)
+      },
+
+      {
+        path : 'categories',
+        loadChildren: () => import('../modules/category/module/category.module').then(m => m.CategoryModule)
       },
       {
         path: 'cart',

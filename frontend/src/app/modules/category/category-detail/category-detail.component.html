@@ -1,58 +1,72 @@
-<div class="py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-  <!-- Loading -->
-  <div *ngIf="loading" class="flex justify-center py-10">
-    <mat-spinner diameter="50"></mat-spinner>
+<div class="category-detail-container">
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a [routerLink]="['/']">Home</a> /
+    <a [routerLink]="['/category']">Categories</a> /
+    <span *ngIf="category">{{ category.name }}</span>
+    <span *ngIf="!category && !error">Loading...</span>
+    <span *ngIf="error">Category not found</span>
   </div>
 
-  <!-- Error -->
-  <div *ngIf="error" class="text-center text-red-500 py-4">
+  <div *ngIf="isLoading" class="loading-spinner">
+    <span>Loading category details...</span>
+  </div>
+
+  <div *ngIf="error" class="error-message">
     {{ error }}
   </div>
 
-  <!-- Category Details -->
-  <div *ngIf="!loading && category">
-    <h2 class="text-3xl font-bold text-gray-900 mb-4 text-center">
-      {{ category.name }}
-    </h2>
-    <p class="text-gray-600 mb-6 text-center">{{ category.description }}</p>
+  <div *ngIf="!isLoading && !error && category">
+    <!-- Category header -->
+    <h1 class="category-title">{{ category.name }}</h1>
 
-    <!-- Products Grid -->
-    <div *ngIf="products.length > 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-      <div
-        *ngFor="let product of products"
-        class="bg-white rounded-lg shadow hover:shadow-lg transition duration-300 flex flex-col"
-      >
-        <img
-          [src]="product.mainImageUrl || 'assets/images/product-placeholder.png'"
-          [alt]="product.name"
-          class="w-full h-48 object-cover rounded-t-lg"
-          (error)="handleImageError($event)"
-        />
-        <div class="p-4 flex flex-col justify-between flex-1">
-          <div>
-            <h3 class="text-lg font-semibold text-gray-900">{{ product.name }}</h3>
-            <p class="text-sm text-gray-500 mb-2">
-              {{ product.description || 'No description available' }}
-            </p>
-            <div class="text-lg font-bold text-green-600">
-              {{ product.price | currency:'TRY':'symbol':'1.2-2' }}
-            </div>
+    <p *ngIf="category.description" class="category-description">
+      {{ category.description }}
+    </p>
+
+    <!-- Sorting & Filtering -->
+    <div class="controls-section">
+      <div class="sort-container">
+        <label for="sort-select">Sort by:</label>
+        <select
+          id="sort-select"
+          [(ngModel)]="sortOption"
+          (change)="onSortChange()"
+          class="sort-select">
+          <option value="newest">Newest</option>
+          <option value="price_low">Price: Low to High</option>
+          <option value="price_high">Price: High to Low</option>
+          <option value="best_sellers">Best Sellers</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Product Grid -->
+    <div *ngIf="products.length > 0" class="product-grid">
+      <div *ngFor="let product of products" class="product-card">
+        <div class="product-image-container">
+          <img [src]="product.mainImageUrl" [alt]="product.name" class="product-image">
+        </div>
+        <div class="product-info">
+          <h3 class="product-name">{{ product.name }}</h3>
+          <p class="product-price">{{ product.price | currency }}</p>
+          <div class="product-actions">
+            <button class="quick-view-btn">Quick View</button>
+            <button [routerLink]="['/product', product.id]" class="details-btn">Details</button>
           </div>
-          <button
-            mat-raised-button
-            color="primary"
-            class="mt-4 w-full"
-            [routerLink]="['/products', product.id]"
-          >
-            View Details
-          </button>
         </div>
       </div>
     </div>
 
-    <!-- No Products -->
-    <div *ngIf="products.length === 0" class="text-center text-gray-500 py-10">
-      No products found in this category.
+    <div *ngIf="products.length === 0" class="no-products">
+      <p>No products found in this category.</p>
+    </div>
+
+    <!-- Pagination placeholder -->
+    <div *ngIf="products.length > 0" class="pagination">
+      <button class="page-btn" [disabled]="true">Previous</button>
+      <button class="page-btn active">1</button>
+      <button class="page-btn" [disabled]="true">Next</button>
     </div>
   </div>
 </div>

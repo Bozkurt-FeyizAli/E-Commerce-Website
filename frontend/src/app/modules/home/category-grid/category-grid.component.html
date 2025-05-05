@@ -17,7 +17,7 @@
       [queryParams]="{ category: category.name }"
     >
       <img
-        [src]="category.imageUrl || 'assets/images/category-placeholder.png'"
+        [src]="category.imageUrl "
         [alt]="category.name"
         class="w-full h-32 object-cover"
         (error)="handleImageError($event)"

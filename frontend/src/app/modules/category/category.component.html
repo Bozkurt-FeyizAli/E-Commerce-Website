@@ -1,13 +1,26 @@
-<div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+<div>category works</div>
+<div class="category-container">
+  <h1 class="category-title">Shop by Category</h1>
 
-<div class="category-item" *ngFor="let category of categories">
-  <a [routerLink]="['/categories', category.id]" class="block p-4 bg-white rounded-lg shadow hover:shadow-lg transition duration-300">
-    <h2 class="text-lg font-semibold">{{ category.name }}</h2>
-    <p class="text-sm text-gray-500">{{ category.description }}</p>
-  </a>
-</div>
+  <div *ngIf="isLoading" class="loading-spinner">
+    <span>Loading categories...</span>
+  </div>
 
+  <div *ngIf="error" class="error-message">
+    {{ error }}
+  </div>
 
-<div *ngIf="categories.length === 0">
-  <p>No categories found.</p>
+  <div *ngIf="!isLoading && !error" class="category-grid">
+    <a *ngFor="let category of categories"
+       [routerLink]="['/category', category.id]"
+       class="category-card">
+      <div class="category-image-container">
+        <img [src]="category.imageUrl" [alt]="category.name" class="category-image">
+      </div>
+      <div class="category-info">
+        <h2 class="category-name">{{ category.name }}</h2>
+        <p class="product-count">{{ category.productCount || 0 }} Products</p>
+      </div>
+    </a>
+  </div>
 </div>

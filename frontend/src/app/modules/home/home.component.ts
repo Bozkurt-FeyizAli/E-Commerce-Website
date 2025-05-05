@@ -73,7 +73,7 @@ export class HomeComponent {
 
   handleImageError($event: ErrorEvent) {
     const target = $event.target as HTMLImageElement;
-    target.src = 'assets/images/product-placeholder.png';
+    target.src = '';
     target.onerror = null; // Prevents infinite loop if the placeholder image fails to load
     }
 
