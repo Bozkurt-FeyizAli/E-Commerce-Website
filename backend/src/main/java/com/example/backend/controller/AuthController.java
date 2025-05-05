@@ -42,7 +42,7 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-public ResponseEntity<UserDto> getCurrentUser(@RequestHeader("Authorization") String authHeader) {
+public ResponseEntity<UserDto> getCurrentUser(@RequestHeader(value="Authorization" , required=false) String authHeader) {
     String token = authHeader.replace("Bearer ", "");
     UserDto user = userService.getUserFromToken(token);
     return ResponseEntity.ok(user);
