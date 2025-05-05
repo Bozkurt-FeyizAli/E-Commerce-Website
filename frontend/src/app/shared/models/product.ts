@@ -3,6 +3,7 @@ import { OrderItem } from './order-item';
 import { Category } from './category';
 
 export interface Product {
+title: any;
   id: number;
   name: string;
   description?: string;

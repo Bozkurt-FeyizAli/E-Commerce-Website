@@ -100,7 +100,7 @@ export class AuthService {
     );
   }
 
-  private loadCurrentUser(): void {
+  public loadCurrentUser(): void {
     this.getCurrentUserFromApi().subscribe({
       next: (user) => console.log('User loaded', user),
       error: (err) => {

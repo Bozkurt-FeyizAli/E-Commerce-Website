@@ -1,7 +1,11 @@
-<div class="checkout-success">
-  <mat-icon class="success-icon" color="primary">check_circle</mat-icon>
-  <h2>Thank you! Your order has been placed successfully.</h2>
-  <a mat-raised-button color="primary" routerLink="/products">
-    Continue Shopping
-  </a>
+<div class="success-container">
+  <h1>✅ Thank you for your purchase!</h1>
+  <p>Your order has been placed successfully.</p>
+
+  <div *ngIf="orderId">
+    <p><strong>Order ID:</strong> {{ orderId }}</p>
+    <p>You will receive an email confirmation shortly.</p>
+  </div>
+
+  <button mat-raised-button color="primary" routerLink="/">Continue Shopping</button>
 </div>

@@ -1,72 +1,86 @@
-<div class="checkout-container">
-  <h2>Checkout</h2>
-
-  <div *ngIf="loading" class="loading-overlay">
-    <mat-spinner diameter="50"></mat-spinner>
-  </div>
-
-  <form [formGroup]="checkoutForm" (ngSubmit)="onSubmit()" *ngIf="!loading">
-    <!-- Shipping Information -->
-    <h3>Shipping Information</h3>
-    <mat-form-field appearance="fill">
-      <mat-label>Address</mat-label>
-      <input matInput formControlName="shippingAddress" required />
-    </mat-form-field>
-
-    <div class="form-row">
-      <mat-form-field appearance="fill">
-        <mat-label>City</mat-label>
-        <input matInput formControlName="city" required />
-      </mat-form-field>
-
-      <mat-form-field appearance="fill">
-        <mat-label>State</mat-label>
-        <input matInput formControlName="state" required />
-      </mat-form-field>
+<div class="checkout-container" *ngIf="!loading; else loadingTemplate">
+  <form [formGroup]="checkoutForm" (ngSubmit)="onSubmit()">
+    <h2>Shipping Information</h2>
+    <div>
+      <label>Full Name *</label>
+      <input formControlName="fullName" type="text" />
+    </div>
+    <div>
+      <label>Address Line 1 *</label>
+      <input formControlName="addressLine1" type="text" />
+    </div>
+    <div>
+      <label>Address Line 2</label>
+      <input formControlName="addressLine2" type="text" />
+    </div>
+    <div>
+      <label>City *</label>
+      <input formControlName="city" type="text" />
+    </div>
+    <div>
+      <label>State *</label>
+      <input formControlName="state" type="text" />
+    </div>
+    <div>
+      <label>Postal Code *</label>
+      <input formControlName="postalCode" type="text" />
+    </div>
+    <div>
+      <label>Country *</label>
+      <input formControlName="country" type="text" />
+    </div>
+    <div>
+      <label>Phone Number *</label>
+      <input formControlName="phoneNumber" type="text" />
+    </div>
+    <div>
+      <label>Email *</label>
+      <input formControlName="email" type="email" />
     </div>
 
-    <div class="form-row">
-      <mat-form-field appearance="fill">
-        <mat-label>Postal Code</mat-label>
-        <input matInput formControlName="postalCode" required />
-      </mat-form-field>
-
-      <mat-form-field appearance="fill">
-        <mat-label>Country</mat-label>
-        <input matInput formControlName="country" required />
-      </mat-form-field>
+    <h2>Payment Method</h2>
+    <div>
+      <label>
+        <input type="radio" formControlName="paymentMethod" value="creditCard" />
+        Credit Card
+      </label>
+      <label>
+        <input type="radio" formControlName="paymentMethod" value="paypal" />
+        PayPal
+      </label>
     </div>
 
-    <mat-form-field appearance="fill">
-      <mat-label>Phone Number</mat-label>
-      <input matInput formControlName="phoneNumber" required />
-    </mat-form-field>
-
-    <!-- Payment Method -->
-    <h3>Payment Method</h3>
-    <mat-form-field appearance="fill">
-      <mat-label>Select Payment Method</mat-label>
-      <mat-select formControlName="paymentMethod">
-        <mat-option *ngFor="let method of paymentMethods" [value]="method.id">
-          {{ method.name }}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-
-    <!-- Order Summary -->
-    <h3>Order Summary</h3>
-    <div *ngFor="let entry of cartItems" class="order-item">
-      <div>{{ entry.product.name }} (x{{ entry.item.quantity }})</div>
-      <div>{{ (entry.product.price * entry.item.quantity) | currency:'TRY':'symbol':'1.2-2' }}</div>
+    <!-- Stripe Payment (Credit Card) -->
+    <div *ngIf="checkoutForm.value.paymentMethod === 'creditCard'" class="stripe-container">
+      <h4>Pay with Credit Card</h4>
+      <div id="card-element"></div>
+      <div id="card-errors" class="error-message" role="alert"></div>
     </div>
 
-    <div class="order-total">
-      <strong>Total: {{ totalPrice | currency:'TRY':'symbol':'1.2-2' }}</strong>
+    <!-- PayPal Payment -->
+    <div *ngIf="checkoutForm.value.paymentMethod === 'paypal'" class="paypal-container">
+      <h4>Pay with PayPal</h4>
+      <div #paypalContainer id="paypal-button-container"></div>
     </div>
 
-    <!-- Submit Button -->
-    <button mat-raised-button color="primary" type="submit" [disabled]="submitting || cartItems.length === 0">
-      {{ submitting ? 'Placing Order...' : 'Place Order' }}
-    </button>
+    <h2>Order Summary</h2>
+    <div *ngFor="let entry of cartItems">
+      <p>
+      {{ entry.product.title }}
+      (x{{ entry.item.quantity }}) -
+      ${{ (entry.product.price * entry.item.quantity) | number:'1.2-2' }}
+      </p>
+    </div>
+    <p>Subtotal: ${{ subtotal | number:'1.2-2' }}</p>
+    <p>Shipping: ${{ shippingFee | number:'1.2-2' }}</p>
+    <p *ngIf="discount > 0">Discount: -${{ discount | number:'1.2-2' }}</p>
+    <h3>Total: ${{ total | number:'1.2-2' }}</h3>
+
+    <button type="submit" [disabled]="submitting">Place Order</button>
   </form>
 </div>
+
+<!-- Loading Template -->
+<ng-template #loadingTemplate>
+  <p>Loading your cart...</p>
+</ng-template>

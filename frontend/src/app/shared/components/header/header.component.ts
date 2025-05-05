@@ -40,12 +40,13 @@ export class HeaderComponent implements OnInit {
         this.cartItemCount = 0;
         return;
       }
-      this.cartItemCount = items.length;
+      this.cartItemCount = items.reduce((total, item) => total + (item.quantity || 0), 0);
     });
 
   }
-
-
+  isLoggedIn(): boolean {
+    return this.authService.isLoggedIn();
+  }
   logout() {
     this.authService.logout();
     this.router.navigate(['/auth/login']);

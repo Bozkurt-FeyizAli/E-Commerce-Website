@@ -36,6 +36,12 @@ const routes: Routes = [
         data: { roles: [Role.User, Role.Seller, Role.Admin] }
       },
       {
+        path: 'checkout',
+        loadChildren: () => import('../modules/checkout/checkout.module').then(m => m.CheckoutModule),
+        canActivate: [AuthGuard],
+        data: { roles: [Role.User, Role.Seller, Role.Admin] }
+      },
+      {
         path: 'seller',
         loadChildren: () => import('../modules/seller/seller.module').then(m => m.SellerModule),
         canActivate: [AuthGuard],

@@ -105,17 +105,18 @@ export class CartComponent implements OnInit {
 
   private getPlaceholderProduct(): Product {
     return {
-      id: 0,
-      name: 'Unknown Product',
-      description: 'No details available',
-      price: 0,
-      stock: 0,
-      mainImageUrl: 'assets/images/product-placeholder.png',
-      discountPercentage: undefined,
-      ratingAverage: undefined,
-      category: { id: 0, name: 'Unknown Category' },
-      isActive: false,
-      createdAt: new Date()
-    };
+  id: 0,
+  name: 'Unknown Product',
+  description: 'No details available',
+  price: 0,
+  stock: 0,
+  mainImageUrl: 'assets/images/product-placeholder.png',
+  discountPercentage: undefined,
+  ratingAverage: undefined,
+  category: { id: 0, name: 'Unknown Category' },
+  isActive: false,
+  createdAt: new Date(),
+  title: undefined
+};
   }
 }

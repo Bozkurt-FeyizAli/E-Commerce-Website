@@ -1,3 +1,4 @@
+import { AuthService } from 'app/core/services/auth/auth.service';
 import { Component, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
@@ -9,7 +10,9 @@ import { filter } from 'rxjs/operators';
   styleUrls: ['./core.component.css']
 })
 export class CoreComponent implements OnInit {
-  constructor(private router: Router) {}
+  constructor(private router: Router, private aurhService: AuthService) {
+    this.aurhService.loadCurrentUser();
+  }
 
   ngOnInit() {
     this.router.events
