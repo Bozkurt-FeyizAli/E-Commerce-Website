@@ -12,4 +12,6 @@ public class CategoryDto {
     private String description;
     private String imageUrl;
     private Boolean isActive;
+    private Integer productCount; // ✅ EKLENDİ
 }
+

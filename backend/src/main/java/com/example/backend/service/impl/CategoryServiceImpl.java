@@ -75,12 +75,17 @@ public class CategoryServiceImpl implements ICategoryService {
     }
 
     private CategoryDto mapToDto(Category category) {
-        return CategoryDto.builder()
-                .id(category.getId())
-                .name(category.getName())
-                .description(category.getDescription())
-                .imageUrl(category.getImageUrl())
-                .isActive(category.getIsActive())
-                .build();
-    }
+      int productCount = category.getProducts() != null ? category.getProducts().size() : 0;
+
+      return CategoryDto.builder()
+              .id(category.getId())
+              .name(category.getName())
+              .description(category.getDescription())
+              .imageUrl(category.getImageUrl())
+              .isActive(category.getIsActive())
+              .productCount(productCount) // ✅ EKLENDİ
+              .build();
+  }
+
+
 }

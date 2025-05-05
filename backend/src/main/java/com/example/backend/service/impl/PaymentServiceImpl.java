@@ -2,17 +2,24 @@ package com.example.backend.service.impl;
 
 import com.example.backend.dto.PaymentDto;
 import com.example.backend.entity.Payment;
-import com.example.backend.entity.PaymentFormat;
-import com.example.backend.entity.User;
 import com.example.backend.repository.PaymentFormatRepository;
 import com.example.backend.repository.PaymentRepository;
+import com.example.backend.repository.TransactionRepository;
 import com.example.backend.repository.UserRepository;
 import com.example.backend.service.IPaymentService;
+import com.stripe.Stripe;
+import com.stripe.model.PaymentIntent;
+import com.stripe.param.PaymentIntentCreateParams;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,6 +30,11 @@ public class PaymentServiceImpl implements IPaymentService {
     private final PaymentRepository paymentRepository;
     private final UserRepository userRepository;
     private final PaymentFormatRepository paymentFormatRepository;
+    private final TransactionRepository transactionRepository;
+
+
+    @Value("${stripe.secret-key}")
+    private String stripeSecretKey;
 
     @Override
     public PaymentDto createPayment(PaymentDto dto) {
@@ -94,4 +106,49 @@ public class PaymentServiceImpl implements IPaymentService {
                 .paymentDate(payment.getPaymentDate())
                 .build();
     }
+
+     @Override
+    public Map<String, String> createPaymentIntent(PaymentDto paymentDto) {
+        Stripe.apiKey = stripeSecretKey;
+
+        // Stripe sadece cent cinsinden alır (örnek: 20.99 USD -> 2099)
+        long amountInCents = Math.round(paymentDto.getAmount() * 100);
+
+        try {
+            PaymentIntentCreateParams params =
+                    PaymentIntentCreateParams.builder()
+                            .setAmount(amountInCents)
+                            .setCurrency("usd")
+                            .setAutomaticPaymentMethods(
+                                    PaymentIntentCreateParams.AutomaticPaymentMethods.builder()
+                                            .setEnabled(true)
+                                            .build()
+                            )
+                            .build();
+
+            PaymentIntent intent = PaymentIntent.create(params);
+
+            Map<String, String> responseData = new HashMap<>();
+            responseData.put("clientSecret", intent.getClientSecret());
+
+            // ✔️ İstersen DB’ye kaydedebilirsin:
+            savePayment(paymentDto, intent.getId(), amountInCents);
+
+            return responseData;
+        } catch (Exception e) {
+            throw new RuntimeException("Stripe payment failed: " + e.getMessage());
+        }
+    }
+
+     private void savePayment(PaymentDto paymentDto, String id, long amountInCents) {
+        Payment payment = new Payment();
+        payment.setPaymentStatus("Pending");
+        payment.setAmount((double) amountInCents / 100); // Cents to dollars
+        payment.setTransactionReference(id);
+        payment.setIsActive(true);
+        payment.setUser(userRepository.findById(paymentDto.getUserId()).orElseThrow(() -> new RuntimeException("User not found")));
+        payment.setPaymentFormat(paymentFormatRepository.findById(paymentDto.getPaymentFormatId()).orElseThrow(() -> new RuntimeException("PaymentFormat not found")));
+
+        paymentRepository.save(payment);
+     }
 }

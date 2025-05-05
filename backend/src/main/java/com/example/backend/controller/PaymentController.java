@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/payments")
@@ -44,4 +45,14 @@ public class PaymentController {
         List<PaymentDto> payments = paymentService.getAllActivePayments();
         return ResponseEntity.ok(payments);
     }
+
+    @PostMapping("/create-payment-intent")
+    public ResponseEntity<Map<String, String>> createPaymentIntent(@RequestBody PaymentDto paymentDto) {
+    Map<String, String> response = paymentService.createPaymentIntent(paymentDto);
+    return ResponseEntity.ok(response);
+    }
+
+    
+
+
 }

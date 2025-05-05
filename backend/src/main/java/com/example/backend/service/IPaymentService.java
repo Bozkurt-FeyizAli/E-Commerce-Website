@@ -3,6 +3,7 @@ package com.example.backend.service;
 import com.example.backend.dto.PaymentDto;
 
 import java.util.List;
+import java.util.Map;
 
 public interface IPaymentService {
 
@@ -15,4 +16,6 @@ public interface IPaymentService {
     PaymentDto getPaymentById(Long id);
 
     List<PaymentDto> getAllActivePayments();
+
+    Map<String, String> createPaymentIntent(PaymentDto paymentDto);
 }
