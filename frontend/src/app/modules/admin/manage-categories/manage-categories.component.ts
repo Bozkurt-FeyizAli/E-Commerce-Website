@@ -12,7 +12,8 @@ export class ManageCategoriesComponent implements OnInit {
   categories: Category[] = [];
   newCategory: Category = {
     name: '', description: '',
-    id: 0
+    id: 0,
+    productCount: undefined
   };
   editingCategory: Category | null = null;
 
@@ -58,7 +59,8 @@ export class ManageCategoriesComponent implements OnInit {
   }
 
   resetForm() {
-    this.newCategory = { id: 0, name: '', description: '' };
+    
+    this.newCategory = { id: 0, name: '', description: '', productCount: undefined };
     this.editingCategory = null;
   }
 }

@@ -4,6 +4,7 @@ import { CategoryService } from '../service/category.service';
 import { ProductService } from 'app/modules/products/services/product.service';
 import { Category } from '@model/category';
 import { Product } from '@model/product';
+import { CartService } from 'app/modules/cart/service/cart.service';
 
 @Component({
   selector: 'app-category-detail',
@@ -22,7 +23,8 @@ export class CategoryDetailComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private categoryService: CategoryService,
-    private productService: ProductService
+    private productService: ProductService,
+    private cartService: CartService
   ) {}
 
   ngOnInit(): void {
@@ -65,5 +67,20 @@ export class CategoryDetailComponent implements OnInit {
       this.loadProducts(this.category.id);
     }
   }
-  
+
+
+addToCart(product: Product) {
+  this.cartService.addToCart(product).subscribe({
+    next: () => {
+      console.log(`✅ ${product.name} added to cart.`);
+      // isteğe bağlı: başarı mesajı göster
+    },
+    error: (err) => {
+      console.error('❌ Error adding to cart:', err);
+      // isteğe bağlı: hata mesajı göster
+    }
+  });
+}
+
+
 }

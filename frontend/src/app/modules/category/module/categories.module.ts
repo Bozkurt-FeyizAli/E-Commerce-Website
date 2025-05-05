@@ -15,4 +15,4 @@ import { FormsModule } from '@angular/forms';
   ]
 
 })
-export class CategoryModule {}
+export class CategoriesModule {}

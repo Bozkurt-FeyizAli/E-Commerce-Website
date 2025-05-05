@@ -12,10 +12,10 @@
 
   <div *ngIf="!isLoading && !error" class="category-grid">
     <a *ngFor="let category of categories"
-       [routerLink]="['/category', category.id]"
+       [routerLink]="['/categories', category.id]"
        class="category-card">
       <div class="category-image-container">
-        <img [src]="category.imageUrl" [alt]="category.name" class="category-image">
+        <img [src]="category.imageUrl || 'assets/default-category.jpg'" [alt]="category.name" class="category-image">
       </div>
       <div class="category-info">
         <h2 class="category-name">{{ category.name }}</h2>

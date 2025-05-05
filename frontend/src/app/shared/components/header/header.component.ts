@@ -28,6 +28,10 @@ export class HeaderComponent implements OnInit {
           const payload = JSON.parse(atob(token.split('.')[1]));
           this.username = payload.sub || payload.username;
           this.role = payload.role || null;
+          // role ataması
+          if (payload.role) {
+            this.role = payload.role;
+          }
         } catch (e) {
           console.error('Failed to parse token', e);
         }

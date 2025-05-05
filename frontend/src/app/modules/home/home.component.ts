@@ -46,7 +46,7 @@ export class HomeComponent {
   }
 
   private loadCategories() {
-    this.categoryService.getMainCategories().subscribe(categories => {
+    this.categoryService.getAllCategories().subscribe(categories => {
       this.categories = categories;
     });
   }

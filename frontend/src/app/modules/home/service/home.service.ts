@@ -23,8 +23,9 @@ export class HomeService {
   }
 
   getCategories() {
-    return this.categoryService.getMainCategories();
+    return this.categoryService.getAllCategories();
   }
+  
 
   // getBanners() {
   //   return this.bannerService.getBanners(); // BannerService yoksa statik başlatırsın

@@ -17,16 +17,16 @@ export class CategoryGridComponent implements OnInit {
 
   ngOnInit(): void {
     this.homeService.getCategories().subscribe({
-      next: (data) => {
+      next: (data: Category[]) => {
         this.categories = data;
         this.loading = false;
       },
-      error: (err) => {
+      error: (err: any) => {
         this.error = 'Failed to load categories.';
         console.error(err);
         this.loading = false;
       }
-    });
+    }); 
   }
 
   handleImageError(event: Event): void {

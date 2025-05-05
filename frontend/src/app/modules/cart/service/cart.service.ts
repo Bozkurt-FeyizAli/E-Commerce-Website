@@ -6,7 +6,6 @@ import { HttpClient } from '@angular/common/http';
 import { catchError, tap, switchMap, map } from 'rxjs/operators';
 import { CartItem } from '@model/cart-item';
 import { environment } from '../../../shared/environments/environment';
-import { Cart } from '@model/cart';
 
 @Injectable({
   providedIn: 'root'
@@ -74,7 +73,8 @@ export class CartService {
   addToCart(product: Product, quantity: number = 1): Observable<CartItem> {
     const userId = this.authService.getUserId();
     if (!userId) {
-      return throwError(() => new Error('Giriş yapmadan sepete ekleme yapılamaz.'));
+      alert('Please login to add items to cart');
+      return throwError(() => new Error('Can not add items to cart without login.'));
     }
 
     const cartItem: Partial<CartItem> = {
@@ -93,7 +93,7 @@ export class CartService {
   removeFromCart(itemId: number): Observable<CartItem[]> {
     const userId = this.authService.getUserId();
     if (!userId) {
-      return throwError(() => new Error('Giriş yapmadan sepetten silme yapılamaz.'));
+      return throwError(() => new Error('Cannot remove items from cart without login.'));
     }
 
     const updatedItems = this.cartItems.value.filter(item => item.id !== itemId);
@@ -114,7 +114,7 @@ export class CartService {
   private updateCartItems(items: CartItem[]): Observable<CartItem[]> {
     const userId = this.authService.getUserId();
     if (!userId) {
-      return throwError(() => new Error('Giriş yapmadan sepet güncellenemez.'));
+      return throwError(() => new Error('Cannot update items in cart without login.'));
     }
 
     return this.http.patch<{ items: CartItem[] }>(`${this.apiUrl}/${userId}`, { items }).pipe(
@@ -146,7 +146,7 @@ export class CartService {
     return this.http.get<Product>(`${environment.apiUrl}/products/${productId}`).pipe(
       catchError(error => {
         console.error('Product fetch error:', error);
-        return throwError(() => new Error('Ürün bilgileri alınamadı'));
+        return throwError(() => new Error('Could not fetch product details'));
       })
     );
   }
@@ -154,7 +154,7 @@ export class CartService {
   private handleError(error: any): Observable<never> {
     console.error('Cart error:', error);
     return throwError(() => new Error(
-      error.error?.message || 'Sepet işlemi sırasında bir hata oluştu'
+      error.error?.message || 'An error occurred while processing the cart'
     ));
   }
 

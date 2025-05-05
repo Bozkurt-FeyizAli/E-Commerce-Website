@@ -1,3 +1,4 @@
+import { CategoriesModule } from './../modules/category/module/categories.module';
 
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
@@ -10,7 +11,6 @@ const routes: Routes = [
     path: '',
     component: CoreComponent,
     children: [
-      // Public Routes
       {
         path: 'auth',
         loadChildren: () => import('../modules/auth/module/auth.module').then(m => m.AuthModule)
@@ -30,7 +30,7 @@ const routes: Routes = [
 
       {
         path : 'categories',
-        loadChildren: () => import('../modules/category/module/category.module').then(m => m.CategoryModule)
+        loadChildren: () => import('../modules/category/module/categories.module').then(m => m.CategoriesModule)
       },
       {
         path: 'cart',

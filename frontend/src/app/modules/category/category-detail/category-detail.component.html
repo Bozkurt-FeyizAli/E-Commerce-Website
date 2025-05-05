@@ -2,7 +2,7 @@
   <!-- Breadcrumb -->
   <div class="breadcrumb">
     <a [routerLink]="['/']">Home</a> /
-    <a [routerLink]="['/category']">Categories</a> /
+    <a [routerLink]="['/categories']">Categories</a> /
     <span *ngIf="category">{{ category.name }}</span>
     <span *ngIf="!category && !error">Loading...</span>
     <span *ngIf="error">Category not found</span>
@@ -51,8 +51,9 @@
           <h3 class="product-name">{{ product.name }}</h3>
           <p class="product-price">{{ product.price | currency }}</p>
           <div class="product-actions">
-            <button class="quick-view-btn">Quick View</button>
-            <button [routerLink]="['/product', product.id]" class="details-btn">Details</button>
+            <button (click)="addToCart(product)" class="add-to-cart-btn">Add to Cart</button>
+            <button [routerLink]="['/products', product.id]" class="details-btn">Details</button>
+
           </div>
         </div>
       </div>
