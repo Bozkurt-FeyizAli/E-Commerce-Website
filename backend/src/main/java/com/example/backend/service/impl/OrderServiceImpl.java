@@ -2,6 +2,7 @@ package com.example.backend.service.impl;
 
 import com.example.backend.dto.CheckoutDto;
 import com.example.backend.dto.OrderDto;
+import com.example.backend.dto.UserDto;
 import com.example.backend.entity.Cart;
 import com.example.backend.entity.Order;
 import com.example.backend.entity.OrderItem;
@@ -104,21 +105,35 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     private OrderDto mapToDto(Order order) {
-        return OrderDto.builder()
-                .id(order.getId())
-                .userId(order.getUser() != null ? order.getUser().getId() : null)
-                .paymentId(order.getPayment() != null ? order.getPayment().getId() : null)
-                .status(order.getStatus())
-                .totalAmount(order.getTotalAmount())
-                .shippingAddressLine(order.getShippingAddressLine())
-                .shippingCity(order.getShippingCity())
-                .shippingState(order.getShippingState())
-                .shippingPostalCode(order.getShippingPostalCode())
-                .shippingCountry(order.getShippingCountry())
-                .isActive(order.getIsActive())
-                .orderDate(order.getOrderDate())
-                .build();
-    }
+      return OrderDto.builder()
+              .id(order.getId())
+              .userId(order.getUser() != null ? order.getUser().getId() : null)
+              .user(order.getUser() != null ? mapUserToDto(order.getUser()) : null) // 👈 ekle
+              .paymentId(order.getPayment() != null ? order.getPayment().getId() : null)
+              .status(order.getStatus())
+              .totalAmount(order.getTotalAmount())
+              .shippingAddressLine(order.getShippingAddressLine())
+              .shippingCity(order.getShippingCity())
+              .shippingState(order.getShippingState())
+              .shippingPostalCode(order.getShippingPostalCode())
+              .shippingCountry(order.getShippingCountry())
+              .isActive(order.getIsActive())
+              .orderDate(order.getOrderDate())
+              .build();
+  }
+
+  private UserDto mapUserToDto(User user) {
+    return UserDto.builder()
+        .id(user.getId())
+        .email(user.getEmail())
+        .firstName(user.getFirstName())
+        .lastName(user.getLastName())
+        .username(user.getUsername())
+        .build();
+}
+
+
+
 
     @Override
     @Transactional
@@ -182,4 +197,28 @@ public class OrderServiceImpl implements IOrderService {
 
       return mapToDto(order);
     }
+
+    @Override
+public void updateOrderStatus(Long orderId, String newStatus) {
+    Order order = orderRepository.findById(orderId)
+        .orElseThrow(() -> new RuntimeException("Order not found"));
+    order.setStatus(newStatus.toUpperCase());
+    orderRepository.save(order);
+}
+
+    @Override
+    public List<OrderDto> getOrdersForCurrentUser() {
+        User user = userRepository.findById(1L) 
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<Order> orders = orderRepository.findAll()
+                .stream()
+                .filter(order -> order.getUser().getId().equals(user.getId()) && order.getIsActive())
+                .collect(Collectors.toList());
+
+        return orders.stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+    }
+
 }

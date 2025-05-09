@@ -51,4 +51,10 @@ public class OrderController {
         OrderDto created = orderService.createOrder(dto);
         return ResponseEntity.ok(created);
     }
+
+    @GetMapping("/my")
+    public ResponseEntity<List<OrderDto>> getMyOrders() {
+        List<OrderDto> orders = orderService.getOrdersForCurrentUser();
+        return ResponseEntity.ok(orders);
+    }
     }

@@ -21,4 +21,6 @@ public class OrderDto {
     private String shippingCountry;
     private Boolean isActive;
     private LocalDateTime orderDate;
+    private UserDto user;
+
 }

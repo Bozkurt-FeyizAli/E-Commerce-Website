@@ -18,4 +18,8 @@ public interface IOrderService {
     List<OrderDto> getAllActiveOrders();
 
     OrderDto createOrderFromCart(CheckoutDto dto);
+
+    void updateOrderStatus(Long orderId, String newStatus);
+
+    List<OrderDto> getOrdersForCurrentUser();
 }
