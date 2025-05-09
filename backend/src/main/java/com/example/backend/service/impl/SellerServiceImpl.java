@@ -32,4 +32,18 @@ public class SellerServiceImpl implements ISellerService {
     public void deleteProduct(Long productId) {
         productRepository.deleteById(productId);
     }
+
+    @Override
+public void addProduct(ProductDto dto) {
+    Product product = Product.builder()
+            .name(dto.getName())
+            .description(dto.getDescription())
+            .price(dto.getPrice())
+            .stock(dto.getStock())
+            .mainImageUrl(dto.getMainImageUrl()) // Cloudinary'den gelen URL
+            .isActive(true)
+            .build();
+
+    productRepository.save(product);
+}
 }

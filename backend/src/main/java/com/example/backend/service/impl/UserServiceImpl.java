@@ -7,13 +7,13 @@ import com.example.backend.entity.RefreshToken;
 import com.example.backend.entity.User;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.repository.UserRepository;
-import com.example.backend.security.JwtAuthenticationFilter;
 import com.example.backend.service.IUserService;
 import com.example.backend.service.JwtService;
 import com.example.backend.service.RefreshTokenService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -64,7 +64,7 @@ public Map<String, String> login(String email, String password) {
 
     User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new ResourceNotFoundException("User not found."));
-
+            
     if (!passwordEncoder.matches(password, user.getPassword())) {
         throw new RuntimeException("Incorrect password.");
     }
@@ -99,22 +99,23 @@ public Map<String, String> login(String email, String password) {
                         .orElseThrow(() -> new ResourceNotFoundException("Refresh token not found."))
         );
 
-        String newAccessToken = jwtService.generateToken(token.getUser().getUsername(),
-                token.getUser().getRoles().stream().findFirst().map(r -> r.getName()).orElse("USER"));
+        String newAccessToken = jwtService.generateToken(token.getUser().getEmail(),
+          token.getUser().getRoles().stream().findFirst().map(r -> r.getName()).orElse("USER"));
 
         return Map.of("accessToken", newAccessToken);
     }
 @Override
 public UserDto updateUser(Long id, UserDto userDto) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    String currentUsername = authentication.getName();
+    String token = ((org.springframework.security.authentication.UsernamePasswordAuthenticationToken) authentication).getCredentials().toString();
+    String email = jwtService.extractUsername(token);
 
     User user = userRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("User not found3."));
 
-    if (!user.getUsername().equals(currentUsername)) {
-        throw new RuntimeException("You can only update your own profile.");
-    }
+            if (!user.getEmail().equals(email)) {
+              throw new RuntimeException("You can only update your own profile.");
+          }
 
     if (userDto.getUsername() != null) user.setUsername(userDto.getUsername());
     if (userDto.getEmail() != null) user.setEmail(userDto.getEmail());
@@ -137,14 +138,15 @@ public UserDto updateUser(Long id, UserDto userDto) {
 @Override
 public void deleteUser(Long id) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    String currentUsername = authentication.getName();
+    String token = ((UsernamePasswordAuthenticationToken) authentication).getCredentials().toString();
+String email = jwtService.extractUsername(token);
 
     User user = userRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("User not found2."));
 
-    if (!user.getUsername().equals(currentUsername)) {
-        throw new RuntimeException("You can only delete your own account.");
-    }
+            if (!user.getEmail().equals(email)) {
+              throw new RuntimeException("You can only delete your own account.");
+          }
 
     user.setIsActive(false);
     userRepository.save(user);
@@ -192,38 +194,39 @@ public void logout(String refreshToken) {
     refreshTokenService.delete(token);
 }
 
-    @Override
+@Override
 public UserDto getUserFromToken(String token) {
-    String username = jwtService.extractUsername(token);
-    User user = userRepository.findByEmail(username)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found."));
+    String email = jwtService.extractUsername(token); // artık email
+    User user = userRepository.findByEmail(email)
+        .orElseThrow(() -> new ResourceNotFoundException("User not found."));
 
-    // Roller manuel olarak RoleDto'ya dönüştürülüyor
     List<RoleDto> roleDtos = user.getRoles().stream()
-            .map(role -> RoleDto.builder()
-                    .id(role.getId())
-                    .name(role.getName())
-                    .isActive(role.getIsActive())
-                    .build())
-            .toList();
+        .map(role -> RoleDto.builder()
+            .id(role.getId())
+            .name(role.getName())
+            .isActive(role.getIsActive())
+            .build())
+        .toList();
 
-    // UserDto oluşturuluyor ve roller dahil ediliyor
     return UserDto.builder()
-            .id(user.getId())
-            .username(user.getUsername())
-            .email(user.getEmail())
-            .roles(roleDtos)
-            .build();
+        .id(user.getId())
+        .username(user.getUsername())
+        .email(user.getEmail())
+        .roles(roleDtos)
+        .build();
 }
+
+
+
 
 
     @Override
     public UserDto getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentUsername = authentication.getName();
+      Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+      String email = jwtService.extractUsername(((org.springframework.security.authentication.UsernamePasswordAuthenticationToken) authentication).getCredentials().toString());
 
-        User user = userRepository.findByEmail(currentUsername)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found."));
+      User user = userRepository.findByEmail(email)
+              .orElseThrow(() -> new ResourceNotFoundException("User not found."));
 
         return mapToDto(user);
     }
@@ -231,11 +234,10 @@ public UserDto getUserFromToken(String token) {
     @Override
     public void updatePassword(PasswordChangeDto passwordChangeDto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentUsername = authentication.getName();
-
-        User user = userRepository.findByEmail(currentUsername)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found."));
-
+        String token = ((UsernamePasswordAuthenticationToken) authentication).getCredentials().toString();
+        String email = jwtService.extractUsername(token);
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found."));
         if (!passwordEncoder.matches(passwordChangeDto.getOldPassword(), user.getPassword())) {
             throw new RuntimeException("Incorrect old password.");
         }
@@ -262,6 +264,9 @@ public UserDto getUserFromToken(String token) {
 
         return imageUrl;
     }
+
+
+
 
 
 }

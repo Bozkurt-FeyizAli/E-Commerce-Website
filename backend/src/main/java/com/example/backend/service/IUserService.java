@@ -1,6 +1,7 @@
 package com.example.backend.service;
 
 import com.example.backend.dto.PasswordChangeDto;
+import com.example.backend.dto.ProductDto;
 import com.example.backend.dto.UserDto;
 import java.util.List;
 import java.util.Map;
@@ -21,4 +22,5 @@ public interface IUserService {
     UserDto getCurrentUser();
     void updatePassword(PasswordChangeDto passwordChangeDto);
     String updateProfileImage(MultipartFile file);
+
 }
