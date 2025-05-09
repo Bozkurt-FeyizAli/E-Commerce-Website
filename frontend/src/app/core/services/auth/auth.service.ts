@@ -7,6 +7,7 @@ import { environment } from '@env/environment';
 import { SessionService } from 'app/core/services/session/session.service';
 import { User } from '../../../shared/models/user';
 import { get } from 'http';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +20,7 @@ export class AuthService {
 
   private apiUrl = `${environment.apiUrl}/auth`;
 
-  constructor(private http: HttpClient, private sessionService: SessionService, private storageService: SessionService) {
+  constructor(private http: HttpClient, private sessionService: SessionService, private storageService: SessionService, private router: Router) {
     const token = this.sessionService.getToken();
     if (token) {
       // Sayfa yenilenince user'ı tekrar yükle
@@ -70,6 +71,7 @@ export class AuthService {
 
         // ✅ Burası kritik → Header ve diğer abonelere haber verilir
         this.loadCurrentUser();
+        this.router.navigate(['/']);  
       })
     );
   }
@@ -78,7 +80,11 @@ export class AuthService {
 
 
   register(userDto: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/register`, userDto);
+    return this.http.post(`${this.apiUrl}/register`, userDto).pipe(
+      tap(() => {
+        this.router.navigate(['/login']);
+      })
+    );
   }
 
   logout(): void {
@@ -122,7 +128,7 @@ export class AuthService {
     return roles.length > 0 ? roles[0] : null;
   }
 
-  
+
 
 
 

@@ -1,0 +1,25 @@
+<div class="dashboard">
+  <h2>Welcome, Seller!</h2>
+
+  <div *ngIf="isLoading">Loading...</div>
+  <div *ngIf="errorMessage">{{ errorMessage }}</div>
+
+  <div  class="cards">
+    <a class="card" routerLink="/seller/products">
+      <h3>Products</h3>
+      <p>{{ dashboardData?.productCount }}</p>
+    </a>
+    <a class="card" routerLink="/seller/orders">
+      <h3>Orders</h3>
+      <p>{{ dashboardData?.orderCount }}</p>
+    </a>
+    <a class="card" routerLink="/seller/payments">
+      <h3>Payments</h3>
+      <p>{{ dashboardData?.paymentCount }}</p>
+    </a>
+    <a class="card" routerLink="/seller/complaints">
+      <h3>Complaints</h3>
+      <p>{{ dashboardData?.complaintCount }}</p>
+    </a>
+  </div>
+</div>

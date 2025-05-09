@@ -24,9 +24,10 @@ export class SellerService {
     return this.http.get<Product[]>(`${this.apiUrl}/products`);
   }
 
-  addProduct(product: FormData): Observable<Product> {
-    return this.http.post<Product>(`${this.apiUrl}/products`, product);
+  addProduct(product: Product): Observable<any> {
+    return this.http.post(`${this.apiUrl}/products`, product); // <== FormData değil
   }
+
 
   updateProduct(id: number, product: Partial<Product>): Observable<Product> {
     return this.http.put<Product>(`${this.apiUrl}/products/${id}`, product);
@@ -58,9 +59,9 @@ export class SellerService {
   }
 
   // Analytics
-  getDashboardData(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/dashboard`);
-  }
+  // getDashboardData(): Observable<any> {
+  //   return this.http.get<any>(`${this.apiUrl}/dashboard`);
+  // }
 
   // Yorumlar
   getProductReviews(productId: number): Observable<Review[]> {

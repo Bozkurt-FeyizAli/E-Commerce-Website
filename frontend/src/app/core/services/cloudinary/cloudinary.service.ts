@@ -7,15 +7,19 @@ import { Observable } from 'rxjs';
 })
 export class CloudinaryService {
   private cloudName = 'dqhw1xmyf';
-  private uploadPreset = 'my_unsigned_preset';
+  private uploadPreset = 'ml_default'; // ⚠️ Bu preset Cloudinary'de 'unsigned' olmalı
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   uploadImage(file: File): Observable<any> {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', this.uploadPreset);
 
-    return this.http.post(`https://api.cloudinary.com/v1_1/${this.cloudName}/image/upload`, formData);
+    // ⚠️ Kesinlikle headers tanımlama, CORS hatası gelir
+    return this.http.post(
+      `https://api.cloudinary.com/v1_1/${this.cloudName}/image/upload`,
+      formData
+    );
   }
 }

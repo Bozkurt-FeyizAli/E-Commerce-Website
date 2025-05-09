@@ -15,21 +15,21 @@ export class AnalyticsComponent implements OnInit {
   constructor(private sellerService: SellerService) {}
 
   ngOnInit(): void {
-    this.fetchDashboard();
+    //this.fetchDashboard();
   }
 
-  fetchDashboard(): void {
-    this.isLoading = true;
-    this.sellerService.getDashboardData().subscribe({
-      next: (data) => {
-        this.dashboardData = data;
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error(err);
-        this.errorMessage = 'Dashboard verisi yüklenirken hata oluştu.';
-        this.isLoading = false;
-      }
-    });
-  }
+  // fetchDashboard(): void {
+  //   this.isLoading = true;
+  //   this.sellerService.getDashboardData().subscribe({
+  //     next: (data) => {
+  //       this.dashboardData = data;
+  //       this.isLoading = false;
+  //     },
+  //     error: (err) => {
+  //       console.error(err);
+  //       this.errorMessage = 'Dashboard verisi yüklenirken hata oluştu.';
+  //       this.isLoading = false;
+  //     }
+  //   });
+  // }
 }

@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
 import { SellerComponent } from './seller.component';
 import { ProductManagementComponent } from './product-management/product-management.component';
 import { OrderManagementComponent } from './order-management/order-management.component';
@@ -12,21 +13,9 @@ import { TransactionsComponent } from './transactions/transactions.component';
 import { ComplaintsComponent } from './complaints/complaints.component';
 import { ProfileComponent } from './profile/profile.component';
 import { FormsModule } from '@angular/forms';
+import { DashboardComponent } from './dashboard/dashboard.component';
+import { SellerRoutingModule } from './seller-routing.module';
 
-const routes: Routes = [
-  { path: '', component: SellerComponent, children: [
-    { path: 'dashboard', component: AnalyticsComponent },
-    { path: 'products', component: ProductManagementComponent },
-    { path: 'orders', component: OrderManagementComponent },
-    { path: 'shipments', component: ShipmentTrackingComponent },
-    { path: 'reviews', component: ReviewManagementComponent },
-    { path: 'payments', component: PaymentsComponent },
-    { path: 'transactions', component: TransactionsComponent },
-    { path: 'complaints', component: ComplaintsComponent },
-    { path: 'profile', component: ProfileComponent },
-    { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
-  ]}
-];
 
 
 @NgModule({
@@ -40,12 +29,16 @@ const routes: Routes = [
     PaymentsComponent,
     TransactionsComponent,
     ComplaintsComponent,
-    ProfileComponent
+    ProfileComponent,
+    DashboardComponent,
+
   ],
   imports: [
     CommonModule,
-    RouterModule.forChild(routes),
-    FormsModule
+    FormsModule,
+    ReactiveFormsModule,
+    RouterModule,
+    SellerRoutingModule
   ]
 })
 export class SellerModule { }

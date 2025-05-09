@@ -1,1 +1,11 @@
-<p>product-management works!</p>
+<form [formGroup]="productForm" (ngSubmit)="submitProduct()">
+  <input type="text" formControlName="name" placeholder="Product Name" required>
+  <input type="text" formControlName="description" placeholder="Description">
+  <input type="number" formControlName="price" placeholder="Price">
+  <input type="number" formControlName="stock" placeholder="Stock">
+
+  <input type="file" (change)="onFileSelected($event)">
+  <!-- template tarafı -->
+<button [disabled]="isImageUploading" (click)="submitProduct()">Kaydet</button>
+
+</form>

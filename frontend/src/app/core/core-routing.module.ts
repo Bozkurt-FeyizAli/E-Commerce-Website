@@ -48,7 +48,7 @@ const routes: Routes = [
         path: 'seller',
         loadChildren: () => import('../modules/seller/seller.module').then(m => m.SellerModule),
         canActivate: [AuthGuard],
-        data: { roles: [Role.Seller, Role.Admin] } // admini çıkar
+        data: { roles: [Role.Seller]}
       },
       {
         path: 'admin',
