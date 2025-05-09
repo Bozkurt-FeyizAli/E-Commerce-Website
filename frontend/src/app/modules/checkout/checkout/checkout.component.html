@@ -39,44 +39,57 @@
     </div>
 
     <h2>Payment Method</h2>
-    <div>
-      <label>
-        <input type="radio" formControlName="paymentMethod" value="creditCard" />
-        Credit Card
-      </label>
-      <label>
-        <input type="radio" formControlName="paymentMethod" value="paypal" />
-        PayPal
-      </label>
-    </div>
 
-    <!-- Stripe Payment (Credit Card) -->
-    <div *ngIf="checkoutForm.value.paymentMethod === 'creditCard'" class="stripe-container">
-      <h4>Pay with Credit Card</h4>
-      <div id="card-element"></div>
-      <div id="card-errors" class="error-message" role="alert"></div>
-    </div>
+<!-- ⭐ payment adındaki formGroup'a giriyoruz -->
+<div formGroupName="payment">
 
-    <!-- PayPal Payment -->
-    <div *ngIf="checkoutForm.value.paymentMethod === 'paypal'" class="paypal-container">
-      <h4>Pay with PayPal</h4>
-      <div #paypalContainer id="paypal-button-container"></div>
-    </div>
+  <label>
+    <input type="radio" formControlName="method" value="COD" />
+    Pay on Delivery
+  </label>
+
+  <label>
+    <input type="radio" formControlName="method" value="STRIPE" />
+    Credit Card
+  </label>
+
+  <label>
+    <input type="radio" formControlName="method" value="PAYPAL" />
+    PayPal
+  </label>
+</div>
+
+<!-- Stripe Payment (Credit Card) -->
+<div *ngIf="paymentMethod === 'STRIPE'">
+  <div #cardEl id="card-element"></div>
+  <div id="card-errors" class="error-message"></div>
+</div>
+
+
+<!-- PayPal Payment -->
+<div *ngIf="paymentMethod === 'PAYPAL'" class="paypal-container">
+  <h4>Pay with PayPal</h4>
+  <!-- ⭐ ViewChild ismi de eşleşsin -->
+  <div #paypalEl id="paypal-button-container"></div>
+</div>
 
     <h2>Order Summary</h2>
     <div *ngFor="let entry of cartItems">
       <p>
-      {{ entry.product.title }}
-      (x{{ entry.item.quantity }}) -
-      ${{ (entry.product.price * entry.item.quantity) | number:'1.2-2' }}
+        {{ entry.product.title }}
+        (x{{ entry.item.quantity }}) -
+        ${{ (entry.product.price * entry.item.quantity) | number:'1.2-2' }}
       </p>
     </div>
-    <p>Subtotal: ${{ subtotal | number:'1.2-2' }}</p>
+    <p>Subtotal: ${{ subtotal    | number:'1.2-2' }}</p>
     <p>Shipping: ${{ shippingFee | number:'1.2-2' }}</p>
     <p *ngIf="discount > 0">Discount: -${{ discount | number:'1.2-2' }}</p>
-    <h3>Total: ${{ total | number:'1.2-2' }}</h3>
-
-    <button type="submit" [disabled]="submitting">Place Order</button>
+    <h3>Total: {{ total            | number:'1.2-2' }}</h3>
+    <button
+      type="submit"
+      [disabled]="checkoutForm.invalid || submitting">
+      Place Order
+    </button>
   </form>
 </div>
 

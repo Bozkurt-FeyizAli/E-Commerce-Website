@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AuthService } from 'app/core/services/auth/auth.service';
 import { CartService } from 'app/modules/cart/service/cart.service';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-header',
@@ -13,6 +14,7 @@ export class HeaderComponent implements OnInit {
   username: string | null = '';
   role: string | null = '';
   cartItemCount: number = 0; // ✅ Add this
+  userSubscription!: Subscription;
 
   constructor(
     public authService: AuthService,
@@ -21,33 +23,35 @@ export class HeaderComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    if (this.authService.isLoggedIn()) {
-      const token = this.authService.getToken();
-      if (token) {
-        try {
-          const payload = JSON.parse(atob(token.split('.')[1]));
-          this.username = payload.sub || payload.username;
-          this.role = payload.role || null;
-          // role ataması
-          if (payload.role) {
-            this.role = payload.role;
-          }
-        } catch (e) {
-          console.error('Failed to parse token', e);
-        }
-      }
-    }
+    this.userSubscription = this.authService.currentUser$.subscribe(user => {
+      if (!user) return;
 
-    // Always listen to cart items (even if not logged in)
-    this.cartService.getCartItems().subscribe(items => {
-      if (!items) {
-        this.cartItemCount = 0;
-        return;
-      }
-      this.cartItemCount = items.reduce((total, item) => total + (item.quantity || 0), 0);
+      this.username = user.username;
+
+      const roles = this.authService.getUserRoles();
+      if (roles.includes('ROLE_ADMIN')) this.role = 'ADMIN';
+      else if (roles.includes('ROLE_SELLER')) this.role = 'SELLER';
+      else if (roles.includes('ROLE_USER')) this.role = 'USER';
+      else this.role = 'UNKNOWN';
+
+      console.log('🔄 Güncel kullanıcı yüklendi → Rol:', this.role);
     });
 
+    // 🛒 Sepet bilgisi
+    this.cartService.getCartItems().subscribe(items => {
+      this.cartItemCount = items?.reduce((total, item) => total + (item.quantity || 0), 0) || 0;
+    });
   }
+
+
+  ngOnDestroy(): void {
+    this.userSubscription.unsubscribe();
+  }
+
+
+
+
+
   isLoggedIn(): boolean {
     return this.authService.isLoggedIn();
   }

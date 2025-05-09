@@ -1,0 +1,33 @@
+<!-- review-list.component.html -->
+<div class="reviews-container">
+  <!-- Yorum Formu -->
+  <div class="review-form" *ngIf="isLoggedIn">
+    <h3>Yorum Yap</h3>
+    <div class="rating-input">
+      <span *ngFor="let star of [1,2,3,4,5]"
+            (click)="newReview.rating = star"
+            [class.filled]="star <= newReview.rating">★</span>
+    </div>
+    <textarea [(ngModel)]="newReview.comment" placeholder="Yorumunuz..."></textarea>
+    <button (click)="submitReview()">Gönder</button>
+  </div>
+
+  <!-- Yorum Listesi -->
+  <div class="review-list">
+    <div class="review-item" *ngFor="let review of reviews">
+      <div class="user-info">
+        <img [src]="review.user.avatarUrl || 'assets/default-avatar.png'"
+             alt="Profil resmi" class="avatar">
+        <span class="username">{{ review.user.username }}</span>
+      </div>
+      <div class="review-content">
+        <div class="rating">
+          <span *ngFor="let star of [1,2,3,4,5]"
+                [class.filled]="star <= review.rating">★</span>
+        </div>
+        <p class="comment">{{ review.comment }}</p>
+        <span class="date">{{ review.createdAt | date:'dd.MM.yyyy HH:mm' }}</span>
+      </div>
+    </div>
+  </div>
+</div>

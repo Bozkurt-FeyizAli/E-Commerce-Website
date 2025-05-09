@@ -1,6 +1,7 @@
 import { CartItem } from './cart-item';
 import { OrderItem } from './order-item';
 import { Category } from './category';
+import { Review } from './review';
 
 export interface Product {
 title: any;
@@ -18,6 +19,8 @@ title: any;
   category: Category;
   cartItems?: CartItem[];
   orderItems?: OrderItem[];
+  reviews?: Review[];
+  totalReviews?: number;
 }
 
 

@@ -1,6 +1,6 @@
 import { Order } from './order';
 import { Cart } from './cart';
-import { Role } from './role.enum';
+import { Role } from './role';
 
 export interface User {
   id: number;
@@ -16,7 +16,7 @@ export interface User {
   country: string;
   email: string;
   password?: string; // passwordHash yerine password
-  roles: string; // array olarak (gelişmiş yapı)
+  roles: Role[];
   isBanned: boolean;
   isActive: boolean;
   createdAt: Date;

@@ -12,13 +12,14 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
+import { OrderService } from './service/order.service';
+import { DecimalPipe } from '@angular/common';
+import { NumberFormatPipe } from '@pipe/number-format.pipe';
 
 @NgModule({
   declarations: [
-    CheckoutComponent,
     CheckoutSuccessComponent,
-
-
+    CheckoutComponent
 
   ],
   imports: [
@@ -33,8 +34,18 @@ import { MatButtonModule } from '@angular/material/button';
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
-    MatProgressSpinnerModule
 
-  ]
+
+
+
+
+  ],
+   providers: [
+    OrderService,
+    DecimalPipe,
+    NumberFormatPipe
+
+
+   ],
 })
 export class CheckoutModule { }

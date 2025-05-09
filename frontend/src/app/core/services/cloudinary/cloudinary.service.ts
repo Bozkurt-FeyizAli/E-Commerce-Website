@@ -6,8 +6,8 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class CloudinaryService {
-  private cloudName = 'dqhw1xmyf'; // 👈 senin cloud name
-  private uploadPreset = 'my_unsigned_preset'; // 👈 oluşturduğun preset adı
+  private cloudName = 'dqhw1xmyf';
+  private uploadPreset = 'my_unsigned_preset';
 
   constructor(private http: HttpClient) { }
 

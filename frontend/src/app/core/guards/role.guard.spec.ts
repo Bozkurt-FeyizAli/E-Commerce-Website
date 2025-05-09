@@ -5,7 +5,7 @@ import { RoleGuard } from './role.guard';
 
 describe('roleGuard', () => {
   const executeGuard: CanActivateFn = (...guardParameters) =>
-      TestBed.runInInjectionContext(() => RoleGuard.prototype.canActivate(guardParameters[0], guardParameters[1]));
+      TestBed.runInInjectionContext(() => RoleGuard.prototype.canActivate(guardParameters[0]));
 
   beforeEach(() => {
     TestBed.configureTestingModule({});

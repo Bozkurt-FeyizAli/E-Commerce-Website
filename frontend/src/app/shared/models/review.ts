@@ -1,9 +1,12 @@
 export interface Review {
   id: number;
-  userId: number;
   productId: number;
-  rating: number; // 1 to 5
-  comment?: string;
-  reviewDate: Date;
-  isActive: boolean;
+  userId: number;
+  rating: number;
+  comment: string;
+  createdAt: Date;
+  user: {
+    username: string;
+    avatarUrl?: string;
+  };
 }

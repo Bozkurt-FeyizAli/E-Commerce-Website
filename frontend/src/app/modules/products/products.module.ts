@@ -12,11 +12,13 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { HttpClientModule} from '@angular/common/http'
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ReviewListComponent } from './review-list/review-list/review-list.component';
 @NgModule({
   declarations: [
     ProductsComponent,
     ProductListComponent,
     ProductDetailComponent,
+    ReviewListComponent,
 
   ],
   imports: [

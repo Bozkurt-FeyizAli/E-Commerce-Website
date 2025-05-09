@@ -1,3 +1,4 @@
+import { StorageService } from './../storage/storage.service';
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
@@ -5,6 +6,7 @@ import { tap } from 'rxjs/operators';
 import { environment } from '@env/environment';
 import { SessionService } from 'app/core/services/session/session.service';
 import { User } from '../../../shared/models/user';
+import { get } from 'http';
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +19,7 @@ export class AuthService {
 
   private apiUrl = `${environment.apiUrl}/auth`;
 
-  constructor(private http: HttpClient, private sessionService: SessionService) {
+  constructor(private http: HttpClient, private sessionService: SessionService, private storageService: SessionService) {
     const token = this.sessionService.getToken();
     if (token) {
       // Sayfa yenilenince user'ı tekrar yükle
@@ -38,28 +40,42 @@ export class AuthService {
     const params = new HttpParams()
       .set('email', credentials.email)
       .set('password', credentials.password);
-    return this.http.post<{ accessToken: string; refreshToken: string }>(
+
+    return this.http.post<{ accessToken: string; refreshToken: string; user: User }>(
       `${this.apiUrl}/login`,
       null,
       { params }
     ).pipe(
       tap(response => {
+        const user = response.user;
+        const roleNames = user.roles.map((r: any) => `ROLE_${r.name}`);
+        console.log('✅ DOĞRU ROL STRİNG DİZİSİ:', roleNames);
+
         this.sessionService.saveToken(response.accessToken);
         this.sessionService.save('refreshToken', response.refreshToken);
-        const user = this.getCurrentUserFromApi();
-        user.subscribe(user => {
-          this.sessionService.save('user', user);  // ✅ User bilgisini session'a kaydet
-          this.sessionService.save('role', user.roles);  // ✅ User rolünü session'a kaydet
-          this.sessionService.save('username', user.username);  // ✅ User adını session'a kaydet
-          this.sessionService.save('email', user.email);  // ✅ User e-posta adresini session'a kaydet
-          this.sessionService.save('id', user.id);  // ✅ User ID'sini session'a kaydet
-          this.sessionService.save('isLoggedIn', true);  // ✅ Kullanıcının giriş yapıp yapmadığını session'a kaydet
-        });
-        this.sessionService.save('isLoggedIn', true);  // ✅ Kullanıcının giriş yapıp yapmadığını session'a kaydet
+        this.sessionService.save('user', user);
+        this.sessionService.save('role', roleNames);
+        this.sessionService.save('username', user.username);
+        this.sessionService.save('email', user.email);
+        this.sessionService.save('id', user.id);
+        this.sessionService.save('isLoggedIn', true);
 
+        this.storageService.save('user', user);
+        this.storageService.save('role', roleNames);
+        this.storageService.save('username', user.username);
+        this.storageService.save('email', user.email);
+        this.storageService.save('id', user.id);
+
+        this.currentUserSubject.next(user);
+
+        // ✅ Burası kritik → Header ve diğer abonelere haber verilir
+        this.loadCurrentUser();
       })
     );
   }
+
+
+
 
   register(userDto: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/register`, userDto);
@@ -80,17 +96,38 @@ export class AuthService {
   }
 
   isLoggedIn(): boolean {
-    return !!this.sessionService.getToken();
+    return !!this.storageService.getToken();
   }
 
   getToken(): string | null {
     return this.sessionService.getToken();
   }
 
-  getUserRole(): string | null {
-    const user = this.sessionService.get<User>('user');
-    return user?.roles || null;  // ✅ `roles` değil `role`
+  getUserRole(): string[] | null {
+    return this.getUserRoles();
   }
+
+  getUserRoles(): string[] {
+    const role = this.sessionService.get<string | string[]>('role');
+    if (!role) return [];
+    return Array.isArray(role) ? role : [role]; // Tek stringse array'e çevir
+  }
+
+
+
+
+
+  getPrimaryRole(): string | null {
+    const roles = this.getUserRoles();
+    return roles.length > 0 ? roles[0] : null;
+  }
+
+  
+
+
+
+
+
 
   getCurrentUserFromApi(): Observable<User> {
     return this.http.get<User>(`${this.apiUrl}/me`).pipe(
@@ -101,15 +138,12 @@ export class AuthService {
   }
 
   public loadCurrentUser(): void {
-    this.getCurrentUserFromApi().subscribe({
-      next: (user) => console.log('User loaded', user),
-      error: (err) => {
-        console.error('Failed to load user', err);
-        this.sessionService.clear();
-        this.currentUserSubject.next(null);
-      }
-    });
+    const user = this.storageService.get<User>('user');
+    if (user) {
+      this.currentUserSubject.next(user);
+    }
   }
+
 
   getUserId(): number | null {
     return this.currentUserSubject.getValue()?.id || null;

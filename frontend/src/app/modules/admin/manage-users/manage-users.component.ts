@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AdminService } from '../service/admin.service';
 import { User } from '@model/user';
 import { MatTableDataSource } from '@angular/material/table';
+import { Role } from '@model/role';
 
 @Component({
   selector: 'app-manage-users',
@@ -38,15 +39,16 @@ export class ManageUsersComponent implements OnInit {
   }
 
   applyFilter() {
+    this.dataSource.filterPredicate = (data: User, filter: string) => {
+      const matchesSearch =
+        data.username.toLowerCase().includes(filter) ||
+        data.email.toLowerCase().includes(filter);
+      const matchesRole =
+        this.selectedRole === 'all' ||
+        (Array.isArray(data.roles) && data.roles.map(r => String(r).toLowerCase()).includes(this.selectedRole.toLowerCase()));
+      return matchesSearch && matchesRole;
+    };
     this.dataSource.filter = this.searchQuery.trim().toLowerCase();
-    if (this.selectedRole !== 'all') {
-      this.dataSource.filterPredicate = (data: User, filter: string) => {
-        return data.roles.includes(this.selectedRole.toUpperCase()) &&
-               (data.username.toLowerCase().includes(filter) ||
-                data.email.toLowerCase().includes(filter));
-      };
-    }
-    this.dataSource.filter = this.searchQuery;
   }
 
   toggleBan(user: User) {
@@ -74,7 +76,7 @@ export class ManageUsersComponent implements OnInit {
     }
   }
 
-  getUserRoles(user: User): string {
+  getUserRoles(user: User): Role[] {
     return user.roles;
   }
 

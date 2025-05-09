@@ -8,7 +8,7 @@ import { AuthService } from 'app/core/services/auth/auth.service';
 export class RoleDirective {
   @Input() set appHasRole(role: string) {
     const userRole = this.authService.getUserRole();
-    if (userRole === role) {
+    if (Array.isArray(userRole) && userRole.includes(role)) {
       this.viewContainer.createEmbeddedView(this.templateRef);
     } else {
       this.viewContainer.clear();

@@ -9,6 +9,7 @@ import { Category } from '@model/category';
 import { ProductImage } from '@model/product-image';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '@env/environment';
+import { Review } from '@model/review';
 
 @Injectable({
   providedIn: 'root'
@@ -134,6 +135,14 @@ export class ProductService {
   getProductsByCategory(categoryId: number, sortOption: string) {
     return this.http.get<Product[]>(`${this.apiUrl}/products?categoryId=${categoryId}&sort=${sortOption}`)
       .pipe(catchError(this.handleError));
+  }
+
+  getProductReviews(productId: number): Observable<Review[]> {
+    return this.http.get<Review[]>(`${this.apiUrl}/reviews/product/${productId}`);
+  }
+
+  submitReview(review: { productId: number; rating: number; comment: string }): Observable<Review> {
+    return this.http.post<Review>(`${this.apiUrl}/reviews`, review);
   }
 
 
