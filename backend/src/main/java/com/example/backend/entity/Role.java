@@ -1,5 +1,7 @@
 package com.example.backend.entity;
 
+import java.util.Optional;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,4 +22,6 @@ public class Role {
 
     @Column(nullable = false)
     private Boolean isActive = true;
+
+    
 }

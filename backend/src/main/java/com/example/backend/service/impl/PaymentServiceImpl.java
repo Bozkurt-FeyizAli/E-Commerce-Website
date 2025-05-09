@@ -1,7 +1,9 @@
 package com.example.backend.service.impl;
 
+import com.example.backend.dto.CheckoutDto;
 import com.example.backend.dto.PaymentDto;
 import com.example.backend.entity.Payment;
+import com.example.backend.entity.User;
 import com.example.backend.repository.PaymentFormatRepository;
 import com.example.backend.repository.PaymentRepository;
 import com.example.backend.repository.TransactionRepository;
@@ -150,5 +152,17 @@ public class PaymentServiceImpl implements IPaymentService {
         payment.setPaymentFormat(paymentFormatRepository.findById(paymentDto.getPaymentFormatId()).orElseThrow(() -> new RuntimeException("PaymentFormat not found")));
 
         paymentRepository.save(payment);
+     }
+
+     public Payment savePayment(CheckoutDto dto, double total, User user) {
+        Payment payment = new Payment();
+        payment.setPaymentStatus("Pending");
+        payment.setAmount(total);
+        payment.setTransactionReference(dto.getPaymentIntentId());
+        payment.setIsActive(true);
+        payment.setUser(user);
+        payment.setPaymentFormat(paymentFormatRepository.findById(1L).orElseThrow(() -> new RuntimeException("PaymentFormat not found")));
+
+        return paymentRepository.save(payment);
      }
 }

@@ -18,6 +18,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+// import io.swagger.v3.oas.models.PathItem.HttpMethod;
+import org.springframework.http.HttpMethod;
 
 @Configuration
 @RequiredArgsConstructor
@@ -38,21 +40,24 @@ public class SecurityConfig {
                     "/swagger-resources/**",
                     "/webjars/**"
                 ).permitAll()
-                .requestMatchers(
+    .requestMatchers(
         "/api/auth/**",
-                    "/api/products",
-                    "/api/products/**",
-                    "/api/category",
-                    "/api/category/**"
-                ).permitAll()
-                .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
-                .requestMatchers("/api/seller/**").hasAuthority("ROLE_SELLER")
-                .requestMatchers("/api/orders/**", "/api/cart/**").authenticated()
-                .anyRequest().authenticated()
-            )
-            .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-            .build();
+        "/api/products",
+        "/api/products/**",
+        "/api/category",
+        "/api/category/**"
+    ).permitAll()
+    .requestMatchers("/api/orders/checkout").authenticated()
+    .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
+    .requestMatchers(HttpMethod.POST, "/api/reviews").authenticated()
+    .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
+    .requestMatchers("/api/seller/**").hasAuthority("ROLE_SELLER")
+    .requestMatchers("/api/orders/**", "/api/cart/**").authenticated()
+    .anyRequest().authenticated()
+)
+.sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+.build();
     }
 
 

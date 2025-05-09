@@ -1,5 +1,6 @@
 package com.example.backend.service;
 
+import com.example.backend.dto.CheckoutDto;
 import com.example.backend.dto.OrderDto;
 
 import java.util.List;
@@ -15,4 +16,6 @@ public interface IOrderService {
     OrderDto getOrderById(Long id);
 
     List<OrderDto> getAllActiveOrders();
+
+    OrderDto createOrderFromCart(CheckoutDto dto);
 }

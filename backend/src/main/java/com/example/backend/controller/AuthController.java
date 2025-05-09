@@ -4,9 +4,12 @@ import com.example.backend.dto.UserDto;
 import com.example.backend.service.IUserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -24,10 +27,18 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> loginUser(@RequestParam String email, @RequestParam String password) {
-        Map<String, String> tokens = userService.login(email, password);
-        return ResponseEntity.ok(tokens);
-    }
+public ResponseEntity<Map<String, Object>> loginUser(@RequestParam String email, @RequestParam String password) {
+    Map<String, String> tokens = userService.login(email, password);
+    UserDto user = userService.getUserFromToken(tokens.get("accessToken"));
+
+    Map<String, Object> response = new HashMap<>();
+    response.put("accessToken", tokens.get("accessToken"));
+    response.put("refreshToken", tokens.get("refreshToken"));
+    response.put("user", user); // 👈 Kullanıcı bilgilerini ekle
+
+    return ResponseEntity.ok(response);
+}
+
 
     @PostMapping("/refresh")
     public ResponseEntity<Map<String, String>> refreshAccessToken(@RequestParam String refreshToken) {
@@ -42,11 +53,16 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-public ResponseEntity<UserDto> getCurrentUser(@RequestHeader(value="Authorization" , required=false) String authHeader) {
+public ResponseEntity<UserDto> getCurrentUser(@RequestHeader(value = "Authorization", required = false) String authHeader) {
+    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
     String token = authHeader.replace("Bearer ", "");
     UserDto user = userService.getUserFromToken(token);
     return ResponseEntity.ok(user);
 }
+
 
 // @GetMapping("/profile")
 // public ResponseEntity<UserDto> getProfile(@RequestHeader("Authorization") String authHeader) {

@@ -47,6 +47,7 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Complaint> complaints;
 
+    @Builder.Default
     @Column(nullable = false)
     private Boolean isActive = true;
 }

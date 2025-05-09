@@ -1,19 +1,17 @@
 package com.example.backend.dto;
-
-import lombok.*;
-
 import java.time.LocalDateTime;
 
+import lombok.Builder;
+import lombok.Data;
+
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
 public class ReviewDto {
     private Long id;
-    private Long userId;
     private Long productId;
-    private Integer rating;
+    private Long userId;
+    private String username;
+    private int rating;
     private String comment;
-    private Boolean isActive;
-    private LocalDateTime reviewDate;
+    private LocalDateTime createdAt;
 }

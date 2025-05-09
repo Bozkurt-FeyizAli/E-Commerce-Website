@@ -1,6 +1,7 @@
 package com.example.backend.service.impl;
 
 import com.example.backend.dto.PasswordChangeDto;
+import com.example.backend.dto.RoleDto;
 import com.example.backend.dto.UserDto;
 import com.example.backend.entity.RefreshToken;
 import com.example.backend.entity.User;
@@ -192,13 +193,29 @@ public void logout(String refreshToken) {
 }
 
     @Override
-    public UserDto getUserFromToken(String token) {
-        String username = jwtService.extractUsername(token);
-        User user = userRepository.findByEmail(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found."));
+public UserDto getUserFromToken(String token) {
+    String username = jwtService.extractUsername(token);
+    User user = userRepository.findByEmail(username)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found."));
 
-        return mapToDto(user);
-    }
+    // Roller manuel olarak RoleDto'ya dönüştürülüyor
+    List<RoleDto> roleDtos = user.getRoles().stream()
+            .map(role -> RoleDto.builder()
+                    .id(role.getId())
+                    .name(role.getName())
+                    .isActive(role.getIsActive())
+                    .build())
+            .toList();
+
+    // UserDto oluşturuluyor ve roller dahil ediliyor
+    return UserDto.builder()
+            .id(user.getId())
+            .username(user.getUsername())
+            .email(user.getEmail())
+            .roles(roleDtos)
+            .build();
+}
+
 
     @Override
     public UserDto getCurrentUser() {

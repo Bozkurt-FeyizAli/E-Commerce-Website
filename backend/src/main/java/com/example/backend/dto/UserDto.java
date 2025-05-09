@@ -1,6 +1,9 @@
 package com.example.backend.dto;
 
 import lombok.*;
+
+import java.util.List;
+
 import jakarta.validation.constraints.*;
 
 @Data
@@ -33,4 +36,6 @@ public class UserDto {
     private String profileImageUrl;
     private Boolean isBanned;
     private Boolean isActive;
+
+    private List<RoleDto> roles;
 }

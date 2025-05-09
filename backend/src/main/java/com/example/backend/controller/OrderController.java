@@ -1,5 +1,6 @@
 package com.example.backend.controller;
 
+import com.example.backend.dto.CheckoutDto;
 import com.example.backend.dto.OrderDto;
 import com.example.backend.service.IOrderService;
 import lombok.RequiredArgsConstructor;
@@ -44,4 +45,10 @@ public class OrderController {
         List<OrderDto> orders = orderService.getAllActiveOrders();
         return ResponseEntity.ok(orders);
     }
-}
+
+    @PostMapping("/checkout")
+    public ResponseEntity<OrderDto> checkout(@RequestBody OrderDto dto) {
+        OrderDto created = orderService.createOrder(dto);
+        return ResponseEntity.ok(created);
+    }
+    }
