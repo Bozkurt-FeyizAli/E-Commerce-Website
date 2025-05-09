@@ -11,17 +11,15 @@ import { OrderStatus } from '@model/order-status';
   styleUrls: ['./manage-orders.component.css']
 })
 export class ManageOrdersComponent implements OnInit {
-updateStatus(arg0: any,arg1: any) {
-throw new Error('Method not implemented.');
-}
   displayedColumns: string[] = ['id', 'customer', 'amount', 'date', 'status', 'actions'];
   dataSource = new MatTableDataSource<Order>();
   statuses = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
   selectedStatus = 'all';
   dateRange: { start: Date | null; end: Date | null } = { start: null, end: null };
-loading: any;
-error: any;
-orders: any;
+
+  loading = false;
+  error = '';
+  orders: Order[] = []; // ✅ undefined yerine boş diziyle başlat
 
   constructor(private adminService: AdminService) {}
 
@@ -30,29 +28,53 @@ orders: any;
   }
 
   fetchOrders() {
+    this.loading = true;
     this.adminService.getAllOrders().subscribe({
-      next: (data) => this.dataSource.data = data,
-      error: (err) => console.error('Failed to fetch orders', err)
+      next: (data) => {
+        this.orders = data;               // ✅ orders dolu olsun
+        this.dataSource.data = data;      // ✅ filtreleme için datatable'a da ata
+        this.loading = false;
+      },
+      error: (err) => {
+        this.error = 'Failed to fetch orders';
+        console.error(this.error, err);
+        this.loading = false;
+      }
     });
   }
 
   updateOrderStatus(orderId: number, newStatus: string) {
     this.adminService.updateOrderStatus(orderId, newStatus).subscribe({
       next: () => {
-        const order = this.dataSource.data.find(o => o.id === orderId);
-        if (order) order.status = newStatus as OrderStatus;
+        const order = this.orders.find(o => o.id === orderId);
+        if (order) {
+          order.status = newStatus as OrderStatus;
+          this.dataSource.data = [...this.orders]; // Güncellemeyi yansıt
+        }
       },
       error: (err) => console.error('Failed to update status', err)
+    });
+  }
+
+  deleteOrder(orderId: number) {
+    if (!confirm('Are you sure you want to delete this order?')) return;
+
+    this.adminService.deleteOrder(orderId).subscribe({
+      next: () => {
+        this.orders = this.orders.filter(o => o.id !== orderId);
+        this.dataSource.data = this.orders;
+      },
+      error: err => console.error('Failed to delete order', err)
     });
   }
 
   applyFilters() {
     this.dataSource.filterPredicate = (data: Order, filter: string) => {
       const statusMatch = this.selectedStatus === 'all' ||
-                        data.status.toLowerCase() === this.selectedStatus.toLowerCase();
+        data.status.toLowerCase() === this.selectedStatus.toLowerCase();
       const dateMatch = !this.dateRange.start || !this.dateRange.end ||
-                       (new Date(data.orderDate) >= this.dateRange.start &&
-                        new Date(data.orderDate) <= this.dateRange.end);
+        (new Date(data.orderDate) >= this.dateRange.start &&
+         new Date(data.orderDate) <= this.dateRange.end);
       return statusMatch && dateMatch;
     };
     this.dataSource.filter = 'trigger';

@@ -13,7 +13,7 @@ import { Activity } from '@model/activity';
   providedIn: 'root'
 })
 export class AdminService {
-  private apiUrl = `${environment.apiUrl}/api/admin`;
+  private apiUrl = `${environment.apiUrl}/admin`;
 
   constructor(private http: HttpClient) {}
 
@@ -22,10 +22,10 @@ export class AdminService {
     return this.http.get<AdminStats>(`${this.apiUrl}/dashboard`);
   }
 
-  // Recent Activities
-  getRecentActivities(): Observable<Activity[]> {
-    return this.http.get<Activity[]>(`${this.apiUrl}/recent-activities`);
-  }
+  // // Recent Activities
+  // getRecentActivities(): Observable<Activity[]> {
+  //   return this.http.get<Activity[]>(`${this.apiUrl}/recent-activities`);
+  // }
 
   // User Management
   getAllUsers(): Observable<User[]> {
@@ -78,15 +78,6 @@ export class AdminService {
     return this.http.delete<void>(`${this.apiUrl}/categories/${categoryId}`);
   }
 
-  // Order Management
-  getAllOrders(): Observable<Order[]> {
-    return this.http.get<Order[]>(`${this.apiUrl}/orders`);
-  }
-
-  updateOrderStatus(orderId: number, status: string): Observable<void> {
-    return this.http.patch<void>(`${this.apiUrl}/orders/${orderId}/status`, { status });
-  }
-
   // Complaint Management
   getAllComplaints(): Observable<Complaint[]> {
     return this.http.get<Complaint[]>(`${this.apiUrl}/complaints`);
@@ -103,6 +94,21 @@ export class AdminService {
   getSalesStatsLast7Days(): Observable<SalesStatsDto[]> {
     return this.http.get<SalesStatsDto[]>(`${this.apiUrl}/sales-stats`);
   }
+
+
+  getAllOrders(): Observable<Order[]> {
+    return this.http.get<Order[]>(`${this.apiUrl}/orders`);
+  }
+
+  updateOrderStatus(orderId: number, status: string): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/orders/${orderId}/status?status=${status}`, {});
+  }
+
+  deleteOrder(orderId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/orders/${orderId}`);
+  }
+
+
 }
 
 // Interface updates

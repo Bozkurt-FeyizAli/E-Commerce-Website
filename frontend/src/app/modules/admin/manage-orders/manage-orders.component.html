@@ -3,7 +3,7 @@
 <div *ngIf="loading">Loading orders...</div>
 <div *ngIf="error">{{ error }}</div>
 
-<table *ngIf="!loading && orders.length > 0" class="order-table">
+<table *ngIf="!loading && (orders?.length || 0) > 0" class="order-table">
   <thead>
     <tr>
       <th>ID</th>
@@ -22,14 +22,10 @@
       <td>{{ order.status }}</td>
       <td>{{ order.orderDate | date: 'short' }}</td>
       <td>
-        <select [(ngModel)]="order.status" (change)="updateStatus(order.id, order.status)">
-          <option value="PENDING">Pending</option>
-          <option value="SHIPPED">Shipped</option>
-          <option value="DELIVERED">Delivered</option>
-          <option value="CANCELLED">Cancelled</option>
-          <option value="REFUNDED">Refunded</option>
-          <option value="COMPLETED">Completed</option>
+        <select [(ngModel)]="order.status" (change)="updateOrderStatus(order.id, order.status)">
+          <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
         </select>
+        <button (click)="deleteOrder(order.id)" title="Delete Order">🗑️</button>
       </td>
     </tr>
   </tbody>

@@ -33,7 +33,7 @@ export class AdminComponent implements OnInit {
     this.adminService.getStats().subscribe({
       next: (stats) => {
         this.stats = stats;
-        this.loadRecentActivities();
+        //this.loadRecentActivities();
       },
       error: (err) => {
         console.error('Failed to load stats:', err);
@@ -42,18 +42,18 @@ export class AdminComponent implements OnInit {
     });
   }
 
-  private loadRecentActivities() {
-    this.adminService.getRecentActivities().subscribe({
-      next: (activities) => {
-        this.recentActivities = activities;
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Failed to load activities:', err);
-        this.loading = false;
-      }
-    });
-  }
+  // private loadRecentActivities() {
+  //   this.adminService.getRecentActivities().subscribe({
+  //     next: (activities) => {
+  //       this.recentActivities = activities;
+  //       this.loading = false;
+  //     },
+  //     error: (err) => {
+  //       console.error('Failed to load activities:', err);
+  //       this.loading = false;
+  //     }
+  //   });
+  // }
 
   getActivityIcon(type: string): string {
     const iconMap: { [key: string]: string } = {

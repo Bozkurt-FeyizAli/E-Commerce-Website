@@ -53,7 +53,7 @@ chartOptions: any;
     this.adminService.getStats().subscribe({
       next: (stats) => {
         this.stats = stats;
-        this.loadRecentActivities();
+        //this.loadRecentActivities();
         this.prepareChartData(stats);
       },
       error: (err) => {
@@ -64,18 +64,18 @@ chartOptions: any;
     });
   }
 
-  private loadRecentActivities() {
-    this.adminService.getRecentActivities().subscribe({
-      next: (activities) => {
-        this.recentActivities = activities;
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Activities error:', err);
-        this.loading = false;
-      }
-    });
-  }
+  // private loadRecentActivities() {
+  //   this.adminService.getRecentActivities().subscribe({
+  //     next: (activities) => {
+  //       this.recentActivities = activities;
+  //       this.loading = false;
+  //     },
+  //     error: (err) => {
+  //       console.error('Activities error:', err);
+  //       this.loading = false;
+  //     }
+  //   });
+  // }
 
   private prepareChartData(stats: AdminStats) {
     if (stats.salesStats) {
