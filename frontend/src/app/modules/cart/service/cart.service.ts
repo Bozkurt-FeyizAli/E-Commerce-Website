@@ -30,7 +30,7 @@ export class CartService {
 
   }
 
-  private loadInitialCart(): void {
+  public loadInitialCart(): void {
     if (!this.authService.isLoggedIn()) {
       this.cartItems.next([]);
       return;
@@ -60,8 +60,9 @@ export class CartService {
         return of([]);
       })
     ).subscribe(items => {
-      console.log('🛒 Sepet yüklendi (items):', items);
-      this.cartItems.next(items);
+      const activeItems = items.filter(item => item.isActive); // ✅ sadece aktifleri al
+      console.log('🛒 Aktif sepet elemanları:', activeItems);
+      this.cartItems.next(activeItems);
     });
   }
 

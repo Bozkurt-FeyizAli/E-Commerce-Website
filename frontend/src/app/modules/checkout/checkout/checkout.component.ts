@@ -142,17 +142,25 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
   private mountStripe() {
     if (this.stripeMounted) return;
 
-    this.stripe = Stripe('pk_test_xxxxxxxxxxxxxxxxxxx');
+    this.stripe = Stripe('pk_test_51RL4FbPR0NXUo6tZreqe5kbnpPuUID4nrb1gV9VMNnYfyIKNXpTPkQRIxPyIMvKFG8Sc68lrMEnDqvrEtPGIUX0Z004g9feR4W');  // ✅ ENV’den al
     const elements = this.stripe.elements();
     this.card = elements.create('card');
     this.card.mount('#card-element');
     this.stripeMounted = true;
 
-    // Sunucu‑tarafı PaymentIntent
+    // ⚠️ Backend'den clientSecret çek
     this.orderSvc.createPaymentIntent({
       amount: Math.round(this.total * 100),
       currency: 'usd'
-    }).subscribe((r: any) => this.stripeClientSecret = r.clientSecret);
+    }).subscribe({
+      next: (res: any) => {
+        this.stripeClientSecret = res.clientSecret;
+        console.log('✅ Client Secret:', this.stripeClientSecret);
+      },
+      error: (err) => {
+        this.snack.open('Ödeme başlatılamadı', 'Kapat', { duration: 3000 });
+      }
+    });
   }
 
   private unmountStripe() {
