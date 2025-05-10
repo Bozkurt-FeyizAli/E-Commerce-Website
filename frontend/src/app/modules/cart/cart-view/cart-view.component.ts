@@ -89,7 +89,7 @@ total$: Observable<string | number> | Subscribable<string | number> | Promise<st
   }
 
   handleImageError(event: Event): void {
-    (event.target as HTMLImageElement).src = 'assets/images/product-placeholder.png';
+    const target = event.target as HTMLImageElement;
   }
 
   clearCartItems(): void {

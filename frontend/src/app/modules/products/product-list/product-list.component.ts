@@ -48,7 +48,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadProducts();
     this.loadCategories();
-  }
+  } 
 
   private loadCategories(): void {
     this.productService.getCategories().pipe(
@@ -122,6 +122,39 @@ export class ProductListComponent implements OnInit, OnDestroy {
     }
   }
 
+  addMultipleToCart(products: { product: Product; quantity: number }[]): void {
+    const userId = this.authService.getUserId();
+    if (!userId) {
+      this.snackBar.open('Sepete eklemek için giriş yapmalısınız!', 'Kapat', {
+        duration: 3000,
+        panelClass: ['error-snackbar']
+      });
+      return;
+    }
+
+    const cartItems = products.map(p => ({
+      productId: p.product.id,
+      quantity: p.quantity,
+    }));
+
+    this.cartService.addMultipleToCart(products).subscribe({
+      next: () => {
+      this.snackBar.open('Ürünler sepete eklendi!', 'Kapat', {
+        duration: 3000,
+        panelClass: ['success-snackbar']
+      });
+      },
+      error: (err) => {
+      console.error('Toplu sepete ekleme hatası:', err);
+      this.snackBar.open('Ürünler sepete eklenemedi.', 'Kapat', {
+        duration: 3000,
+        panelClass: ['error-snackbar']
+      });
+      }
+    });
+  }
+
+
   toggleFilters(): void {
     this.showFilters = !this.showFilters;
   }
@@ -186,7 +219,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
   handleImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
-    img.src = '/assets/images/placeholder.png';
+
     img.alt = 'Placeholder image';
   }
 

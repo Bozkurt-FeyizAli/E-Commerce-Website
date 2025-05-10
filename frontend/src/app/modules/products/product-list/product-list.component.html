@@ -1,275 +1,436 @@
-<!-- Product List Header -->
-<div class="product-list-header">
-  <div class="search-container">
-    <!-- Search -->
-    <div class="search-input-wrapper">
-      <input
-        type="text"
-        [(ngModel)]="searchQuery"
-        (keyup.enter)="onSearch()"
-        placeholder="Search products..."
-        class="search-input"
-        aria-label="Search products"
-      >
-      <button
-        (click)="onSearch()"
-        class="search-button"
-        aria-label="Search"
-      >
-        <i class="fa fa-search"></i>
-      </button>
-    </div>
-
-    <!-- View & Filter Controls -->
-    <div class="view-controls">
-      <button
-        [class.active]="viewMode === 'grid'"
-        (click)="viewMode = 'grid'"
-        class="view-button"
-        aria-label="Grid view"
-      >
-        <i class="fa fa-th"></i>
-      </button>
-      <button
-        [class.active]="viewMode === 'list'"
-        (click)="viewMode = 'list'"
-        class="view-button"
-        aria-label="List view"
-      >
-        <i class="fa fa-list"></i>
-      </button>
-      <button
-        (click)="toggleFilters()"
-        class="filter-button"
-        [class.active]="showFilters"
-        aria-label="Toggle filters"
-        [attr.aria-expanded]="showFilters"
-      >
-        <i class="fa fa-filter"></i>
-        <span>Filters</span>
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- Filters Section -->
-<div *ngIf="showFilters" class="filters-section" [@expandCollapse]>
-  <!-- Categories -->
-  <div class="filter-group">
-    <h3 class="filter-title">Categories</h3>
-    <div class="filter-options">
-      <label
-        *ngFor="let category of categories"
-        class="checkbox-label"
-      >
+<div class="product-container">
+  <!-- Product List Header -->
+  <div class="product-list-header">
+    <div class="search-container">
+      <!-- Search -->
+      <div class="search-input-wrapper">
         <input
-          type="checkbox"
-          [checked]="filters.category.includes(category.name)"
-          (change)="toggleFilter('category', category.name)"
+          type="text"
+          [(ngModel)]="searchQuery"
+          (keyup.enter)="onSearch()"
+          placeholder="Search products..."
+          class="search-input"
+          aria-label="Search products"
         >
-        <span class="checkbox-custom"></span>
-        <span>{{category.name}}</span>
-      </label>
+        <button
+          (click)="onSearch()"
+          class="search-button"
+          aria-label="Search"
+        >
+          <i class="fa fa-search"></i>
+        </button>
+      </div>
+
+      <!-- View & Filter Controls -->
+      <div class="view-controls">
+        <button
+          [class.active]="viewMode === 'grid'"
+          (click)="viewMode = 'grid'"
+          class="view-button"
+          aria-label="Grid view"
+        >
+          <i class="fa fa-th"></i>
+        </button>
+        <button
+          [class.active]="viewMode === 'list'"
+          (click)="viewMode = 'list'"
+          class="view-button"
+          aria-label="List view"
+        >
+          <i class="fa fa-list"></i>
+        </button>
+        <button
+          (click)="toggleFilters()"
+          class="filter-button"
+          [class.active]="showFilters"
+          aria-label="Toggle filters"
+          [attr.aria-expanded]="showFilters"
+        >
+          <i class="fa fa-filter"></i>
+          <span>Filters</span>
+        </button>
+      </div>
     </div>
   </div>
 
-  <!-- Brands -->
-  <div class="filter-group">
-    <h3 class="filter-title">Brands</h3>
-    <div class="filter-options">
-      <label
-        *ngFor="let brand of brands"
-        class="checkbox-label"
-      >
+  <!-- Filters Section -->
+  <div *ngIf="showFilters" class="filters-section">
+    <!-- Categories -->
+    <div class="filter-group">
+      <h3 class="filter-title">Categories</h3>
+      <div class="filter-options">
+        <label
+          *ngFor="let category of categories"
+          class="checkbox-label"
+        >
+          <input
+            type="checkbox"
+            [checked]="filters.category.includes(category.name)"
+            (change)="toggleFilter('category', category.name)"
+          >
+          <span class="checkbox-custom"></span>
+          <span>{{category.name}}</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Brands -->
+    <div class="filter-group">
+      <h3 class="filter-title">Brands</h3>
+      <div class="filter-options">
+        <label
+          *ngFor="let brand of brands"
+          class="checkbox-label"
+        >
+          <input
+            type="checkbox"
+            [checked]="filters.brand.includes(brand)"
+            (change)="toggleFilter('brand', brand)"
+          >
+          <span class="checkbox-custom"></span>
+          <span>{{brand}}</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Price Range -->
+    <div class="filter-group">
+      <h3 class="filter-title">Price Range</h3>
+      <div class="price-slider">
         <input
-          type="checkbox"
-          [checked]="filters.brand.includes(brand)"
-          (change)="toggleFilter('brand', brand)"
+          type="range"
+          min="0"
+          max="1000"
+          [(ngModel)]="filters.priceRange[0]"
+          (change)="applyFilters()"
+          aria-label="Minimum price"
         >
-        <span class="checkbox-custom"></span>
-        <span>{{brand}}</span>
-      </label>
-    </div>
-  </div>
-
-  <!-- Price Range -->
-  <div class="filter-group">
-    <h3 class="filter-title">Price Range</h3>
-    <div class="price-slider">
-      <input
-        type="range"
-        min="0"
-        max="1000"
-        [(ngModel)]="filters.priceRange[0]"
-        (change)="applyFilters()"
-        aria-label="Minimum price"
-      >
-      <input
-        type="range"
-        min="0"
-        max="1000"
-        [(ngModel)]="filters.priceRange[1]"
-        (change)="applyFilters()"
-        aria-label="Maximum price"
-      >
-      <div class="price-range-display">
-        <span>${{filters.priceRange[0]}}</span>
-        <span>${{filters.priceRange[1]}}</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- In Stock -->
-  <div class="filter-group">
-    <label class="checkbox-label">
-      <input
-        type="checkbox"
-        [(ngModel)]="filters.inStock"
-        (change)="applyFilters()"
-      >
-      <span class="checkbox-custom"></span>
-      <span>In Stock Only</span>
-    </label>
-  </div>
-
-  <!-- Actions -->
-  <div class="filter-actions">
-    <button
-      (click)="applyFilters()"
-      class="apply-filters-btn"
-    >
-      Apply Filters
-    </button>
-    <button
-      (click)="filters = {category: [], brand: [], priceRange: [0, 1000], inStock: false}; applyFilters()"
-      class="clear-filters-btn"
-    >
-      Clear Filters
-    </button>
-  </div>
-</div>
-
-<!-- Loading State -->
-<div *ngIf="loading" class="loading-container">
-  <div class="spinner"></div>
-  <p>Loading products...</p>
-</div>
-
-<!-- Error State -->
-<div *ngIf="error && !loading" class="error-container">
-  <div class="error-message">
-    <i class="fa fa-exclamation-circle"></i>
-    <p>{{error}}</p>
-  </div>
-  <button
-    (click)="retryLoading()"
-    class="retry-btn"
-  >
-    Try Again
-  </button>
-</div>
-
-<!-- No Products Found -->
-<div *ngIf="!loading && !error && filteredProducts.length === 0" class="no-products-container">
-  <div class="no-products-message">
-    <i class="fa fa-search"></i>
-    <p>No products found matching your criteria.</p>
-  </div>
-</div>
-
-<!-- Products Grid View -->
-<div
-  *ngIf="!loading && !error && filteredProducts.length > 0 && viewMode === 'grid'"
-  class="products-grid"
-  role="list"
-  aria-label="Product List"
->
-  <div
-    *ngFor="let product of filteredProducts; trackBy: trackByProductId"
-    class="product-card"
-    role="listitem"
-    [class.out-of-stock]="product.stock === 0"
-  >
-    <!-- Image -->
-    <div class="product-image-container">
-      <img
-        [src]="product.mainImageUrl || '/assets/images/placeholder.png'"
-        [alt]="product.name"
-        class="product-image"
-        (error)="handleImageError($event)"
-      >
-      <div
-        *ngIf="product.discountPercentage && product.discountPercentage > 0"
-        class="discount-badge"
-      >
-        -{{product.discountPercentage}}%
-      </div>
-      <div
-        *ngIf="product.stock === 0"
-        class="out-of-stock-badge"
-      >
-        Out of Stock
-      </div>
-    </div>
-
-    <!-- Details -->
-    <div class="product-details">
-      <div class="product-category" *ngIf="product.category?.name">
-        {{product.category?.name}}
-      </div>
-      <h3 class="product-name">{{product.name}}</h3>
-      <div
-        *ngIf="product.ratingAverage"
-        class="product-rating"
-        [attr.aria-label]="'Rating: ' + product.ratingAverage + ' out of 5'"
-      >
-        <div class="stars-container">
-          <div
-            class="stars-filled"
-            [style.width.%]="(product.ratingAverage / 5) * 100"
-          ></div>
+        <input
+          type="range"
+          min="0"
+          max="1000"
+          [(ngModel)]="filters.priceRange[1]"
+          (change)="applyFilters()"
+          aria-label="Maximum price"
+        >
+        <div class="price-range-display">
+          <span>${{filters.priceRange[0]}}</span>
+          <span>${{filters.priceRange[1]}}</span>
         </div>
-        <span class="rating-value">{{product.ratingAverage.toFixed(1)}}</span>
       </div>
-      <div class="product-price-container">
+    </div>
+
+    <!-- In Stock -->
+    <div class="filter-group">
+      <label class="checkbox-label">
+        <input
+          type="checkbox"
+          [(ngModel)]="filters.inStock"
+          (change)="applyFilters()"
+        >
+        <span class="checkbox-custom"></span>
+        <span>In Stock Only</span>
+      </label>
+    </div>
+
+    <!-- Actions -->
+    <div class="filter-actions">
+      <button
+        (click)="applyFilters()"
+        class="apply-filters-btn"
+      >
+        Apply Filters
+      </button>
+      <button
+        (click)="filters = {category: [], brand: [], priceRange: [0, 1000], inStock: false}; applyFilters()"
+        class="clear-filters-btn"
+      >
+        Clear Filters
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading products...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-container">
+    <div class="error-message">
+      <i class="fa fa-exclamation-circle"></i>
+      <p>{{error}}</p>
+    </div>
+    <button
+      (click)="retryLoading()"
+      class="retry-btn"
+    >
+      Try Again
+    </button>
+  </div>
+
+  <!-- No Products Found -->
+  <div *ngIf="!loading && !error && filteredProducts.length === 0" class="no-products-container">
+    <div class="no-products-message">
+      <i class="fa fa-search"></i>
+      <p>No products found matching your criteria.</p>
+    </div>
+  </div>
+
+  <!-- Products Grid View -->
+  <div
+    *ngIf="!loading && !error && filteredProducts.length > 0 && viewMode === 'grid'"
+    class="products-grid"
+    role="list"
+    aria-label="Product List"
+  >
+    <div
+      *ngFor="let product of filteredProducts; trackBy: trackByProductId"
+      class="product-card"
+      role="listitem"
+      [class.out-of-stock]="product.stock === 0"
+    >
+      <!-- Image -->
+      <div class="product-image-container">
+        <img
+          [src]="product.mainImageUrl"
+          [alt]="product.name"
+          class="product-image"
+          (error)="handleImageError($event)"
+        >
         <div
           *ngIf="product.discountPercentage && product.discountPercentage > 0"
-          class="product-price-discount"
+          class="discount-badge"
         >
-          <span class="original-price">{{product.price | currency}}</span>
-          <span class="discounted-price">
-            {{(product.price - (product.price * product.discountPercentage / 100)) | currency}}
-          </span>
+          -{{product.discountPercentage}}%
         </div>
         <div
-          *ngIf="!product.discountPercentage || product.discountPercentage === 0"
-          class="product-price"
+          *ngIf="product.stock === 0"
+          class="out-of-stock-badge"
         >
-          {{product.price | currency}}
+          Out of Stock
         </div>
       </div>
-      <div class="stock-status" [class.in-stock]="product.stock > 0">
-        <i class="fa" [class.fa-check-circle]="product.stock > 0" [class.fa-times-circle]="product.stock === 0"></i>
-        <span *ngIf="product.stock > 0">In Stock ({{product.stock}})</span>
-        <span *ngIf="product.stock === 0">Out of Stock</span>
+
+      <!-- Details -->
+      <div class="product-details">
+        <div class="product-category" *ngIf="product.category?.name">
+          {{product.category?.name}}
+        </div>
+        <h3 class="product-name">{{product.name}}</h3>
+        <div
+          *ngIf="product.ratingAverage"
+          class="product-rating"
+          [attr.aria-label]="'Rating: ' + product.ratingAverage + ' out of 5'"
+        >
+          <div class="stars-container">
+            <div
+              class="stars-filled"
+              [style.width.%]="(product.ratingAverage / 5) * 100"
+            ></div>
+          </div>
+          <span class="rating-value">{{product.ratingAverage.toFixed(1)}}</span>
+        </div>
+        <div class="product-price-container">
+          <div
+            *ngIf="product.discountPercentage && product.discountPercentage > 0"
+            class="product-price-discount"
+          >
+            <span class="original-price">{{product.price | currency}}</span>
+            <span class="discounted-price">
+              {{(product.price - (product.price * product.discountPercentage / 100)) | currency}}
+            </span>
+          </div>
+          <div
+            *ngIf="!product.discountPercentage || product.discountPercentage === 0"
+            class="product-price"
+          >
+            {{product.price | currency}}
+          </div>
+        </div>
+
+        <!-- Stock Status -->
+        <div class="stock-status" [class.in-stock]="product.stock > 0">
+          <i class="fa" [class.fa-check-circle]="product.stock > 0" [class.fa-times-circle]="product.stock === 0"></i>
+          <span *ngIf="product.stock > 0">In Stock ({{product.stock}})</span>
+          <span *ngIf="product.stock === 0">Out of Stock</span>
+        </div>
+
+        <!-- Quantity Selector - NEW FEATURE -->
+        <div class="quantity-selector" *ngIf="product.stock > 0">
+          <button
+            class="quantity-btn decrease"
+            [disabled]="product.stock"
+            (click)="product.stock= product.stock> 1 ? product.stock- 1 : 1"
+            aria-label="Decrease quantity"
+          >
+            <i class="fa fa-minus"></i>
+          </button>
+          <input
+            type="number"
+            [(ngModel)]="product.stock"
+            min="1"
+            [max]="product.stock"
+            class="quantity-input"
+            aria-label="Product quantity"
+          >
+          <button
+            class="quantity-btn increase"
+            [disabled]="product.stock>= product.stock"
+            (click)="product.stock= product.stock< product.stock ? product.stock+ 1 : product.stock"
+            aria-label="Increase quantity"
+          >
+            <i class="fa fa-plus"></i>
+          </button>
+        </div>
+
+        <!-- Product Actions -->
+        <div class="product-actions">
+          <button
+            class="add-to-cart-btn"
+            [disabled]="product.stock === 0"
+            (click)="addToCart(product)"
+            aria-label="Add to cart"
+          >
+            <i class="fa fa-shopping-cart"></i>
+            Add to Cart
+          </button>
+          <a
+            [routerLink]="['/products', product.id]"
+            class="view-details-btn"
+            aria-label="View product details"
+          >
+            Details
+          </a>
+        </div>
       </div>
-      <div class="product-actions">
-        <button
-          class="add-to-cart-btn"
-          [disabled]="product.stock === 0"
-          (click)="addToCart(product)"
-          aria-label="Add to cart"
+    </div>
+  </div>
+
+  <!-- Products List View -->
+  <div
+    *ngIf="!loading && !error && filteredProducts.length > 0 && viewMode === 'list'"
+    class="products-list"
+    role="list"
+    aria-label="Product List"
+  >
+    <div
+      *ngFor="let product of filteredProducts; trackBy: trackByProductId"
+      class="product-list-item"
+      role="listitem"
+      [class.out-of-stock]="product.stock === 0"
+    >
+      <!-- Product Image -->
+      <div class="product-list-image">
+        <img
+          [src]="product.mainImageUrl"
+          [alt]="product.name"
+          (error)="handleImageError($event)"
         >
-          <i class="fa fa-shopping-cart"></i>
-          Add to Cart
-        </button>
-        <a
-          [routerLink]="['/products', product.id]"
-          class="view-details-btn"
-          aria-label="View product details"
+        <div
+          *ngIf="product.discountPercentage && product.discountPercentage > 0"
+          class="discount-badge"
         >
-          Details
-        </a>
+          -{{product.discountPercentage}}%
+        </div>
+      </div>
+
+      <!-- Product Info -->
+      <div class="product-list-info">
+        <div class="product-category" *ngIf="product.category?.name">
+          {{product.category?.name}}
+        </div>
+        <h3 class="product-name">{{product.name}}</h3>
+        <div
+          *ngIf="product.ratingAverage"
+          class="product-rating"
+        >
+          <div class="stars-container">
+            <div
+              class="stars-filled"
+              [style.width.%]="(product.ratingAverage / 5) * 100"
+            ></div>
+          </div>
+          <span class="rating-value">{{product.ratingAverage.toFixed(1)}}</span>
+        </div>
+        <p class="product-description" *ngIf="product.description">
+          {{product.description ? (product.description | slice:0:150) + (product.description.length > 150 ? '...' : '') : ''}}
+        </p>
+      </div>
+
+      <!-- Product Actions -->
+      <div class="product-list-actions">
+        <div class="product-price-container">
+          <div
+            *ngIf="product.discountPercentage && product.discountPercentage > 0"
+            class="product-price-discount"
+          >
+            <span class="original-price">{{product.price | currency}}</span>
+            <span class="discounted-price">
+              {{(product.price - (product.price * product.discountPercentage / 100)) | currency}}
+            </span>
+          </div>
+          <div
+            *ngIf="!product.discountPercentage || product.discountPercentage === 0"
+            class="product-price"
+          >
+            {{product.price | currency}}
+          </div>
+        </div>
+
+        <div class="stock-status" [class.in-stock]="product.stock > 0">
+          <i class="fa" [class.fa-check-circle]="product.stock > 0" [class.fa-times-circle]="product.stock === 0"></i>
+          <span *ngIf="product.stock > 0">In Stock ({{product.stock}})</span>
+          <span *ngIf="product.stock === 0">Out of Stock</span>
+        </div>
+
+        <!-- Quantity Selector - NEW FEATURE -->
+        <div class="quantity-selector" *ngIf="product.stock > 0">
+          <button
+            class="quantity-btn decrease"
+            [disabled]="product.stock<= 1"
+            (click)="product.stock= product.stock> 1 ? product.stock- 1 : 1"
+            aria-label="Decrease quantity"
+          >
+            <i class="fa fa-minus"></i>
+          </button>
+          <input
+            type="number"
+            [(ngModel)]="product.stock"
+            min="1"
+            [max]="product.stock"
+            class="quantity-input"
+            aria-label="Product quantity"
+          >
+          <button
+            class="quantity-btn increase"
+            [disabled]="product.stock>= product.stock"
+            (click)="product.stock= product.stock< product.stock ? product.stock+ 1 : product.stock"
+            aria-label="Increase quantity"
+          >
+            <i class="fa fa-plus"></i>
+          </button>
+        </div>
+
+        <div class="product-buttons">
+          <button
+            class="add-to-cart-btn"
+            [disabled]="product.stock === 0"
+            (click)="addToCart(product)"
+            aria-label="Add to cart"
+          >
+            <i class="fa fa-shopping-cart"></i>
+            Add to Cart
+          </button>
+          <a
+            [routerLink]="['/products', product.id]"
+            class="view-details-btn"
+            aria-label="View product details"
+          >
+            Details
+          </a>
+        </div>
       </div>
     </div>
   </div>

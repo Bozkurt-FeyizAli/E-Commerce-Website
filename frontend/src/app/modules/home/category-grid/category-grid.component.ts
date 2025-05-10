@@ -26,10 +26,10 @@ export class CategoryGridComponent implements OnInit {
         console.error(err);
         this.loading = false;
       }
-    }); 
+    });
   }
 
   handleImageError(event: Event): void {
-    (event.target as HTMLImageElement).src = 'assets/images/category-placeholder.png';
+    
   }
 }

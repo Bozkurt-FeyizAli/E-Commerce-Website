@@ -85,17 +85,33 @@ export class CartService {
     );
   }
 
-  removeFromCart(itemId: number): Observable<CartItem[]> {
+  addMultipleToCart(products: { product: Product; quantity: number }[]): Observable<CartItem[]> {
     const userId = this.authService.getUserId();
     if (!userId) {
-      return throwError(() => new Error('Cannot remove items from cart without login.'));
+      alert('Please login to add items to cart');
+      return throwError(() => new Error('Cannot add items to cart without login.'));
     }
-    // Use DELETE endpoint for removing a single item
-    return this.http.delete<CartItem[]>(`${this.apiUrl}/${userId}/items/${itemId}`).pipe(
+
+    const cartItems: Partial<CartItem>[] = products.map(p => ({
+      productId: p.product.id,
+      quantity: p.quantity,
+    }));
+
+    return this.http.post<CartItem[]>(`${this.apiUrl}/${userId}/items/bulk`, cartItems).pipe(
+      tap(() => {
+        this.loadInitialCart(); // Güncelle
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+  removeFromCart(itemId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/items/${itemId}`).pipe(
       tap(() => this.loadInitialCart()),
       catchError(this.handleError)
     );
   }
+
 
   updateQuantity(itemId: number, newQuantity: number): Observable<CartItem> {
     const userId = this.authService.getUserId();
@@ -163,5 +179,7 @@ export class CartService {
   getCartItems(): Observable<CartItem[]> {
     return this.cartItems.asObservable();
   }
+
+
 
 }

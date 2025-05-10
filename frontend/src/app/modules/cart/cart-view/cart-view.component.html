@@ -1,7 +1,7 @@
 <tr *ngFor="let entry of items">
   <td class="product-info">
     <img
-      [src]="entry.product.mainImageUrl || 'assets/images/product-placeholder.png'"
+      [src]="entry.product.mainImageUrl "
       [alt]="entry.product.name"
       (error)="handleImageError($event)"
     />

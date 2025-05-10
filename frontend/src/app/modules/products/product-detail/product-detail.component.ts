@@ -133,7 +133,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   }
 
   handleImageError(event: Event): void {
-    (event.target as HTMLImageElement).src = 'assets/images/product-placeholder.png';
+    
   }
 
   retry(): void {

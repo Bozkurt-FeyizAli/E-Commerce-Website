@@ -13,7 +13,7 @@ export class OrderService {
 
   /** Stripe PaymentIntent */
   createPaymentIntent(body: { amount: number; currency: string }) {
-    return this.http.post(`${this.api}/create-payment-intent`, body);
+    return this.http.post(`${environment.apiUrl}/payments/create-payment-intent`, body);
   }
 
   /** COD / Stripe / PayPal siparişi */
@@ -31,6 +31,15 @@ export class OrderService {
   }
 
   placeOrder(order: any) {
-    return this.http.post(`${this.api}/checkout`, order);
+    return this.http.post<{ id: number }>(`${this.api}/checkout`, order).subscribe((response) => {
+      if (response && response.id) {
+        this.redirectToSuccess(response.id);
+      }
+    });
+  }
+
+  /** Checkout success redirect */
+  redirectToSuccess(orderId: number) {
+    window.location.href = `/success/${orderId}`;
   }
 }

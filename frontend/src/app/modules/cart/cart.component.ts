@@ -100,7 +100,7 @@ export class CartComponent implements OnInit {
   }
 
   handleImageError(event: Event): void {
-    (event.target as HTMLImageElement).src = 'assets/images/product-placeholder.png';
+    ;
   }
 
   private getPlaceholderProduct(): Product {
@@ -110,7 +110,7 @@ export class CartComponent implements OnInit {
   description: 'No details available',
   price: 0,
   stock: 0,
-  mainImageUrl: 'assets/images/product-placeholder.png',
+
   discountPercentage: undefined,
   ratingAverage: undefined,
   category: {

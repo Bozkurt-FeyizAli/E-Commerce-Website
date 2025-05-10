@@ -62,31 +62,51 @@ ngOnInit(): void {
 
   onFileSelected(event: any): void {
     const file = event.target.files[0];
-    if (file) {
-      this.isImageUploading = true;
-      this.cloudinary.uploadImage(file).subscribe({
-        next: (res) => {
-          this.productForm.patchValue({ mainImageUrl: res.secure_url });
-          this.isImageUploading = false;
-        },
-        error: () => {
-          alert('Görsel yüklenirken hata oluştu.');
-          this.isImageUploading = false;
+    if (!file) return;
+
+    this.isImageUploading = true;
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', 'ml_default'); // Preset adın buysa
+
+    fetch('https://api.cloudinary.com/v1_1/dqhw1xmyf/image/upload', {
+      method: 'POST',
+      body: formData
+    })
+      .then(res => {
+        if (!res.ok) {
+          throw new Error('Cloudinary yükleme hatası: ' + res.statusText);
         }
+        return res.json();
+      })
+      .then(data => {
+        this.productForm.patchValue({ mainImageUrl: data.secure_url });
+        console.log('📷 Görsel URL:', data.secure_url);
+        this.isImageUploading = false;
+      })
+      .catch(err => {
+        console.error('❌ Yükleme hatası:', err);
+        alert('Görsel yüklenemedi. Lütfen tekrar deneyin.');
+        this.isImageUploading = false;
       });
-    }
   }
 
+
+
   submitProduct(): void {
+    const userId = 5; // örnek sellerId (oturum açmış kullanıcıdan alınmalı)
+    const categoryId = 1; // örnek categoryId (formdan seçilmesi önerilir)
+
     const product = {
       name: this.productForm.value.name,
       description: this.productForm.value.description,
       price: this.productForm.value.price,
       stock: this.productForm.value.stock,
-      mainImageUrl: this.productForm.value.image
+      mainImageUrl: this.productForm.value.image, // bu doğruysa Cloudinary URL'i geliyor
+      sellerId: userId,
+      categoryId: categoryId
     };
-
-    console.log('Gönderilen ürün:', product); // ➤ Burası mainImageUrl null mı?
 
     this.sellerService.addProduct(product as any).subscribe(() => {
       alert('Ürün başarıyla eklendi');
@@ -94,4 +114,5 @@ ngOnInit(): void {
       this.productForm.reset();
     });
   }
+
 }

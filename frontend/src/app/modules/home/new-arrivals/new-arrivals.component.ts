@@ -38,7 +38,7 @@ export class NewArrivalsComponent implements OnInit {
   }
 
   handleImageError(event: Event): void {
-    (event.target as HTMLImageElement).src = 'assets/images/category-placeholder.png';
+    
   }
 
 }

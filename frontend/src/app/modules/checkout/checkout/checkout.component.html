@@ -1,99 +1,180 @@
-<div class="checkout-container" *ngIf="!loading; else loadingTemplate">
-  <form [formGroup]="checkoutForm" (ngSubmit)="onSubmit()">
-    <h2>Shipping Information</h2>
-    <div>
-      <label>Full Name *</label>
-      <input formControlName="fullName" type="text" />
-    </div>
-    <div>
-      <label>Address Line 1 *</label>
-      <input formControlName="addressLine1" type="text" />
-    </div>
-    <div>
-      <label>Address Line 2</label>
-      <input formControlName="addressLine2" type="text" />
-    </div>
-    <div>
-      <label>City *</label>
-      <input formControlName="city" type="text" />
-    </div>
-    <div>
-      <label>State *</label>
-      <input formControlName="state" type="text" />
-    </div>
-    <div>
-      <label>Postal Code *</label>
-      <input formControlName="postalCode" type="text" />
-    </div>
-    <div>
-      <label>Country *</label>
-      <input formControlName="country" type="text" />
-    </div>
-    <div>
-      <label>Phone Number *</label>
-      <input formControlName="phoneNumber" type="text" />
-    </div>
-    <div>
-      <label>Email *</label>
-      <input formControlName="email" type="email" />
+<div class="checkout-container">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading your cart...</p>
+  </div>
+
+  <!-- Main Checkout Content -->
+  <div class="checkout-content" *ngIf="!loading">
+    <div class="checkout-form-container">
+      <form [formGroup]="checkoutForm" (ngSubmit)="onSubmit()" class="checkout-form">
+        <!-- Shipping Information -->
+        <div class="form-section">
+          <h2>Shipping Information</h2>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="fullName">Full Name *</label>
+              <input id="fullName" formControlName="fullName" type="text" placeholder="John Doe">
+              <div class="error-message" *ngIf="checkoutForm.get('fullName')?.touched && checkoutForm.get('fullName')?.invalid">
+                Full name is required
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email *</label>
+              <input id="email" formControlName="email" type="email" placeholder="john@example.com">
+              <div class="error-message" *ngIf="checkoutForm.get('email')?.touched && checkoutForm.get('email')?.invalid">
+                Valid email is required
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="phoneNumber">Phone Number *</label>
+              <input id="phoneNumber" formControlName="phoneNumber" type="tel" placeholder="1234567890">
+              <div class="error-message" *ngIf="checkoutForm.get('phoneNumber')?.touched && checkoutForm.get('phoneNumber')?.invalid">
+                Valid phone number is required
+              </div>
+            </div>
+
+            <div class="form-group full-width">
+              <label for="addressLine1">Address Line 1 *</label>
+              <input id="addressLine1" formControlName="addressLine1" type="text" placeholder="123 Main St">
+              <div class="error-message" *ngIf="checkoutForm.get('addressLine1')?.touched && checkoutForm.get('addressLine1')?.invalid">
+                Address is required
+              </div>
+            </div>
+
+            <div class="form-group full-width">
+              <label for="addressLine2">Address Line 2</label>
+              <input id="addressLine2" formControlName="addressLine2" type="text" placeholder="Apt 4B">
+            </div>
+
+            <div class="form-group">
+              <label for="city">City *</label>
+              <input id="city" formControlName="city" type="text" placeholder="New York">
+              <div class="error-message" *ngIf="checkoutForm.get('city')?.touched && checkoutForm.get('city')?.invalid">
+                City is required
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="state">State *</label>
+              <input id="state" formControlName="state" type="text" placeholder="NY">
+              <div class="error-message" *ngIf="checkoutForm.get('state')?.touched && checkoutForm.get('state')?.invalid">
+                State is required
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="postalCode">Postal Code *</label>
+              <input id="postalCode" formControlName="postalCode" type="text" placeholder="10001">
+              <div class="error-message" *ngIf="checkoutForm.get('postalCode')?.touched && checkoutForm.get('postalCode')?.invalid">
+                Postal code is required
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="country">Country *</label>
+              <input id="country" formControlName="country" type="text" placeholder="United States">
+              <div class="error-message" *ngIf="checkoutForm.get('country')?.touched && checkoutForm.get('country')?.invalid">
+                Country is required
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Method -->
+        <div class="form-section" formGroupName="payment">
+          <h2>Payment Method</h2>
+          <div class="payment-methods">
+            <label class="payment-method-option">
+              <input type="radio" formControlName="method" value="COD">
+              <span class="payment-method-content">
+                <i class="fas fa-money-bill-wave"></i>
+                <span>Cash on Delivery</span>
+              </span>
+            </label>
+
+            <label class="payment-method-option">
+              <input type="radio" formControlName="method" value="STRIPE">
+              <span class="payment-method-content">
+                <i class="fab fa-cc-stripe"></i>
+                <span>Credit Card</span>
+              </span>
+            </label>
+
+            <label class="payment-method-option">
+              <input type="radio" formControlName="method" value="PAYPAL">
+              <span class="payment-method-content">
+                <i class="fab fa-paypal"></i>
+                <span>PayPal</span>
+              </span>
+            </label>
+          </div>
+
+          <!-- Stripe Card Element -->
+          <div *ngIf="paymentMethod === 'STRIPE'" class="payment-form-container">
+            <div #cardEl id="card-element" class="stripe-element"></div>
+            <div id="card-errors" class="error-message" role="alert"></div>
+          </div>
+
+          <!-- PayPal Button Container -->
+          <div *ngIf="paymentMethod === 'PAYPAL'" class="paypal-container">
+            <div #paypalEl id="paypal-button-container"></div>
+          </div>
+        </div>
+      </form>
     </div>
 
-    <h2>Payment Method</h2>
+    <!-- Order Summary -->
+    <div class="order-summary">
+      <div class="summary-content">
+        <h2>Order Summary</h2>
 
-<!-- ⭐ payment adındaki formGroup'a giriyoruz -->
-<div formGroupName="payment">
+        <div class="cart-items">
+          <div *ngFor="let entry of cartItems" class="cart-item">
+            <div class="item-info">
+              <img [src]="entry.product.mainImageUrl" [alt]="entry.product.name" class="item-image">
+              <div class="item-details">
+                <h4>{{ entry.product.name }}</h4>
+                <p class="item-quantity">Quantity: {{ entry.item.quantity }}</p>
+              </div>
+            </div>
+            <div class="item-price">
+              {{ entry.product.price * entry.item.quantity | currency }}
+            </div>
+          </div>
+        </div>
 
-  <label>
-    <input type="radio" formControlName="method" value="COD" />
-    Pay on Delivery
-  </label>
+        <div class="summary-totals">
+          <div class="summary-row">
+            <span>Subtotal</span>
+            <span>{{ subtotal | currency }}</span>
+          </div>
+          <div class="summary-row">
+            <span>Shipping</span>
+            <span>{{ shippingFee | currency }}</span>
+          </div>
+          <div class="summary-row" *ngIf="discount > 0">
+            <span>Discount</span>
+            <span class="discount">-{{ discount | currency }}</span>
+          </div>
+          <div class="summary-row total">
+            <span>Total</span>
+            <span>{{ total | currency }}</span>
+          </div>
+        </div>
 
-  <label>
-    <input type="radio" formControlName="method" value="STRIPE" />
-    Credit Card
-  </label>
-
-  <label>
-    <input type="radio" formControlName="method" value="PAYPAL" />
-    PayPal
-  </label>
+        <button
+          type="submit"
+          class="place-order-btn"
+          [disabled]="checkoutForm.invalid || submitting"
+          (click)="onSubmit()">
+          <span *ngIf="!submitting">Place Order</span>
+          <div *ngIf="submitting" class="spinner-small"></div>
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
-
-<!-- Stripe Payment (Credit Card) -->
-<div *ngIf="paymentMethod === 'STRIPE'">
-  <div #cardEl id="card-element"></div>
-  <div id="card-errors" class="error-message"></div>
-</div>
-
-
-<!-- PayPal Payment -->
-<div *ngIf="paymentMethod === 'PAYPAL'" class="paypal-container">
-  <h4>Pay with PayPal</h4>
-  <!-- ⭐ ViewChild ismi de eşleşsin -->
-  <div #paypalEl id="paypal-button-container"></div>
-</div>
-
-    <h2>Order Summary</h2>
-    <div *ngFor="let entry of cartItems">
-      <p>
-        {{ entry.product.title }}
-        (x{{ entry.item.quantity }}) -
-        ${{ (entry.product.price * entry.item.quantity) | number:'1.2-2' }}
-      </p>
-    </div>
-    <p>Subtotal: ${{ subtotal    | number:'1.2-2' }}</p>
-    <p>Shipping: ${{ shippingFee | number:'1.2-2' }}</p>
-    <p *ngIf="discount > 0">Discount: -${{ discount | number:'1.2-2' }}</p>
-    <h3>Total: {{ total            | number:'1.2-2' }}</h3>
-    <button
-      type="submit"
-      [disabled]="checkoutForm.invalid || submitting">
-      Place Order
-    </button>
-  </form>
-</div>
-
-<!-- Loading Template -->
-<ng-template #loadingTemplate>
-  <p>Loading your cart...</p>
-</ng-template>

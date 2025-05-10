@@ -256,7 +256,7 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
       shippingPostalCode: f.postalCode,
       shippingCountry: f.country
     }).subscribe({
-      next : o  => this.router.navigate(['/checkout-success', o.id]),
+      next : o  => this.router.navigate(['/success']),
       error: () => this.snack.open('Sipariş gönderilemedi', 'Kapat', {duration:4000})
     }).add(() => this.submitting = false);
   }
