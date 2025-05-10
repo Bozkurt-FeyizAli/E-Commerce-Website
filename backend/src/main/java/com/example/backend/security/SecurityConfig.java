@@ -45,7 +45,11 @@ public class SecurityConfig {
         "/api/products",
         "/api/products/**",
         "/api/category",
-        "/api/category/**"
+        "/api/category/**",
+        "/api/payments",
+        "/api/payments/**",
+        "/error"
+
     ).permitAll()
     .requestMatchers("/api/orders/checkout").authenticated()
     .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
@@ -53,6 +57,7 @@ public class SecurityConfig {
     .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
     .requestMatchers("/api/seller/**").hasAuthority("ROLE_SELLER")
     .requestMatchers("/api/orders/**", "/api/cart/**").authenticated()
+    .requestMatchers("/api/payment/**", "/api/cart/**").authenticated()
     .anyRequest().authenticated()
 )
 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

@@ -3,6 +3,7 @@ package com.example.backend.controller;
 import lombok.RequiredArgsConstructor;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
@@ -18,10 +19,12 @@ public class SellerController {
     private final ISellerService sellerService;
 
 
-    @GetMapping("/my-products")
-    public ResponseEntity<String> getMyProducts() {
-        return ResponseEntity.ok("Here are your products (Seller View).");
-    }
+    @GetMapping("/products")
+public ResponseEntity<List<ProductDto>> getMyProducts() {
+    List<ProductDto> products = sellerService.getProductsForCurrentSeller(); // userId ile filtreleyebilirsin
+    return ResponseEntity.ok(products);
+}
+
 
     @GetMapping("/my-orders")
     public ResponseEntity<String> getMyOrders() {
@@ -59,6 +62,7 @@ public ResponseEntity<Map<String, String>> addProduct(@RequestBody ProductDto dt
 
         return ResponseEntity.ok(data);
     }
+
 
 
 }

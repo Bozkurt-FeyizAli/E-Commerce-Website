@@ -44,30 +44,39 @@ public class CartServiceImpl implements ICartService {
 
     @Override
     public CartItemDto addProductToCart(Long cartId, CartItemDto dto) {
-        Cart cart = cartRepository.findById(cartId)
-                .orElseThrow(() -> new RuntimeException("Cart not found"));
+      Cart cart = cartRepository.findById(cartId)
+          .orElseThrow(() -> new RuntimeException("Cart not found"));
 
-        Product product = productRepository.findById(dto.getProductId())
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+      Product product = productRepository.findById(dto.getProductId())
+          .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        CartItem cartItem = CartItem.builder()
-                .cart(cart)
-                .product(product)
-                .quantity(dto.getQuantity() != null ? dto.getQuantity() : 1)
-                .priceWhenAdded(product.getPrice())
-                .isActive(true)
-                .build();
+      // Aynı üründen aktif olarak zaten varsa, miktarını artır
+      CartItem existingItem = cartItemRepository.findByCartIdAndProductIdAndIsActiveTrue(cartId, product.getId());
+      if (existingItem != null) {
+        int newQuantity = existingItem.getQuantity() + (dto.getQuantity() != null ? dto.getQuantity() : 1);
+        existingItem.setQuantity(newQuantity);
+        return mapToItemDto(cartItemRepository.save(existingItem));
+      }
 
-        return mapToItemDto(cartItemRepository.save(cartItem));
+      // Yoksa yeni CartItem oluştur
+      CartItem cartItem = CartItem.builder()
+          .cart(cart)
+          .product(product)
+          .quantity(dto.getQuantity() != null ? dto.getQuantity() : 1)
+          .priceWhenAdded(product.getPrice())
+          .isActive(true)
+          .build();
+
+      return mapToItemDto(cartItemRepository.save(cartItem));
     }
 
     @Override
     public void removeProductFromCart(Long cartItemId) {
-        CartItem cartItem = cartItemRepository.findById(cartItemId)
-                .orElseThrow(() -> new RuntimeException("Cart item not found"));
+      CartItem cartItem = cartItemRepository.findById(cartItemId)
+          .orElseThrow(() -> new RuntimeException("Cart item not found"));
 
-        cartItem.setIsActive(false);
-        cartItemRepository.save(cartItem);
+      cartItem.setIsActive(false);
+      cartItemRepository.save(cartItem);
     }
 
     @Override
@@ -88,8 +97,12 @@ public class CartServiceImpl implements ICartService {
     }
 
     public List<CartItemDto> getCartItems(Long cartId) {
-    List<CartItem> items = cartItemRepository.findByCartId(cartId);
-    return items.stream().map(item -> {
+      List<CartItem> items = cartItemRepository.findByCartId(cartId)
+        .stream()
+        .filter(CartItem::getIsActive)
+        .collect(Collectors.toList());
+
+      return items.stream().map(item -> {
         CartItemDto dto = new CartItemDto();
         dto.setId(item.getId());
         dto.setCartId(item.getCart().getId());
@@ -99,13 +112,13 @@ public class CartServiceImpl implements ICartService {
         dto.setIsActive(item.getIsActive());
 
         // ✅ Product bilgisi ekle
-        Product product = item.getProduct(); // Eager fetch ise direkt var, yoksa productService.getById() ile alırsın
-        ProductDto productDto = toDto(product); // varsa ProductMapper
+        Product product = item.getProduct();
+        ProductDto productDto = toDto(product);
         dto.setProduct(productDto);
 
         return dto;
-    }).collect(Collectors.toList());
-}
+      }).collect(Collectors.toList());
+    }
 
 
 
@@ -138,6 +151,44 @@ public class CartServiceImpl implements ICartService {
           .description(product.getDescription())
           .build();
   }
+
+    @Override
+    public List<CartItemDto> addProductsToCart(Long cartId, List<CartItemDto> cartItemDtos) {
+        Cart cart = cartRepository.findById(cartId)
+                .orElseThrow(() -> new RuntimeException("Cart not found"));
+
+        List<CartItemDto> addedItems = cartItemDtos.stream()
+                .map(dto -> {
+                    Product product = productRepository.findById(dto.getProductId())
+                            .orElseThrow(() -> new RuntimeException("Product not found"));
+
+                    CartItem cartItem = CartItem.builder()
+                            .cart(cart)
+                            .product(product)
+                            .quantity(dto.getQuantity() != null ? dto.getQuantity() : 1)
+                            .priceWhenAdded(product.getPrice())
+                            .isActive(true)
+                            .build();
+
+                    return mapToItemDto(cartItemRepository.save(cartItem));
+                })
+                .collect(Collectors.toList());
+
+        return addedItems;
+    }
+
+    @Override
+    public CartItemDto updateCartItemQuantity(Long userId, Long itemId, Integer quantity) {
+        CartItem cartItem = cartItemRepository.findById(itemId)
+                .orElseThrow(() -> new RuntimeException("Cart item not found"));
+
+        if (!cartItem.getCart().getUser().getId().equals(userId)) {
+            throw new RuntimeException("You do not have permission to update this cart item");
+        }
+
+        cartItem.setQuantity(quantity);
+        return mapToItemDto(cartItemRepository.save(cartItem));
+    }
 
 
 

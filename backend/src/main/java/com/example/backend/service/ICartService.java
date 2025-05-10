@@ -18,4 +18,8 @@ public interface ICartService {
     CartDto getCartByUserId(Long userId);
 
     List<CartItemDto> getCartItems(Long cartId);
+
+    List<CartItemDto> addProductsToCart(Long cartId, List<CartItemDto> cartItemDtos);
+
+    CartItemDto updateCartItemQuantity(Long userId, Long itemId, Integer quantity);
 }

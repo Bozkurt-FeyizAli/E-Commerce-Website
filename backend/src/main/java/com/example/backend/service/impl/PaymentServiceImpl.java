@@ -33,10 +33,12 @@ public class PaymentServiceImpl implements IPaymentService {
     private final UserRepository userRepository;
     private final PaymentFormatRepository paymentFormatRepository;
     private final TransactionRepository transactionRepository;
+    private final CartServiceImpl cartItemService;
 
 
     @Value("${stripe.secret-key}")
     private String stripeSecretKey;
+
 
     @Override
     public PaymentDto createPayment(PaymentDto dto) {
@@ -109,37 +111,39 @@ public class PaymentServiceImpl implements IPaymentService {
                 .build();
     }
 
-     @Override
+    @Override
     public Map<String, String> createPaymentIntent(PaymentDto paymentDto) {
-        Stripe.apiKey = stripeSecretKey;
+      Stripe.apiKey = stripeSecretKey;
 
-        // Stripe sadece cent cinsinden alır (örnek: 20.99 USD -> 2099)
-        long amountInCents = Math.round(paymentDto.getAmount() * 100);
+      // Stripe requires the amount in cents (e.g., 20.99 USD -> 2099)
+      long amountInCents = Math.round(paymentDto.getAmount() * 100);
 
-        try {
-            PaymentIntentCreateParams params =
-                    PaymentIntentCreateParams.builder()
-                            .setAmount(amountInCents)
-                            .setCurrency("usd")
-                            .setAutomaticPaymentMethods(
-                                    PaymentIntentCreateParams.AutomaticPaymentMethods.builder()
-                                            .setEnabled(true)
-                                            .build()
-                            )
-                            .build();
+      try {
+        PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
+            .setAmount(amountInCents)
+            .setCurrency("usd")
+            .setAutomaticPaymentMethods(
+                PaymentIntentCreateParams.AutomaticPaymentMethods.builder()
+                    .setEnabled(true)
+                    .build()
+            )
+            .build();
 
-            PaymentIntent intent = PaymentIntent.create(params);
+        PaymentIntent intent = PaymentIntent.create(params);
 
-            Map<String, String> responseData = new HashMap<>();
-            responseData.put("clientSecret", intent.getClientSecret());
+        Map<String, String> responseData = new HashMap<>();
+        responseData.put("clientSecret", intent.getClientSecret());
 
-            // ✔️ İstersen DB’ye kaydedebilirsin:
-            savePayment(paymentDto, intent.getId(), amountInCents);
+        // Optionally save payment to DB
+        savePayment(paymentDto, intent.getId(), amountInCents);
 
-            return responseData;
-        } catch (Exception e) {
-            throw new RuntimeException("Stripe payment failed: " + e.getMessage());
-        }
+        // Remove cart items for the user
+        cartItemService.removeProductFromCart(paymentDto.getUserId());
+
+        return responseData;
+      } catch (Exception e) {
+        throw new RuntimeException("Stripe payment failed: " + e.getMessage(), e);
+      }
     }
 
      private void savePayment(PaymentDto paymentDto, String id, long amountInCents) {

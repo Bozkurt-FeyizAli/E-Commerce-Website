@@ -30,4 +30,12 @@ public class Cart {
 
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt = LocalDateTime.now();
+    public void clear() {
+        if (cartItems != null) {
+            for (CartItem item : cartItems) {
+                item.setCart(null);
+            }
+            cartItems.clear();
+        }
+    }
 }

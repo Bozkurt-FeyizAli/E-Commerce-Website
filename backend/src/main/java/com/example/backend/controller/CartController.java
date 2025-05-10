@@ -27,6 +27,13 @@ public class CartController {
         CartItemDto addedItem = cartService.addProductToCart(cartId, cartItemDto);
         return ResponseEntity.ok(addedItem);
     }
+    @PostMapping("/{cartId}/items/bulk")
+    public ResponseEntity<List<CartItemDto>> addProductsToCart(
+      @PathVariable Long cartId,
+      @RequestBody List<CartItemDto> cartItemDtos) {
+        List<CartItemDto> addedItems = cartService.addProductsToCart(cartId, cartItemDtos);
+        return ResponseEntity.ok(addedItems);
+    }
 
     @DeleteMapping("/items/{cartItemId}")
     public ResponseEntity<Void> removeProductFromCart(@PathVariable Long cartItemId) {
@@ -51,4 +58,15 @@ public class CartController {
         List<CartItemDto> items = cartService.getCartItems(cartId);
         return ResponseEntity.ok(items);
     }
+
+    @PatchMapping("/{userId}/items/{itemId}")
+    public ResponseEntity<CartItemDto> updateCartItemQuantity(
+        @PathVariable Long userId,
+        @PathVariable Long itemId,
+        @RequestBody CartItemDto cartItemDto) {
+
+    CartItemDto updatedItem = cartService.updateCartItemQuantity(userId, itemId, cartItemDto.getQuantity());
+    return ResponseEntity.ok(updatedItem);
+}
+
 }
