@@ -7,6 +7,8 @@ import com.example.backend.repository.UserRepository;
 import com.example.backend.repository.CategoryRepository;
 import com.example.backend.service.ISellerService;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -68,23 +70,36 @@ public class SellerServiceImpl implements ISellerService {
         return mapToDtoList(products);
     }
 
-    
+
     public List<ProductDto> getProductsBySellerId(Long sellerId) {
         List<Product> products = productRepository.findBySellerId(sellerId);
         return mapToDtoList(products);
     }
 
     private Long getCurrentSellerId() {
-        var authentication = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new RuntimeException("No authenticated seller found");
-        }
-        try {
-            return Long.parseLong(authentication.getName());
-        } catch (NumberFormatException e) {
-            throw new RuntimeException("Authenticated seller ID is not valid");
-        }
+    var authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication == null || !authentication.isAuthenticated()) {
+        throw new RuntimeException("No authenticated seller found");
     }
+
+
+
+    Object principal = authentication.getPrincipal();
+System.out.println("🔥 Principal type: " + principal.getClass());
+System.out.println("🔥 Principal value: " + principal);
+
+
+    if (principal instanceof org.springframework.security.core.userdetails.UserDetails userDetails) {
+        return userRepository.findByUsername(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("Authenticated seller not found"))
+                .getId();
+    } else if (principal instanceof com.example.backend.entity.User user) {
+        return user.getId();
+    }
+
+    throw new RuntimeException("Authenticated seller information is not available");
+}
+
 
     private List<ProductDto> mapToDtoList(List<Product> products) {
         return products.stream()

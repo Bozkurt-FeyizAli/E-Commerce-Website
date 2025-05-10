@@ -14,8 +14,11 @@ import com.example.backend.repository.UserRepository;
 import com.example.backend.service.ICartService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -43,32 +46,56 @@ public class CartServiceImpl implements ICartService {
     }
 
     @Override
-    public CartItemDto addProductToCart(Long cartId, CartItemDto dto) {
-      Cart cart = cartRepository.findById(cartId)
-          .orElseThrow(() -> new RuntimeException("Cart not found"));
+public CartItemDto addProductToCart(Long cartId, CartItemDto dto) {
+    // Eğer Cart yoksa oluştur
+    Cart cart = cartRepository.findById(cartId).orElseGet(() -> {
+        User user = userRepository.findById(getCurrentUserId())
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        Cart newCart = Cart.builder()
+            .user(user)
+            .isActive(true)
+            .createdAt(LocalDateTime.now())
+            .build();
+        return cartRepository.save(newCart);
+    });
 
-      Product product = productRepository.findById(dto.getProductId())
-          .orElseThrow(() -> new RuntimeException("Product not found"));
+    Product product = productRepository.findById(dto.getProductId())
+        .orElseThrow(() -> new RuntimeException("Product not found"));
 
-      // Aynı üründen aktif olarak zaten varsa, miktarını artır
-      CartItem existingItem = cartItemRepository.findByCartIdAndProductIdAndIsActiveTrue(cartId, product.getId());
-      if (existingItem != null) {
+    // Aynı üründen aktif olarak zaten varsa, miktarını artır
+    CartItem existingItem = cartItemRepository.findByCartIdAndProductIdAndIsActiveTrue(cart.getId(), product.getId());
+    if (existingItem != null) {
         int newQuantity = existingItem.getQuantity() + (dto.getQuantity() != null ? dto.getQuantity() : 1);
         existingItem.setQuantity(newQuantity);
         return mapToItemDto(cartItemRepository.save(existingItem));
-      }
-
-      // Yoksa yeni CartItem oluştur
-      CartItem cartItem = CartItem.builder()
-          .cart(cart)
-          .product(product)
-          .quantity(dto.getQuantity() != null ? dto.getQuantity() : 1)
-          .priceWhenAdded(product.getPrice())
-          .isActive(true)
-          .build();
-
-      return mapToItemDto(cartItemRepository.save(cartItem));
     }
+
+    // Yoksa yeni CartItem oluştur
+    CartItem cartItem = CartItem.builder()
+        .cart(cart)
+        .product(product)
+        .quantity(dto.getQuantity() != null ? dto.getQuantity() : 1)
+        .priceWhenAdded(product.getPrice())
+        .isActive(true)
+        .build();
+
+    return mapToItemDto(cartItemRepository.save(cartItem));
+}
+
+private Long getCurrentUserId() {
+    var authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication == null || !authentication.isAuthenticated()) {
+        throw new RuntimeException("Not authenticated");
+    }
+
+    var username = authentication.getName(); // 🔥 Kullanıcı adı (email veya username)
+    var user = userRepository.findByUsername(username)
+        .orElseThrow(() -> new RuntimeException("User not found"));
+    return user.getId();
+}
+
+
+
 
     @Override
     public void removeProductFromCart(Long cartItemId) {
