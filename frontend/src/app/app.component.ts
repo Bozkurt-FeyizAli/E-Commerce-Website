@@ -9,8 +9,9 @@ import { AuthService } from './core/services/auth/auth.service';
   styleUrl: './app.component.css'
 })
 export class AppComponent {
+  title = 'FAraBo';
   constructor(private authService: AuthService) {
-    
+
   }
 
 
