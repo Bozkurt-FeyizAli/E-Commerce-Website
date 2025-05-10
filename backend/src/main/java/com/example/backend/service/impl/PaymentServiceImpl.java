@@ -3,6 +3,7 @@ package com.example.backend.service.impl;
 import com.example.backend.dto.CheckoutDto;
 import com.example.backend.dto.PaymentDto;
 import com.example.backend.entity.Payment;
+import com.example.backend.entity.PaymentFormat;
 import com.example.backend.entity.User;
 import com.example.backend.repository.PaymentFormatRepository;
 import com.example.backend.repository.PaymentRepository;
@@ -146,27 +147,37 @@ public class PaymentServiceImpl implements IPaymentService {
       }
     }
 
-     private void savePayment(PaymentDto paymentDto, String id, long amountInCents) {
-        Payment payment = new Payment();
-        payment.setPaymentStatus("Pending");
-        payment.setAmount((double) amountInCents / 100); // Cents to dollars
-        payment.setTransactionReference(id);
-        payment.setIsActive(true);
-        payment.setUser(userRepository.findById(paymentDto.getUserId()).orElseThrow(() -> new RuntimeException("User not found")));
-        payment.setPaymentFormat(paymentFormatRepository.findById(paymentDto.getPaymentFormatId()).orElseThrow(() -> new RuntimeException("PaymentFormat not found")));
+    private void savePayment(PaymentDto paymentDto, String id, long amountInCents) {
+       Payment payment = new Payment();
+       payment.setPaymentStatus("Pending");
+       payment.setAmount((double) amountInCents / 100); // Cents to dollars
+       payment.setTransactionReference(id);
+       payment.setIsActive(true);
+       payment.setUser(userRepository.findById(paymentDto.getUserId()).orElseThrow(() -> new RuntimeException("User not found")));
 
-        paymentRepository.save(payment);
-     }
+       // Set payment format to STRIPE
+       var stripeFormat = paymentFormatRepository
+        .findByName("STRIPE")
+        .orElseThrow(() -> new RuntimeException("Stripe payment format not found"));
+       payment.setPaymentFormat(stripeFormat);
+
+       paymentRepository.save(payment);
+    }
 
      public Payment savePayment(CheckoutDto dto, double total, User user) {
-        Payment payment = new Payment();
-        payment.setPaymentStatus("Pending");
-        payment.setAmount(total);
-        payment.setTransactionReference(dto.getPaymentIntentId());
-        payment.setIsActive(true);
-        payment.setUser(user);
-        payment.setPaymentFormat(paymentFormatRepository.findById(1L).orElseThrow(() -> new RuntimeException("PaymentFormat not found")));
+    PaymentFormat format = paymentFormatRepository
+            .findByName(dto.getPaymentMethod())
+            .orElseThrow(() -> new RuntimeException("Payment format not found"));
 
-        return paymentRepository.save(payment);
-     }
+    Payment payment = new Payment();
+    payment.setPaymentStatus("Pending");
+    payment.setAmount(total);
+    payment.setTransactionReference(dto.getPaymentIntentId());
+    payment.setIsActive(true);
+    payment.setUser(user);
+    payment.setPaymentFormat(format);
+
+    return paymentRepository.save(payment);
+}
+
 }

@@ -4,6 +4,7 @@ import com.example.backend.dto.CheckoutDto;
 import com.example.backend.dto.OrderDto;
 import com.example.backend.dto.UserDto;
 import com.example.backend.entity.Cart;
+import com.example.backend.entity.CartItem;
 import com.example.backend.entity.Order;
 import com.example.backend.entity.OrderItem;
 import com.example.backend.entity.Payment;
@@ -39,23 +40,40 @@ public class OrderServiceImpl implements IOrderService {
     private final UserRepository userRepository;
 
     @Override
-    public OrderDto createOrder(OrderDto dto) {
-        Order order = Order.builder()
-                .status(dto.getStatus() != null ? dto.getStatus() : "Pending")
-                .totalAmount(dto.getTotalAmount())
-                .shippingAddressLine(dto.getShippingAddressLine())
-                .shippingCity(dto.getShippingCity())
-                .shippingState(dto.getShippingState())
-                .shippingPostalCode(dto.getShippingPostalCode())
-                .shippingCountry(dto.getShippingCountry())
-                .isActive(true)
-                .user(userRepository.findById(dto.getUserId()).orElseThrow(() -> new RuntimeException("User not found6")))
-                .payment(dto.getPaymentId() != null ? paymentRepository.findById(dto.getPaymentId()).orElse(null) : null)
-                .build();
+@Transactional
+public OrderDto createOrder(OrderDto dto) {
+    Order order = Order.builder()
+        .status(dto.getStatus() != null ? dto.getStatus() : "Pending")
+        .totalAmount(dto.getTotalAmount())
+        .shippingAddressLine(dto.getShippingAddressLine())
+        .shippingCity(dto.getShippingCity())
+        .shippingState(dto.getShippingState())
+        .shippingPostalCode(dto.getShippingPostalCode())
+        .shippingCountry(dto.getShippingCountry())
+        .isActive(true)
+        .user(userRepository.findById(dto.getUserId()).orElseThrow(() -> new RuntimeException("User not found")))
+        .payment(dto.getPaymentId() != null ? paymentRepository.findById(dto.getPaymentId()).orElse(null) : null)
+        .build();
 
-        Order savedOrder = orderRepository.save(order);
-        return mapToDto(savedOrder);
-    }
+    Order savedOrder = orderRepository.save(order);
+
+    cartRepository.findByUserId(dto.getUserId()).ifPresent(cart -> {
+      System.out.println("🛒 Cart ID: " + cart.getId());
+
+      List<CartItem> items = cartItemRepository.findByCartId(cart.getId());
+      System.out.println("🛍️ Found cart items: " + items.size());
+
+      for (CartItem ci : items) {
+          System.out.println("➡️ Updating cart item id: " + ci.getId());
+          ci.setIsActive(false);
+          cartItemRepository.save(ci);
+      }
+  });
+
+
+    return mapToDto(savedOrder);
+}
+
 
     @Override
     public OrderDto updateOrder(Long id, OrderDto dto) {
@@ -208,7 +226,7 @@ public void updateOrderStatus(Long orderId, String newStatus) {
 
     @Override
     public List<OrderDto> getOrdersForCurrentUser() {
-        User user = userRepository.findById(1L) 
+        User user = userRepository.findById(1L)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         List<Order> orders = orderRepository.findAll()
