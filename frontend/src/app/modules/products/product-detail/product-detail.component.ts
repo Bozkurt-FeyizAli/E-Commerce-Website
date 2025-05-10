@@ -16,6 +16,7 @@ import { AuthService } from 'app/core/services/auth/auth.service'; // ✅ Eklend
   styleUrls: ['./product-detail.component.css']
 })
 export class ProductDetailComponent implements OnInit, OnDestroy {
+
   product: Product | null = null;
   loading = true;
   error: string | null = null;
@@ -61,7 +62,13 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
           takeUntil(this.destroy$)
         ).subscribe({
           next: (images) => {
-            this.productImages = images;
+            // ✅ mainImageUrl'i en başa ekle
+            const combinedImages = [
+              { id: -1, productId: product.id, imageUrl: product.mainImageUrl ?? '' },
+              ...images
+            ];
+            this.productImages = combinedImages;
+            console.log('✅ Product images:', this.productImages);
             this.cdr.detectChanges();
           }
         });
@@ -73,6 +80,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
       }
     });
   }
+
 
   getDiscountedPrice(price: number, discountPercentage: number): number {
     return price * (1 - discountPercentage / 100);
@@ -133,7 +141,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   }
 
   handleImageError(event: Event): void {
-    
+
   }
 
   retry(): void {
@@ -185,5 +193,24 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  selectedImageIndex: number = 0;
+
+  selectImage(index: number): void {
+    if (index >= 0 && index < this.productImages.length) {
+      this.selectedImageIndex = index;
+    }
+  }
+
+  nextImage(): void {
+    if (this.productImages.length === 0) return;
+    this.selectedImageIndex = (this.selectedImageIndex + 1) % this.productImages.length;
+  }
+
+  previousImage(): void {
+    if (this.productImages.length === 0) return;
+    this.selectedImageIndex =
+      (this.selectedImageIndex - 1 + this.productImages.length) % this.productImages.length;
   }
 }

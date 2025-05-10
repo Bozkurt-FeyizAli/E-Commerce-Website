@@ -1,16 +1,16 @@
 import { createRequire } from 'module';const require = createRequire(import.meta.url);
 import {
-  BidiModule
-} from "./chunk-QFJNT4ZM.js";
-import {
   _CdkPrivateStyleLoader,
   _bindEventWithOptions
 } from "./chunk-J7VNODY5.js";
 import {
+  BidiModule
+} from "./chunk-QFJNT4ZM.js";
+import {
   Platform,
   coerceElement,
   coerceNumberProperty
-} from "./chunk-GVECSLEF.js";
+} from "./chunk-AACUPLQT.js";
 import {
   DOCUMENT
 } from "./chunk-KPO427FO.js";
@@ -3184,4 +3184,4 @@ export {
   MATERIAL_SANITY_CHECKS,
   MatCommonModule
 };
-//# sourceMappingURL=chunk-MXCNQSAU.js.map
+//# sourceMappingURL=chunk-GEQ2UX7R.js.map

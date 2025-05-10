@@ -1,16 +1,362 @@
-.order-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
+/* Order Management Styles */
+.orders-container {
+  padding: 1.5rem;
+  position: relative;
 }
 
-.order-table th,
-.order-table td {
-  border: 1px solid #ccc;
-  padding: 8px;
+.orders-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.orders-header h2 {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.filter-controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.status-filter select,
+.status-select {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  min-width: 140px;
+  font-size: 0.9rem;
+  transition: border-color 0.2s;
+}
+
+.status-filter select:focus,
+.status-select:focus {
+  border-color: #4a90e2;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+/* Table Styles */
+.table-container {
+  overflow-x: auto;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.orders-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.orders-table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #eee;
+  white-space: nowrap;
+}
+
+.orders-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+  vertical-align: middle;
+}
+
+.order-row {
+  transition: background-color 0.2s;
+}
+
+.order-row:hover {
+  background-color: #f8f9fa;
+}
+
+.order-id {
+  font-weight: 600;
+  color: #333;
+}
+
+.customer-name {
+  font-weight: 500;
+}
+
+.order-amount {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+/* Status Badge Styles */
+.status-badge {
+  display: inline-block;
+  padding: 0.35rem 0.75rem;
+  border-radius: 50px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.pending {
+  background-color: #fff8e6;
+  color: #b88600;
+}
+
+.processing {
+  background-color: #e6f4ff;
+  color: #0062cc;
+}
+
+.shipped {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.delivered {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  font-weight: 600;
+}
+
+.cancelled {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+/* Action Controls */
+.order-actions {
+  white-space: nowrap;
+}
+
+.action-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.delete-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.delete-button:hover {
+  background-color: #ffebee;
+}
+
+.delete-icon {
+  font-size: 1.2rem;
+}
+
+/* Loading State */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  color: #666;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #4a90e2;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   text-align: center;
 }
 
-.order-table th {
-  background-color: #f0f0f0;
+.empty-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: #ccc;
+}
+
+.empty-state h3 {
+  margin: 0 0 0.5rem;
+  color: #333;
+}
+
+.empty-state p {
+  color: #666;
+  max-width: 400px;
+}
+
+/* Error Message */
+.error-message {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.retry-button {
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: white;
+  border: 1px solid #c62828;
+  color: #c62828;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.retry-button:hover {
+  background-color: #c62828;
+  color: white;
+}
+
+/* Delete Confirmation Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 450px;
+  animation: slideIn 0.3s ease;
+}
+
+.modal-header {
+  padding: 1.25rem;
+  border-bottom: 1px solid #eee;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 1.25rem;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.warning-text {
+  color: #c62828;
+  font-weight: 500;
+  margin-top: 0.5rem;
+}
+
+.modal-footer {
+  padding: 1rem 1.25rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  border-top: 1px solid #eee;
+}
+
+.cancel-button {
+  padding: 0.6rem 1.25rem;
+  background-color: white;
+  border: 1px solid #ddd;
+  color: #333;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.cancel-button:hover {
+  background-color: #f8f9fa;
+}
+
+.confirm-button {
+  padding: 0.6rem 1.25rem;
+  background-color: #c62828;
+  border: none;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.confirm-button:hover {
+  background-color: #b71c1c;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .orders-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .orders-table th,
+  .orders-table td {
+    padding: 0.75rem;
+  }
+
+  .action-controls {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .status-select {
+    margin-bottom: 0.5rem;
+  }
 }

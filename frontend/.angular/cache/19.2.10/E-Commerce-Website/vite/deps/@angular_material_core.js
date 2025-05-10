@@ -8,6 +8,9 @@ import {
   MAT_DATE_LOCALE_FACTORY
 } from "./chunk-OGMR66TL.js";
 import {
+  MatRippleLoader
+} from "./chunk-SUXIDPGS.js";
+import {
   MAT_OPTGROUP,
   MAT_OPTION_PARENT_COMPONENT,
   MatOptgroup,
@@ -25,9 +28,6 @@ import {
   _ErrorStateTracker
 } from "./chunk-BYMLUWRV.js";
 import {
-  MatRippleLoader
-} from "./chunk-SUXIDPGS.js";
-import {
   MatRippleModule
 } from "./chunk-2Y73YG3T.js";
 import {
@@ -43,11 +43,11 @@ import {
 } from "./chunk-4WRMYV6R.js";
 import "./chunk-TBLNHZDR.js";
 import "./chunk-JXBCBRYI.js";
+import "./chunk-2O4WY5GE.js";
 import {
   MATERIAL_SANITY_CHECKS,
   MatCommonModule
 } from "./chunk-U5UOITDX.js";
-import "./chunk-2O4WY5GE.js";
 import "./chunk-OPEAW7IJ.js";
 import "./chunk-N7HHMMXB.js";
 import "./chunk-TNMKYBQK.js";

@@ -8,7 +8,7 @@ import { OrderStatus } from '@model/order-status';
   selector: 'app-manage-orders',
   standalone: false,
   templateUrl: './manage-orders.component.html',
-  styleUrls: ['./manage-orders.component.css']
+  styleUrl: './manage-orders.component.css'
 })
 export class ManageOrdersComponent implements OnInit {
   displayedColumns: string[] = ['id', 'customer', 'amount', 'date', 'status', 'actions'];
@@ -19,7 +19,8 @@ export class ManageOrdersComponent implements OnInit {
 
   loading = false;
   error = '';
-  orders: Order[] = []; // ✅ undefined yerine boş diziyle başlat
+  orders: Order[] = [];
+  orderToDelete: Order | null = null;
 
   constructor(private adminService: AdminService) {}
 
@@ -29,10 +30,12 @@ export class ManageOrdersComponent implements OnInit {
 
   fetchOrders() {
     this.loading = true;
+    this.error = '';
+
     this.adminService.getAllOrders().subscribe({
       next: (data) => {
-        this.orders = data;               // ✅ orders dolu olsun
-        this.dataSource.data = data;      // ✅ filtreleme için datatable'a da ata
+        this.orders = data;
+        this.dataSource.data = data;
         this.loading = false;
       },
       error: (err) => {
@@ -49,22 +52,39 @@ export class ManageOrdersComponent implements OnInit {
         const order = this.orders.find(o => o.id === orderId);
         if (order) {
           order.status = newStatus as OrderStatus;
-          this.dataSource.data = [...this.orders]; // Güncellemeyi yansıt
+          this.dataSource.data = [...this.orders];
         }
       },
-      error: (err) => console.error('Failed to update status', err)
+      error: (err) => {
+        console.error('Failed to update status', err);
+        this.error = 'Failed to update order status';
+      }
     });
   }
 
-  deleteOrder(orderId: number) {
-    if (!confirm('Are you sure you want to delete this order?')) return;
+  confirmDeleteOrder(order: Order) {
+    this.orderToDelete = order;
+  }
 
+  cancelDelete() {
+    this.orderToDelete = null;
+  }
+
+  proceedWithDelete() {
+    if (!this.orderToDelete) return;
+
+    const orderId = this.orderToDelete.id;
     this.adminService.deleteOrder(orderId).subscribe({
       next: () => {
         this.orders = this.orders.filter(o => o.id !== orderId);
         this.dataSource.data = this.orders;
+        this.orderToDelete = null;
       },
-      error: err => console.error('Failed to delete order', err)
+      error: (err) => {
+        console.error('Failed to delete order', err);
+        this.error = 'Failed to delete order';
+        this.orderToDelete = null;
+      }
     });
   }
 

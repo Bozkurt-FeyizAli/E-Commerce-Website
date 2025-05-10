@@ -32,7 +32,8 @@ ngOnInit(): void {
     description: [''],
     price: [''],
     stock: [''],
-    image: [null]
+    image: [null],
+    mainImageUrl: [''] // ✅ Bu eklenirse yukarıdaki kod doğru olur
   });
   this.fetchProducts();
 }
@@ -103,7 +104,7 @@ ngOnInit(): void {
       description: this.productForm.value.description,
       price: this.productForm.value.price,
       stock: this.productForm.value.stock,
-      mainImageUrl: this.productForm.value.image, // bu doğruysa Cloudinary URL'i geliyor
+      mainImageUrl: this.productForm.value.mainImageUrl, // ✅ Doğru alan
       sellerId: userId,
       categoryId: categoryId
     };
@@ -114,5 +115,6 @@ ngOnInit(): void {
       this.productForm.reset();
     });
   }
+
 
 }

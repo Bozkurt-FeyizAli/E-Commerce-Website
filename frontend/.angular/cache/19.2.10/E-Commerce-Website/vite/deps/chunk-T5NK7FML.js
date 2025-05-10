@@ -10,15 +10,15 @@ import {
   coerceCssPixelValue
 } from "./chunk-JXBCBRYI.js";
 import {
+  supportsScrollBehavior
+} from "./chunk-2O4WY5GE.js";
+import {
   ESCAPE,
   _IdGenerator,
   _getEventTarget,
   coerceArray,
   hasModifierKey
 } from "./chunk-U5UOITDX.js";
-import {
-  supportsScrollBehavior
-} from "./chunk-2O4WY5GE.js";
 import {
   BidiModule,
   Directionality
@@ -3461,4 +3461,4 @@ export {
   CdkConnectedOverlay,
   OverlayModule
 };
-//# sourceMappingURL=chunk-U2UAYAGZ.js.map
+//# sourceMappingURL=chunk-T5NK7FML.js.map

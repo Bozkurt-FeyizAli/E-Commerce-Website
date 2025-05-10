@@ -1,5 +1,8 @@
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClientModule} from '@angular/common/http';
+
+import { AdminService } from './service/admin.service';
 
 import { AdminRoutingModule } from './admin-routing.module';
 import { AdminComponent } from './admin.component';
@@ -49,14 +52,15 @@ import { ManageComplaintsComponent } from './manage-complaints/manage-complaints
     TimeAgoPipe,
     ManageComplaintsComponent,
     TruncatePipe,
-    FormatActivityTypePipe
+    FormatActivityTypePipe,
+
   ],
   imports: [
     CommonModule,
     AdminRoutingModule,
     FormsModule,
     ReactiveFormsModule,
-
+    HttpClientModule,
     // Material Modules
     MatTableModule,
     MatPaginatorModule,
@@ -72,7 +76,13 @@ import { ManageComplaintsComponent } from './manage-complaints/manage-complaints
     MatDatepickerModule,
     MatNativeDateModule,
     MatCardModule,
-    MatMenuModule
+    MatMenuModule,
+
+  ],
+  providers: [
+    AdminService,
+
+    // Add any other services you need here
   ]
   // Remove schemas: [CUSTOM_ELEMENTS_SCHEMA] (not needed with proper imports)
 })

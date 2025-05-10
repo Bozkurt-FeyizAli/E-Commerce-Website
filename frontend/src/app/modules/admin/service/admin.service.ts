@@ -7,7 +7,6 @@ import { Product } from '@model/product';
 import { environment } from '@env/environment';
 import { User } from '@model/user';
 import { Complaint } from '@model/complaint';
-import { Activity } from '@model/activity';
 
 @Injectable({
   providedIn: 'root'

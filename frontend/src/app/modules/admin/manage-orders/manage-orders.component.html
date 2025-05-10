@@ -1,36 +1,86 @@
-<h2>Manage Orders</h2>
-
-<div *ngIf="loading">Loading orders...</div>
-<div *ngIf="error">{{ error }}</div>
-
-<table *ngIf="!loading && (orders?.length || 0) > 0" class="order-table">
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>User</th>
-      <th>Total</th>
-      <th>Status</th>
-      <th>Date</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let order of orders">
-      <td>{{ order.id }}</td>
-      <td>{{ order.user?.firstName || 'N/A' }}</td>
-      <td>{{ order.totalAmount | currency }}</td>
-      <td>{{ order.status }}</td>
-      <td>{{ order.orderDate | date: 'short' }}</td>
-      <td>
-        <select [(ngModel)]="order.status" (change)="updateOrderStatus(order.id, order.status)">
-          <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+<div class="orders-container">
+  <div class="orders-header">
+    <h2>Order Management</h2>
+    <div class="filter-controls">
+      <div class="status-filter">
+        <label for="statusFilter">Filter by Status:</label>
+        <select id="statusFilter" [(ngModel)]="selectedStatus" (change)="applyFilters()">
+          <option value="all">All Orders</option>
+          <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
         </select>
-        <button (click)="deleteOrder(order.id)" title="Delete Order">🗑️</button>
-      </td>
-    </tr>
-  </tbody>
-</table>
+      </div>
+    </div>
+  </div>
 
-<div *ngIf="!loading && orders.length === 0">
-  No orders found.
+  <div *ngIf="loading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Loading orders...</p>
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    <p>{{ error }}</p>
+    <button (click)="fetchOrders()" class="retry-button">Try Again</button>
+  </div>
+
+  <div *ngIf="!loading && orders.length === 0" class="empty-state">
+    <div class="empty-icon">📋</div>
+    <h3>No Orders Found</h3>
+    <p>There are no orders matching your current filters.</p>
+  </div>
+
+  <div *ngIf="!loading && orders.length > 0" class="table-container">
+    <table class="orders-table">
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Customer</th>
+          <th>Total Amount</th>
+          <th>Order Date</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let order of dataSource.data" class="order-row">
+          <td class="order-id">#{{ order.id }}</td>
+          <td class="customer-name">{{ order.user?.firstName || 'N/A' }} {{ order.user?.lastName || '' }}</td>
+          <td class="order-amount">{{ order.totalAmount | currency }}</td>
+          <td class="order-date">{{ order.orderDate | date: 'MMM d, y, h:mm a' }}</td>
+          <td class="order-status">
+            <span class="status-badge" [ngClass]="order.status.toLowerCase()">
+              {{ order.status }}
+            </span>
+          </td>
+          <td class="order-actions">
+            <div class="action-controls">
+              <select [(ngModel)]="order.status" (change)="updateOrderStatus(order.id, order.status)"
+                      class="status-select" [title]="'Update order ' + order.id + ' status'">
+                <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+              </select>
+              <button (click)="confirmDeleteOrder(order)" class="delete-button" title="Delete Order">
+                <span class="delete-icon">🗑️</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div *ngIf="orderToDelete" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Confirm Deletion</h3>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete order #{{ orderToDelete.id }}?</p>
+        <p class="warning-text">This action cannot be undone.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="cancel-button" (click)="cancelDelete()">Cancel</button>
+        <button class="confirm-button" (click)="proceedWithDelete()">Delete Order</button>
+      </div>
+    </div>
+  </div>
 </div>

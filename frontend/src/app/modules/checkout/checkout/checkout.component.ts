@@ -237,7 +237,6 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
     this.submitting = true;
     const f = this.checkoutForm.value;
 
-    // TODO: Replace 'getUserId()' with your actual user ID retrieval logic
     const userId = this.getUserId(); // Implement this method or use your auth service
 
     if (userId === null) {
@@ -256,11 +255,15 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
       shippingPostalCode: f.postalCode,
       shippingCountry: f.country
     }).subscribe({
-      next : o  => this.router.navigate(['/success']),
+      next : o  => this.goToSuccess(),
       error: () => this.snack.open('Sipariş gönderilemedi', 'Kapat', {duration:4000})
     }).add(() => this.submitting = false);
   }
   getUserId(): number | null {
       return this.authService.getUserId();
+  }
+
+  goToSuccess() {
+    this.router.navigate(['/checkout/success']);
   }
 }
