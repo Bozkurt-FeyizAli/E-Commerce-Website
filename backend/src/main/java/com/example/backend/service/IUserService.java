@@ -22,5 +22,8 @@ public interface IUserService {
     UserDto getCurrentUser();
     void updatePassword(PasswordChangeDto passwordChangeDto);
     String updateProfileImage(MultipartFile file);
+    Map<String, String> googleLogin(String email, String name);
+    boolean userExists(String email);
+    Map<String, String> googleRegister(String email, String name);
 
 }

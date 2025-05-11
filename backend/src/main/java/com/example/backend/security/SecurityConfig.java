@@ -48,8 +48,10 @@ public class SecurityConfig {
         "/api/category/**",
         "/api/payments",
         "/api/payments/**",
-        "/error"
-
+        "/error",
+        "/api/contracts",
+        "/api/contracts/**",
+        "/api/terms"
     ).permitAll()
     .requestMatchers("/api/orders/checkout").authenticated()
     .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()

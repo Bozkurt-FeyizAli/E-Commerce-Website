@@ -4,8 +4,10 @@ import com.example.backend.dto.PasswordChangeDto;
 import com.example.backend.dto.RoleDto;
 import com.example.backend.dto.UserDto;
 import com.example.backend.entity.RefreshToken;
+import com.example.backend.entity.Role;
 import com.example.backend.entity.User;
 import com.example.backend.exception.ResourceNotFoundException;
+import com.example.backend.repository.RoleRepository;
 import com.example.backend.repository.UserRepository;
 import com.example.backend.service.IUserService;
 import com.example.backend.service.JwtService;
@@ -22,6 +24,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +36,7 @@ public class UserServiceImpl implements IUserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
+    private final RoleRepository roleRepository;
 
 
     @Override
@@ -64,7 +69,7 @@ public Map<String, String> login(String email, String password) {
 
     User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new ResourceNotFoundException("User not found."));
-            
+
     if (!passwordEncoder.matches(password, user.getPassword())) {
         throw new RuntimeException("Incorrect password.");
     }
@@ -104,35 +109,40 @@ public Map<String, String> login(String email, String password) {
 
         return Map.of("accessToken", newAccessToken);
     }
-@Override
-public UserDto updateUser(Long id, UserDto userDto) {
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    String token = ((org.springframework.security.authentication.UsernamePasswordAuthenticationToken) authentication).getCredentials().toString();
-    String email = jwtService.extractUsername(token);
+    @Override
+    public UserDto updateUser(Long id, UserDto userDto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-    User user = userRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found3."));
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("Kullanıcı doğrulanmadı.");
+        }
 
-            if (!user.getEmail().equals(email)) {
-              throw new RuntimeException("You can only update your own profile.");
-          }
+        String email = authentication.getName(); // ✅ güvenli ve sade
 
-    if (userDto.getUsername() != null) user.setUsername(userDto.getUsername());
-    if (userDto.getEmail() != null) user.setEmail(userDto.getEmail());
-    if (userDto.getFirstName() != null) user.setFirstName(userDto.getFirstName());
-    if (userDto.getLastName() != null) user.setLastName(userDto.getLastName());
-    if (userDto.getPhoneNumber() != null) user.setPhoneNumber(userDto.getPhoneNumber());
-    if (userDto.getAddressLine() != null) user.setAddressLine(userDto.getAddressLine());
-    if (userDto.getCity() != null) user.setCity(userDto.getCity());
-    if (userDto.getState() != null) user.setState(userDto.getState());
-    if (userDto.getPostalCode() != null) user.setPostalCode(userDto.getPostalCode());
-    if (userDto.getCountry() != null) user.setCountry(userDto.getCountry());
-    if (userDto.getProfileImageUrl() != null) user.setProfileImageUrl(userDto.getProfileImageUrl());
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found."));
 
-    User updatedUser = userRepository.save(user);
+        if (!user.getEmail().equals(email)) {
+            throw new RuntimeException("You can only update your own profile.");
+        }
 
-    return mapToDto(updatedUser);
-}
+        // Field güncellemeleri
+        if (userDto.getUsername() != null) user.setUsername(userDto.getUsername());
+        if (userDto.getEmail() != null) user.setEmail(userDto.getEmail());
+        if (userDto.getFirstName() != null) user.setFirstName(userDto.getFirstName());
+        if (userDto.getLastName() != null) user.setLastName(userDto.getLastName());
+        if (userDto.getPhoneNumber() != null) user.setPhoneNumber(userDto.getPhoneNumber());
+        if (userDto.getAddressLine() != null) user.setAddressLine(userDto.getAddressLine());
+        if (userDto.getCity() != null) user.setCity(userDto.getCity());
+        if (userDto.getState() != null) user.setState(userDto.getState());
+        if (userDto.getPostalCode() != null) user.setPostalCode(userDto.getPostalCode());
+        if (userDto.getCountry() != null) user.setCountry(userDto.getCountry());
+        if (userDto.getProfileImageUrl() != null) user.setProfileImageUrl(userDto.getProfileImageUrl());
+
+        User updatedUser = userRepository.save(user);
+        return mapToDto(updatedUser);
+    }
+
 
 
 @Override
@@ -220,16 +230,21 @@ public UserDto getUserFromToken(String token) {
 
 
 
-    @Override
-    public UserDto getCurrentUser() {
-      Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-      String email = jwtService.extractUsername(((org.springframework.security.authentication.UsernamePasswordAuthenticationToken) authentication).getCredentials().toString());
+@Override
+public UserDto getCurrentUser() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-      User user = userRepository.findByEmail(email)
-              .orElseThrow(() -> new ResourceNotFoundException("User not found."));
-
-        return mapToDto(user);
+    if (authentication == null || !authentication.isAuthenticated()) {
+        throw new RuntimeException("Kullanıcı doğrulanmadı.");
     }
+
+    String email = authentication.getName();
+    User user = userRepository.findByEmail(email)
+        .orElseThrow(() -> new ResourceNotFoundException("User not found."));
+    return getUserById(user.getId());
+
+}
+
 
     @Override
     public void updatePassword(PasswordChangeDto passwordChangeDto) {
@@ -264,6 +279,96 @@ public UserDto getUserFromToken(String token) {
 
         return imageUrl;
     }
+
+    @Override
+    public Map<String, String> googleLogin(String email, String name) {
+    User user = userRepository.findByEmail(email)
+            .orElseGet(() -> {
+                User newUser = User.builder()
+                        .email(email)
+                        .username(name)
+                        .password(passwordEncoder.encode("googleLoginPassword")) // Dummy password
+                        .isActive(true)
+                        .isBanned(false)
+                        .build();
+                return userRepository.save(newUser);
+            });
+    String role = user.getRoles().stream().findFirst()
+            .map(r -> r.getName())
+            .orElse("USER");
+    String accessToken = jwtService.generateToken(email, role);
+    // ✅ Eğer daha önceki refresh token varsa, onu expire et
+    refreshTokenService.invalidateUserTokens(email);
+    // ✅ Yeni refresh token üret
+    RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(email);
+    return Map.of(
+            "accessToken", accessToken,
+            "refreshToken", newRefreshToken.getToken()
+    );
+    }
+
+    @Override
+    public boolean userExists(String email) {
+        return userRepository.findByEmail(email).isPresent();
+    }
+
+
+    @Override
+    @Transactional
+public Map<String, String> googleRegister(String email, String name) {
+    // 1. Zaten kayıtlıysa hata fırlat
+    if (userRepository.findByEmail(email).isPresent()) {
+        throw new RuntimeException("User already exists.");
+    }
+
+    // 2. Benzersiz username oluştur
+    String username = generateUsernameFromEmail(email); // örn: "feyizali" veya "feyizali_1"
+
+    // 3. Varsayılan rolü getir
+    Role userRole = roleRepository.findByName("ROLE_USER");
+    if (userRole == null) {
+        throw new RuntimeException("Default role ROLE_USER not found.");
+    }
+
+    // 4. Yeni kullanıcı oluştur
+    User newUser = User.builder()
+        .email(email)
+        .username(username)
+        .firstName(name.split(" ")[0])
+        .lastName(name.split(" ").length > 1 ? name.split(" ")[1] : "")
+        .password(passwordEncoder.encode(UUID.randomUUID().toString())) // Google şifresi dummy
+        .isActive(true)
+        .isBanned(false)
+        .roles((List<Role>) Set.of(userRole))
+        .build();
+
+    userRepository.save(newUser);
+
+    // 5. JWT token üret
+    String accessToken = jwtService.generateToken(email, userRole.getName());
+    refreshTokenService.invalidateUserTokens(email);
+    RefreshToken refreshToken = refreshTokenService.createRefreshToken(email);
+    System.out.println("User saved: " + newUser.getId());
+    // 6. Cevap olarak token'ları dön
+    return Map.of(
+        "accessToken", accessToken,
+        "refreshToken", refreshToken.getToken()
+    );
+}
+
+private String generateUsernameFromEmail(String email) {
+  String base = email.split("@")[0];
+  String username = base;
+  int count = 1;
+
+  while (userRepository.existsByUsername(username)) {
+      username = base + "_" + count;
+      count++;
+  }
+
+  return username;
+}
+
 
 
 

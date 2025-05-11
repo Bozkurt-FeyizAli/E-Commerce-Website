@@ -13,4 +13,5 @@ public class OrderItemDto {
     private Integer quantity;
     private Double priceAtPurchase;
     private Boolean isActive;
+    private ProductDto product; 
 }

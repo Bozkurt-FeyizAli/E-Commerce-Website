@@ -22,4 +22,6 @@ public interface IOrderService {
     void updateOrderStatus(Long orderId, String newStatus);
 
     List<OrderDto> getOrdersForCurrentUser();
+
+    OrderDto getOrderForCurrentUser(Long id);
 }

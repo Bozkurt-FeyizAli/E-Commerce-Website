@@ -1,10 +1,14 @@
 package com.example.backend.controller;
 
+import com.example.backend.dto.OrderDto;
 import com.example.backend.dto.PasswordChangeDto;
 import com.example.backend.dto.UserDto;
 import com.example.backend.service.IUserService;
+import com.example.backend.service.IOrderService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,11 +20,15 @@ import java.util.List;
 public class UserController {
 
     private final IUserService userService;
+    private final IOrderService orderService;
 
     // ✅ Kullanıcının kendi bilgilerini getir
     @GetMapping("/me")
     public ResponseEntity<UserDto> getCurrentUser() {
         UserDto user = userService.getCurrentUser();
+        System.out.println();
+        System.out.println("Current User: " + user);
+        System.out.println();
         return ResponseEntity.ok(user);
     }
 
@@ -73,4 +81,20 @@ public class UserController {
         List<UserDto> users = userService.getAllActiveUsers();
         return ResponseEntity.ok(users);
     }
+
+    @GetMapping("/my/order/{id}")
+@PreAuthorize("hasRole('USER')")
+public ResponseEntity<OrderDto> getMyOrderById(@PathVariable Long id) {
+    OrderDto order = orderService.getOrderForCurrentUser(id);
+    return ResponseEntity.ok(order);
+}
+
+@GetMapping("/orders/{id}")
+@PreAuthorize("hasRole('USER')")
+public ResponseEntity<OrderDto> getOrderById(@PathVariable Long id) {
+    OrderDto order = orderService.getOrderForCurrentUser(id);
+    return ResponseEntity.ok(order);
+}
+
+
 }

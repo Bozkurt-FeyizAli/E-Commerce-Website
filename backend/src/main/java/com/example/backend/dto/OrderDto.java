@@ -3,6 +3,7 @@ package com.example.backend.dto;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -22,5 +23,6 @@ public class OrderDto {
     private Boolean isActive;
     private LocalDateTime orderDate;
     private UserDto user;
+    private List<OrderItemDto> orderItems;
 
 }
