@@ -19,7 +19,6 @@ export interface User {
   roles: Role[];
   isBanned: boolean;
   isActive: boolean;
-  createdAt: Date;
   orders?: Order[];
   cart?: Cart;
 }

@@ -71,13 +71,17 @@ export class AuthService {
 
         // ✅ Burası kritik → Header ve diğer abonelere haber verilir
         this.loadCurrentUser();
-        this.router.navigate(['/']);  
+        this.router.navigate(['/']);
       })
     );
   }
+  googleLogin(payload: { idToken: string }) {
+    return this.http.post(`${this.apiUrl}/google-login`, payload);
+  }
 
-
-
+  googleRegister(payload: { idToken: string }) {
+    return this.http.post(`${this.apiUrl}/google-register`, payload);
+  }
 
   register(userDto: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/register`, userDto).pipe(

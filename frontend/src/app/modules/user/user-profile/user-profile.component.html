@@ -1,0 +1,80 @@
+<div class="profile-container">
+  <div class="profile-header">
+    <div class="profile-avatar">
+      <img [src]="user?.profileImageUrl || 'assets/default-avatar.png'"
+           [alt]="user ? user.firstName + ' ' + user.lastName : 'Profile Picture'"
+           class="avatar-image">
+    </div>
+    <div class="profile-info">
+      <h1>{{ user?.firstName }} {{ user?.lastName }}</h1>
+      <p class="email">{{ user?.email }}</p>
+      <div class="action-buttons">
+        <button class="edit-profile-btn" [routerLink]="['/user/edit']">
+          <span class="icon">✏️</span> Edit Profile
+        </button>
+        <button class="logout-btn" (click)="logout()">
+          <span class="icon">🚪</span> Logout
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="profile-content">
+    <div class="info-card">
+      <h2>Personal Information</h2>
+      <div class="info-grid">
+        <div class="info-item">
+          <label>Phone</label>
+          <p>{{ user?.phoneNumber || 'Not provided' }}</p>
+        </div>
+        <div class="info-item">
+          <label>Address</label>
+          <p>{{ user?.addressLine || 'Not provided' }}</p>
+        </div>
+        <div class="info-item">
+          <label>City</label>
+          <p>{{ user?.city || 'Not provided' }}</p>
+        </div>
+        <div class="info-item">
+          <label>State</label>
+          <p>{{ user?.state || 'Not provided' }}</p>
+        </div>
+        <div class="info-item">
+          <label>Postal Code</label>
+          <p>{{ user?.postalCode || 'Not provided' }}</p>
+        </div>
+        <div class="info-item">
+          <label>Country</label>
+          <p>{{ user?.country || 'Not provided' }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="orders-section">
+      <h2>Recent Orders</h2>
+      <div class="orders-grid">
+        <div class="order-card" *ngFor="let order of orders">
+          <div class="order-header">
+            <span class="order-id">Order #{{ order.id }}</span>
+            <span class="order-date">{{ order.orderDate | date:'mediumDate' }}</span>
+          </div>
+          <div class="order-details">
+            <div class="status-badge" [class]="order.status.toLowerCase()">
+              {{ order.status }}
+            </div>
+            <div class="order-total">
+              {{ order.totalAmount | currency }}
+            </div>
+          </div>
+          <button class="view-order-btn" (click)="viewOrder(order.id)">
+            View Details
+          </button>
+        </div>
+      </div>
+
+      <div class="no-orders" *ngIf="!orders?.length">
+        <p>You haven't placed any orders yet.</p>
+      </div>
+    </div>
+  </div>
+</div>

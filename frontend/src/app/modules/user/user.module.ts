@@ -1,20 +1,24 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
 import { UserComponent } from './user.component';
-import { RouterModule, Routes } from '@angular/router';
+import { RouterModule } from '@angular/router';
+import { OrderViewComponent } from './order-view/order-view.component';
+import { UserProfileComponent } from './user-profile/user-profile.component';
+import { UserEditComponent } from './user-edit/user-edit.component';
+import { UserRoutingModule } from './user-routing.module';
 
-const routes: Routes = [
-  {
-    path: '',
-    component: UserComponent,
-  }
-];
+
 
 @NgModule({
-  declarations: [UserComponent],
+  declarations: [UserComponent, OrderViewComponent, UserProfileComponent, UserEditComponent],
   imports: [
     CommonModule,
-    RouterModule.forChild(routes)
-  ]
+    RouterModule,
+    ReactiveFormsModule,
+    UserRoutingModule
+  ],
+  exports: [UserComponent, OrderViewComponent],
+  providers: [],
 })
 export class UserModule { }

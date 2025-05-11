@@ -1,0 +1,79 @@
+<div class="order-detail-container">
+  <div class="loading-state" *ngIf="isLoading">
+    <div class="loading-spinner"></div>
+    <p>Loading order details...</p>
+  </div>
+
+  <div class="order-content" *ngIf="!isLoading && order">
+    <div class="order-header">
+      <h1>Order Details</h1>
+      <div class="order-meta">
+        <span class="order-number">Order #{{ order.id }}</span>
+        <span class="order-date">{{ order.orderDate | date:'medium' }}</span>
+      </div>
+      <div class="status-badge" [class]="order.status.toLowerCase()">
+        {{ order.status }}
+      </div>
+    </div>
+
+    <div class="order-sections">
+      <div class="order-section shipping-info">
+        <h2>Shipping Address</h2>
+        <div class="address-details">
+          <p>{{ order.shippingAddressLine }}</p>
+          <p>{{ order.shippingCity }}, {{ order.shippingState }} {{ order.shippingPostalCode }}</p>
+          <p>{{ order.shippingCountry }}</p>
+        </div>
+      </div>
+
+      <div class="order-section items-list">
+        <h2>Order Items</h2>
+        <div class="items-container" *ngIf="order.orderItems?.length; else noItems">
+          <div class="item-card" *ngFor="let item of order.orderItems">
+            <div class="item-image" *ngIf="item.product?.mainImageUrl">
+              <img [src]="item.product?.mainImageUrl" [alt]="item.product?.title">
+            </div>
+            <div class="item-details">
+              <h3>{{ item.product?.title }}</h3>
+              <div class="item-meta">
+                <span class="quantity">Qty: {{ item.quantity }}</span>
+                <span class="price">{{ item.priceAtPurchase | currency }}</span>
+              </div>
+              <div class="item-total">
+                Total: {{ item.quantity * item.priceAtPurchase | currency }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="order-section order-summary">
+        <h2>Order Summary</h2>
+        <div class="summary-details">
+          <div class="summary-row">
+            <span>Subtotal</span>
+            <span>{{ order.totalAmount | currency }}</span>
+          </div>
+          <div class="summary-row">
+            <span>Shipping</span>
+            <span>Free</span>
+          </div>
+          <div class="summary-row total">
+            <span>Total</span>
+            <span>{{ order.totalAmount | currency }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="order-actions">
+      <button class="back-btn" routerLink="/user/profile">Back to Profile</button>
+    </div>
+  </div>
+
+  <ng-template #noItems>
+    <div class="empty-state">
+      <p>No items found in this order.</p>
+    </div>
+  </ng-template>
+</div>

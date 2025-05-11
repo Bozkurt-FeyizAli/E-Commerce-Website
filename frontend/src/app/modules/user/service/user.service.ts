@@ -34,4 +34,12 @@ export class UserService {
     formData.append('file', file);
     return this.http.post(`${this.baseUrl}/me/profile-image`, formData, { responseType: 'text' });
   }
+
+  getMyOrderById(orderId: number): Observable<Order> {
+    return this.http.get<Order>(`${this.baseUrl}/orders/${orderId}`);
+  }
+
+
+
+
 }

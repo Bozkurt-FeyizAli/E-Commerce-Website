@@ -1,26 +1,61 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, NgZone } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AuthService } from 'app/core/services/auth/auth.service';
 import { Router } from '@angular/router';
+import { AuthService } from 'app/core/services/auth/auth.service';
+
+declare const google: any;
 
 @Component({
   selector: 'app-login',
-  standalone: false,
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+  styleUrls: ['./login.component.css'],
+  standalone: false
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   loginError: string = '';
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private ngZone: NgZone
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required]
+    });
+  }
+
+  ngOnInit(): void {
+    google.accounts.id.initialize({
+      client_id: '616690897071-bagemhsi4ns0fr6u8gboe7nio5sk6p9h.apps.googleusercontent.com',
+      callback: (response: any) => this.handleCredentialResponse(response)
+    });
+
+    google.accounts.id.renderButton(
+      document.getElementById('google-button'),
+      { theme: 'outline', size: 'large', width: 250 }
+    );
+  }
+
+  handleCredentialResponse(response: any): void {
+    const idToken = response.credential;
+
+    this.authService.googleLogin({ idToken }).subscribe({
+      next: () => {
+        this.ngZone.run(() => {
+          const role = this.authService.getPrimaryRole();
+          this.router.navigate(
+            role === 'ROLE_ADMIN' ? ['/admin'] :
+            role === 'ROLE_SELLER' ? ['/seller'] :
+            ['/home']
+          );
+        });
+      },
+      error: () => {
+        this.loginError = 'Google login failed';
+      }
     });
   }
 
@@ -31,22 +66,14 @@ export class LoginComponent {
 
     this.authService.login({ email, password }).subscribe({
       next: () => {
-        console.log('✅ Login başarılı');
-
         const role = this.authService.getPrimaryRole();
-        console.log('🎯 Rol kontrolü sonrası yönlendirme:', role);
-
-        // ✅ Rol bazlı yönlendirme
-        if (role === 'ROLE_ADMIN') {
-          this.router.navigate(['/admin']);
-        } else if (role === 'ROLE_SELLER') {
-          this.router.navigate(['/seller']);
-        } else {
-          this.router.navigate(['/home']);
-        }
+        this.router.navigate(
+          role === 'ROLE_ADMIN' ? ['/admin'] :
+          role === 'ROLE_SELLER' ? ['/seller'] :
+          ['/home']
+        );
       },
-      error: (err) => {
-        console.error('❌ Login hatası:', err);
+      error: () => {
         this.loginError = 'Invalid credentials or server error';
       }
     });

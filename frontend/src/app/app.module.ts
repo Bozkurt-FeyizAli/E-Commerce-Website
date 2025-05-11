@@ -11,6 +11,11 @@ import { CoreModule, } from './core/core.module';
 import { RouterModule } from '@angular/router';
 import { provideHttpClient, withFetch } from '@angular/common/http';
 import { NumberFormatPipe } from './shared/pipe/number-format.pipe';
+import { SocialLoginModule, SocialAuthServiceConfig } from '@abacritt/angularx-social-login';
+import { GoogleLoginProvider } from '@abacritt/angularx-social-login';
+import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
+
+
 
 
 // factory function to load user on app initialization
@@ -29,7 +34,9 @@ export function loadUserFactory(authService: AuthService) {
     HttpClientModule, // Sadece burada olmalı
     RouterModule.forRoot([]), // Temel router yapılandırması
     CoreModule,
-    AppRoutingModule
+    AppRoutingModule,
+    SocialLoginModule,
+    //NgxExtendedPdfViewerModule
   ],
   exports: [
     NumberFormatPipe
@@ -42,6 +49,18 @@ export function loadUserFactory(authService: AuthService) {
       useFactory: loadUserFactory,
       deps: [AuthService],
       multi: true
+    },
+    {
+      provide: 'SocialAuthServiceConfig',
+      useValue: {
+        autoLogin: false,
+        providers: [
+          {
+            id: GoogleLoginProvider.PROVIDER_ID,
+            provider: new GoogleLoginProvider('616690897071-bagemhsi4ns0fr6u8gboe7nio5sk6p9h.apps.googleusercontent.com')
+          }
+        ]
+      } as SocialAuthServiceConfig,
     }
   ],
   bootstrap: [AppComponent]

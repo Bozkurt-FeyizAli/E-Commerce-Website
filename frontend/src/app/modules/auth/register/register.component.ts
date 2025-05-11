@@ -1,73 +1,93 @@
-import { Component } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { Component, OnInit, NgZone } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { AuthService } from 'app/core/services/auth/auth.service';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '@env/environment';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+
+declare const google: any;
 
 @Component({
   selector: 'app-register',
-  standalone: false,
   templateUrl: './register.component.html',
-  styleUrls: ['./register.component.css']
+  styleUrls: ['./register.component.css'],
+  standalone: false
 })
-export class RegisterComponent {
+export class RegisterComponent implements OnInit {
   registerForm: FormGroup;
+  contractUrl: string | null = null;
 
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private ngZone: NgZone,
+    private http: HttpClient,
+    private sanitizer: DomSanitizer
   ) {
-    // Initialize the reactive form
     this.registerForm = this.formBuilder.group({
-      username: new FormControl('', [Validators.required]),
-      email: new FormControl('', [Validators.required, Validators.email]),
-      password: new FormControl('', [Validators.required, Validators.minLength(6)]),
-      confirmPassword: new FormControl('', [Validators.required]),
-      // terms is frontend-only, will not be sent to backend
-      terms: new FormControl(false, Validators.requiredTrue),
+      username: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]],
+      confirmPassword: ['', Validators.required],
+      terms: [false, Validators.requiredTrue],
     }, { validators: this.passwordMatchValidator });
+  }
+
+  ngOnInit(): void {
+    this.http.get(`${environment.apiUrl}/contracts/latest`).subscribe((res: any) => {
+      this.contractUrl = res.url; // PDF URL string olarak
+    });
+
+
+    // Google register
+    google.accounts.id.initialize({
+      client_id: 'YOUR_GOOGLE_CLIENT_ID',
+      callback: (response: any) => this.handleCredentialResponse(response)
+    });
+
+    google.accounts.id.renderButton(
+      document.getElementById('google-register-button'),
+      { theme: 'outline', size: 'large', width: 250 }
+    );
+  }
+
+  handleCredentialResponse(response: any): void {
+    const idToken = response.credential;
+    this.authService.googleRegister({ idToken }).subscribe({
+      next: () => this.ngZone.run(() => this.router.navigate(['/home'])),
+      error: err => console.error('Google signup failed', err)
+    });
   }
 
   onSubmit() {
     if (this.registerForm.valid) {
-      const dataToSend = {
-        username: this.registerForm.value.username,
-        email: this.registerForm.value.email,
-        password: this.registerForm.value.password
-      };
-      console.log('Sending data:', dataToSend); // DEBUG
-
-      this.authService.register(dataToSend).subscribe({
-        next: (res) => {
-          console.log('Registration successful:', res);
-          this.router.navigate(['login']);
-        },
-        error: (err) => {
-          console.error('Registration failed:', err);
-        }
+      const { username, email, password } = this.registerForm.value;
+      this.authService.register({ username, email, password }).subscribe({
+        next: () => this.router.navigate(['/login']),
+        error: err => console.error('Registration failed:', err)
       });
-      this.router.navigate(['login']);
-    } else {
-      console.log('Form is invalid');
     }
   }
 
-
-  // Custom validator to check if passwords match
   private passwordMatchValidator(group: FormGroup): { [key: string]: boolean } | null {
-    const password = group.get('password')?.value;
-    const confirmPassword = group.get('confirmPassword')?.value;
-    return password === confirmPassword ? null : { notEqual: true };
+    const pw = group.get('password')?.value;
+    const cpw = group.get('confirmPassword')?.value;
+    return pw === cpw ? null : { notEqual: true };
   }
 
-  get confirmPasswordError() {
+  get confirmPasswordError(): string {
     const errors = this.registerForm.get('confirmPassword')?.errors;
-    if (errors?.['required']) {
-      return 'Confirm Password is required';
-    }
-    if (errors?.['notEqual']) {
-      return 'Passwords must match';
-    }
+    if (errors?.['required']) return 'Confirm Password is required';
+    if (errors?.['notEqual']) return 'Passwords must match';
     return '';
   }
+
+  openContract(): void {
+    if (this.contractUrl) {
+      window.open(this.contractUrl as string, '_blank');
+    }
+  }
+
 }

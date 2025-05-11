@@ -41,15 +41,18 @@
       </div>
     </div>
 
-    <!-- Terms and Conditions -->
-    <div>
-      <label for="terms">Accept Terms and Conditions</label>
-      <input type="checkbox" id="terms" formControlName="terms">
-      <div *ngIf="registerForm.get('terms')?.touched && registerForm.get('terms')?.invalid">
-        <small class="error" *ngIf="registerForm.get('terms')?.errors?.['requiredTrue']">You must accept the terms</small>
-      </div>
+    <!-- PDF Button Instead of Viewer -->
+    <div *ngIf="contractUrl">
+      <iframe [src]="contractUrl | safeUrl" width="600" height="800"></iframe>
     </div>
+
+
 
     <button type="submit" [disabled]="registerForm.invalid">Register</button>
   </form>
+
+  <div class="divider"><span>or</span></div>
+
+  <!-- ✅ Google ile kayıt -->
+  <div id="google-register-button"></div>
 </div>
