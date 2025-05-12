@@ -159,7 +159,9 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
   toggleFilters(): void {
     this.showFilters = !this.showFilters;
+    this.cdr.detectChanges(); // Güncellemeyi zorla
   }
+
 
   toggleFilter(type: 'category' | 'brand', value: string): void {
     const list = this.filters[type];
@@ -182,24 +184,23 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
   getFilteredProducts(): Product[] {
     return this.products.filter(product => {
-      const matchesSearch = product.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+      const matchesSearch = product.name?.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
                             product.description?.toLowerCase().includes(this.searchQuery.toLowerCase());
 
       const matchesCategory = this.filters.category.length === 0 ||
-                              this.filters.category.includes(product.category?.name || '');
+                              (product.category && this.filters.category.includes(product.category.name));
 
-      const matchesBrand = this.filters.brand.length === 0 ||
-                           this.filters.brand.includes(product.productDetails || '');
+      const matchesBrand = this.filters.brand.length === 0;
 
-      const matchesPrice =
-        product.price >= this.filters.priceRange[0] &&
-        product.price <= this.filters.priceRange[1];
+      const matchesPrice = product.price >= this.filters.priceRange[0] &&
+                           product.price <= this.filters.priceRange[1];
 
       const matchesStock = !this.filters.inStock || product.stock > 0;
 
       return matchesSearch && matchesCategory && matchesBrand && matchesPrice && matchesStock;
     });
   }
+
 
   onFilterCategory(categoryName: string): void {
     this.loading = true;

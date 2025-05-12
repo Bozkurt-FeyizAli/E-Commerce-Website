@@ -10,6 +10,7 @@ import { ShipmentTracking } from '@model/shipment-tracking';
 import { Review } from '@model/review';
 import { User } from '@model/user';
 import { environment } from '@env/environment';
+import { OrderItem } from '@model/order-item';
 
 @Injectable({
   providedIn: 'root'
@@ -34,8 +35,9 @@ export class SellerService {
   }
 
   deleteProduct(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/products/${id}`);
+    return this.http.delete<void>(`${this.apiUrl}/delete-product/${id}`);
   }
+
 
   addProductImage(productId: number, image: FormData): Observable<any> {
     return this.http.post(`${this.apiUrl}/products/${productId}/images`, image);
@@ -46,8 +48,8 @@ export class SellerService {
   }
 
   // Siparişler
-  getMyOrders(): Observable<Order[]> {
-    return this.http.get<Order[]>(`${this.apiUrl}/orders`);
+  getMyOrders(): Observable<OrderItem[]> {
+    return this.http.get<OrderItem[]>(`${this.apiUrl}/orders`);
   }
 
   getOrderDetails(id: number): Observable<Order> {

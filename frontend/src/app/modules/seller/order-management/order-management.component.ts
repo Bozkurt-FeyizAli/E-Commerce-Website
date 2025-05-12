@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { SellerService } from '../services/seller.service';
 import { Order } from '@model/order';
+import { OrderItem } from '@model/order-item';
 
 @Component({
   selector: 'app-order-management',
@@ -9,7 +10,7 @@ import { Order } from '@model/order';
   styleUrls: ['./order-management.component.css']
 })
 export class OrderManagementComponent implements OnInit {
-  orders: Order[] = [];
+  orders: OrderItem[] = [];
   isLoading = false;
   errorMessage = '';
 
@@ -23,7 +24,14 @@ export class OrderManagementComponent implements OnInit {
     this.isLoading = true;
     this.sellerService.getMyOrders().subscribe({
       next: (data) => {
-        this.orders = data;
+        this.orders = data.map(order => ({
+          id: order.id,
+          orderId: order.orderId,
+          productId: order.productId,
+          quantity: order.quantity,
+          priceAtPurchase: order.priceAtPurchase,
+          product: order.product // include if available in the response
+        }));
         this.isLoading = false;
       },
       error: (err) => {
