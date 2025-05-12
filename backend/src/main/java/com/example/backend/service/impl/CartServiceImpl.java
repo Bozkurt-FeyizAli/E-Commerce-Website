@@ -46,32 +46,39 @@ public class CartServiceImpl implements ICartService {
     }
 
     @Override
-public CartItemDto addProductToCart(Long cartId, CartItemDto dto) {
-    // Eğer Cart yoksa oluştur
-    Cart cart = cartRepository.findById(cartId).orElseGet(() -> {
-        User user = userRepository.findById(getCurrentUserId())
-            .orElseThrow(() -> new RuntimeException("User not found"));
-        Cart newCart = Cart.builder()
-            .user(user)
-            .isActive(true)
-            .createdAt(LocalDateTime.now())
-            .build();
-        return cartRepository.save(newCart);
-    });
+    public CartItemDto addProductToCart(Long cartId, CartItemDto dto) {
 
-    Product product = productRepository.findById(dto.getProductId())
+
+      // 1‑ Cart veya User bul/oluştur
+      Cart cart = cartRepository.findById(cartId).orElseGet(() -> {
+        User user = userRepository.findById(getCurrentUserId())
+          .orElseThrow(() -> new RuntimeException("User not found"));
+        Cart newCart = Cart.builder()
+          .user(user)
+          .isActive(true)
+          .createdAt(LocalDateTime.now())
+          .build();
+        return cartRepository.save(newCart);
+      });
+
+      Product product = productRepository.findById(dto.getProductId())
         .orElseThrow(() -> new RuntimeException("Product not found"));
 
-    // Aynı üründen aktif olarak zaten varsa, miktarını artır
-    CartItem existingItem = cartItemRepository.findByCartIdAndProductIdAndIsActiveTrue(cart.getId(), product.getId());
-    if (existingItem != null) {
-        int newQuantity = existingItem.getQuantity() + (dto.getQuantity() != null ? dto.getQuantity() : 1);
+      // 2‑ Aynı ürün zaten sepette mi?
+      CartItem existingItem = cartItemRepository.findByCartIdAndProductIdAndIsActiveTrue(cart.getId(), product.getId());
+      if (existingItem != null) {
+        int newQuantity = existingItem.getQuantity()
+                   + (dto.getQuantity() != null ? dto.getQuantity() : 1);
+
+        // log.debug("🔄 Product already in cart, updating quantity {} → {}",
+        //       existingItem.getQuantity(), newQuantity);
+
         existingItem.setQuantity(newQuantity);
         return mapToItemDto(cartItemRepository.save(existingItem));
-    }
+      }
 
-    // Yoksa yeni CartItem oluştur
-    CartItem cartItem = CartItem.builder()
+      // 3‑ Yeni CartItem oluştur
+      CartItem cartItem = CartItem.builder()
         .cart(cart)
         .product(product)
         .quantity(dto.getQuantity() != null ? dto.getQuantity() : 1)
@@ -79,20 +86,21 @@ public CartItemDto addProductToCart(Long cartId, CartItemDto dto) {
         .isActive(true)
         .build();
 
-    return mapToItemDto(cartItemRepository.save(cartItem));
-}
-
-private Long getCurrentUserId() {
-    var authentication = SecurityContextHolder.getContext().getAuthentication();
-    if (authentication == null || !authentication.isAuthenticated()) {
-        throw new RuntimeException("Not authenticated");
+      // log.debug("➕ New cart item created id={} qty={}", cartItem.getId(), cartItem.getQuantity());
+      return mapToItemDto(cartItemRepository.save(cartItem));
     }
 
-    var username = authentication.getName(); // 🔥 Kullanıcı adı (email veya username)
-    var user = userRepository.findByUsername(username)
+    private Long getCurrentUserId() {
+      var authentication = SecurityContextHolder.getContext().getAuthentication();
+      if (authentication == null || !authentication.isAuthenticated()) {
+        throw new RuntimeException("Not authenticated");
+      }
+
+      var username = authentication.getName();
+      var user = userRepository.findByUsername(username)
         .orElseThrow(() -> new RuntimeException("User not found"));
-    return user.getId();
-}
+      return user.getId();
+    }
 
 
 
@@ -230,6 +238,40 @@ private Long getCurrentUserId() {
         cartItem.setQuantity(quantity);
         return mapToItemDto(cartItemRepository.save(cartItem));
     }
+
+    @Override
+public CartItemDto addProductToCartByUserId(Long userId, CartItemDto dto) {
+    Cart cart = cartRepository.findByUserId(userId)
+            .orElseGet(() -> {
+                User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+                return cartRepository.save(Cart.builder()
+                        .user(user)
+                        .isActive(true)
+                        .createdAt(LocalDateTime.now())
+                        .build());
+            });
+
+    Product product = productRepository.findById(dto.getProductId())
+            .orElseThrow(() -> new RuntimeException("Product not found"));
+
+    CartItem existingItem = cartItemRepository.findByCartIdAndProductIdAndIsActiveTrue(cart.getId(), product.getId());
+    if (existingItem != null) {
+        existingItem.setQuantity(existingItem.getQuantity() + (dto.getQuantity() != null ? dto.getQuantity() : 1));
+        return mapToItemDto(cartItemRepository.save(existingItem));
+    }
+
+    CartItem cartItem = CartItem.builder()
+            .cart(cart)
+            .product(product)
+            .quantity(dto.getQuantity() != null ? dto.getQuantity() : 1)
+            .priceWhenAdded(product.getPrice())
+            .isActive(true)
+            .build();
+
+    return mapToItemDto(cartItemRepository.save(cartItem));
+}
+
 
 
 

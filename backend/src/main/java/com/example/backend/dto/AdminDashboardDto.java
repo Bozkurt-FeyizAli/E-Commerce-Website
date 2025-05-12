@@ -1,5 +1,9 @@
 package com.example.backend.dto;
 
+import java.util.List;
+
+import com.example.backend.entity.Product;
+
 import lombok.*;
 
 @Data
@@ -12,4 +16,8 @@ public class AdminDashboardDto {
     private Long totalOrders;
     private Double totalRevenue;
     private Long totalProductsSold;
+    private List<Product> lowStockProducts;
+private List<OrderDto> recentOrders;
+private List<ProductDto> topProducts;
+
 }

@@ -1,8 +1,15 @@
 package com.example.backend.controller;
 
 import com.example.backend.dto.AdminDashboardDto;
+import com.example.backend.dto.CategoryDto;
+import com.example.backend.dto.ComplaintDto;
 import com.example.backend.dto.OrderDto;
+import com.example.backend.dto.ProductDto;
 import com.example.backend.dto.SalesStatsDto;
+import com.example.backend.dto.UserDto;
+import com.example.backend.entity.Category;
+import com.example.backend.entity.Complaint;
+import com.example.backend.entity.Product;
 import com.example.backend.service.IAdminService;
 import com.example.backend.service.IOrderService;
 
@@ -71,4 +78,40 @@ public class AdminController {
         orderService.deleteOrder(orderId);
         return ResponseEntity.ok().build(); // <--- Fix here
     }
+
+    @GetMapping("/users")
+public ResponseEntity<List<UserDto>> getAllUsers() {
+    List<UserDto> users = adminService.getAllUsers();
+    return ResponseEntity.ok(users);
+}
+
+@DeleteMapping("/users/{userId}")
+public ResponseEntity<Void> deleteUser(@PathVariable Long userId) {
+    adminService.deleteUser(userId);
+    return ResponseEntity.ok().build();
+}
+
+@PatchMapping("/deactivate-user/{userId}")
+public ResponseEntity<Void> deactivateUser(@PathVariable Long userId) {
+    adminService.deactivateUser(userId);
+    return ResponseEntity.ok().build();
+}
+
+@GetMapping("/products")
+public ResponseEntity<List<ProductDto>> getAllProducts() {
+    return ResponseEntity.ok(adminService.getAllProducts());
+}
+
+@GetMapping("/categories")
+public ResponseEntity<List<CategoryDto>> getAllCategories() {
+    return ResponseEntity.ok(adminService.getAllCategories());
+}
+
+
+@GetMapping("/complaints")
+public ResponseEntity<List<ComplaintDto>> getAllComplaints() {
+    return ResponseEntity.ok(adminService.getAllComplaints());
+}
+
+
 }

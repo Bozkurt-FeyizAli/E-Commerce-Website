@@ -69,4 +69,14 @@ public class CartController {
     return ResponseEntity.ok(updatedItem);
 }
 
+@PostMapping("/user/{userId}/items")
+public ResponseEntity<CartItemDto> addItemForUser(
+        @PathVariable Long userId,
+        @RequestBody CartItemDto cartItemDto) {
+
+    CartItemDto addedItem = cartService.addProductToCartByUserId(userId, cartItemDto);
+    return ResponseEntity.ok(addedItem);
+}
+
+
 }

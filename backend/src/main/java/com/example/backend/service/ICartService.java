@@ -9,7 +9,7 @@ public interface ICartService {
 
     CartDto createCart(Long userId);
 
-    CartItemDto addProductToCart(Long cartId, CartItemDto cartItemDto);
+    CartItemDto addProductToCart(Long cartId, CartItemDto dto);
 
     void removeProductFromCart(Long cartItemId);
 
@@ -22,4 +22,6 @@ public interface ICartService {
     List<CartItemDto> addProductsToCart(Long cartId, List<CartItemDto> cartItemDtos);
 
     CartItemDto updateCartItemQuantity(Long userId, Long itemId, Integer quantity);
+
+    CartItemDto addProductToCartByUserId(Long userId, CartItemDto cartItemDto);
 }

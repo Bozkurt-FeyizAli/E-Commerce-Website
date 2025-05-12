@@ -290,43 +290,50 @@ public UserDto getCurrentUser() {
     }
 
     @Override
-    public Map<String, String> googleLogin(String email, String name) {
-      User user = userRepository.findByEmail(email)
+public Map<String, String> googleLogin(String email, String name) {
+    User user = userRepository.findByEmail(email)
         .orElseGet(() -> {
-          Role defaultRole = roleRepository.findByName("USER");
-          if (defaultRole == null) {
-            throw new RuntimeException("Default role USER not found.");
-          }
+            Role defaultRole = roleRepository.findByName("USER");
+            if (defaultRole == null) {
+                throw new RuntimeException("Default role USER not found.");
+            }
 
-          // Benzersiz bir kullanıcı adı oluştur
-          String username = generateUsernameFromEmail(email);
+            String username = generateUsernameFromEmail(email);
 
-          User newUser = User.builder()
-            .email(email)
-            .username(username)
-            .firstName(name != null && name.split(" ").length > 0 ? name.split(" ")[0] : "")
-            .lastName(name != null && name.split(" ").length > 1 ? name.split(" ")[1] : "")
-            .password(passwordEncoder.encode(UUID.randomUUID().toString())) // Google için dummy şifre
-            .isActive(true)
-            .isBanned(false)
-            .roles(List.of(defaultRole))
-            .build();
-          return userRepository.save(newUser);
+            User newUser = User.builder()
+                .email(email)
+                .username(username)
+                .firstName(name != null && name.split(" ").length > 0 ? name.split(" ")[0] : "")
+                .lastName(name != null && name.split(" ").length > 1 ? name.split(" ")[1] : "")
+                .password(passwordEncoder.encode(UUID.randomUUID().toString()))
+                .isActive(true)
+                .isBanned(false)
+                .roles(List.of(defaultRole)) // ✅ burada atanmalı
+                .build();
+            return userRepository.save(newUser);
         });
 
-      String role = user.getRoles().stream().findFirst()
+    // 🔍 Eğer user.roles boşsa (yeni kaydedilenden değilse) yine sorun çıkar
+    if (user.getRoles() == null || user.getRoles().isEmpty()) {
+        Role defaultRole = roleRepository.findByName("USER");
+        user.setRoles(List.of(defaultRole));
+        userRepository.save(user);
+    }
+
+    String role = user.getRoles().stream().findFirst()
         .map(Role::getName)
         .orElse("USER");
 
-      String accessToken = jwtService.generateToken(email, role);
-      refreshTokenService.invalidateUserTokens(email);
-      RefreshToken refreshToken = refreshTokenService.createRefreshToken(email);
+    String accessToken = jwtService.generateToken(email, role);
+    refreshTokenService.invalidateUserTokens(email);
+    RefreshToken refreshToken = refreshTokenService.createRefreshToken(email);
 
-      return Map.of(
+    return Map.of(
         "accessToken", accessToken,
         "refreshToken", refreshToken.getToken()
-      );
-    }
+    );
+}
+
 
 
     @Override
