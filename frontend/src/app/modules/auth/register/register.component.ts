@@ -43,7 +43,7 @@ export class RegisterComponent implements OnInit {
 
     // Google register
     google.accounts.id.initialize({
-      client_id: 'YOUR_GOOGLE_CLIENT_ID',
+      client_id: '616690897071-bagemhsi4ns0fr6u8gboe7nio5sk6p9h.apps.googleusercontent.com',
       callback: (response: any) => this.handleCredentialResponse(response)
     });
 
@@ -56,9 +56,17 @@ export class RegisterComponent implements OnInit {
   handleCredentialResponse(response: any): void {
     const idToken = response.credential;
     this.authService.googleRegister({ idToken }).subscribe({
-      next: () => this.ngZone.run(() => this.router.navigate(['/home'])),
+      next: (res: any) => {
+        const { accessToken, refreshToken, user } = res;
+        this.authService.saveToken(accessToken);
+        this.authService.saveUser(user);
+        this.authService.loadCurrentUser();
+
+        this.ngZone.run(() => this.router.navigate(['/home']));
+      },
       error: err => console.error('Google signup failed', err)
     });
+
   }
 
   onSubmit() {

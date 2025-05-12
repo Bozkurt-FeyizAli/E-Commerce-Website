@@ -5,16 +5,35 @@ import { environment } from '@env/environment';
 import { PaymentMethod } from '@model/payment-method.enum';
 import { Order } from '@model/order';
 import { CartService } from 'app/modules/cart/service/cart.service';
+import { AuthService } from 'app/core/services/auth/auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class OrderService {
   private api = `${environment.apiUrl}/orders`;
-  constructor(private http: HttpClient, private cartService: CartService) {}
+  constructor(private http: HttpClient, private cartService: CartService, private authService: AuthService) {}
 
   /** Stripe PaymentIntent */
   createPaymentIntent(body: { amount: number; currency: string }) {
-    return this.http.post(`${environment.apiUrl}/payments/create-payment-intent`, body);
+    const token = this.authService.getToken(); // JWT token'ı buradan al
+    const userId = this.authService.getUserId(); // Kullanıcı ID’sini al
+
+    const payload = {
+      ...body,
+      userId: userId,
+      paymentFormatId: 1 // STRIPE = 1 varsayımı (gerekirse dinamik yap)
+    };
+
+    const headers = {
+      Authorization: `Bearer ${token}`
+    };
+
+    return this.http.post(
+      `${environment.apiUrl}/payments/intent`,
+      payload,
+      { headers }
+    );
   }
+
 
 
 

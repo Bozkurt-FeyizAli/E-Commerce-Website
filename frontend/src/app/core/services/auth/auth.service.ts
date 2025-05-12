@@ -15,6 +15,7 @@ import { TokenStorageService } from '../token-storage/token-storage.service';
 export class AuthService {
 
 
+
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   currentUser$ = this.currentUserSubject.asObservable();
 
@@ -159,5 +160,13 @@ export class AuthService {
 
   getCurrentUser(): User | null {
     return this.currentUserSubject.getValue();
+  }
+
+  saveUser(user: User) {
+    this.tokenStore.saveUser(user);
+    this.currentUserSubject.next(user);
+  }
+  saveToken(accessToken: any) {
+    this.tokenStore.saveToken(accessToken);
   }
 }

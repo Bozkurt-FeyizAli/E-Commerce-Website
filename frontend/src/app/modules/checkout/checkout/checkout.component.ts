@@ -68,7 +68,12 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.initPaymentUI();       // varsayılan (COD) için hiçbir şey montajlamaz
+    this.initPaymentUI();
+    if (this.paymentMethod === 'PAYPAL') {
+      this.zone.runOutsideAngular(() =>
+        setTimeout(() => this.mountPayPal())
+      );
+    }
   }
 
   /*–––––––––––––––– FORM ––––––––––––––––*/
@@ -128,15 +133,16 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
     this.clearPayPal();
 
     if (this.paymentMethod === 'STRIPE') {
-      /*  ⚠️  Önce view’ı güncelle → sonra mountStripe */
-      this.cd.detectChanges();                // DOM’u çiz
-      // veya Promise.resolve().then(() => this.mountStripe());
-      this.zone.runOutsideAngular(() => setTimeout(() => this.mountStripe()));
+      this.cd.detectChanges();
+      this.zone.runOutsideAngular(() => setTimeout(() => this.mountStripe(), 100));
     }
+
     if (this.paymentMethod === 'PAYPAL') {
-      this.mountPayPal();
+      this.cd.detectChanges(); // 👉 DOM'u yeniden çiz
+      setTimeout(() => this.mountPayPal(), 100); // ✅ Elementin çizilmesini bekle
     }
   }
+
 
   /*–––– Stripe helpers ––––*/
   private mountStripe() {
@@ -173,28 +179,25 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
 
   /*–––– PayPal helpers ––––*/
   private mountPayPal() {
-    if (this.paypalRendered) return;
+    if (this.paypalRendered || !this.paypalEl?.nativeElement) {
+      console.warn('PayPal mount skipped: element not ready');
+      return;
+    }
 
-    const render = () => {
+    setTimeout(() => {
       paypal.Buttons({
         createOrder: (_: any, actions: any) =>
           actions.order.create({ purchase_units: [{ amount: { value: this.total.toFixed(2) } }] }),
         onApprove : (_: any, actions: any) =>
           actions.order.capture().then((d: any) => {
-            this.placeOrder(d.id);    // PayPal ‑> id gönder
+            this.placeOrder(d.id);
           })
       }).render(this.paypalEl!.nativeElement);
       this.paypalRendered = true;
-    };
-
-    if ((window as any).paypal) { render(); }
-    else {
-      const s = document.createElement('script');
-      s.src = 'https://www.paypal.com/sdk/js?client-id=YOUR_PAYPAL_CLIENT_ID&currency=USD';
-      s.onload = render;
-      document.body.appendChild(s);
-    }
+    }, 200); // 👉 küçük gecikme
   }
+
+
 
   private clearPayPal() {
     if (this.paypalEl?.nativeElement) {

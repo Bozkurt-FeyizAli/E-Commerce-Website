@@ -1,4 +1,4 @@
-import { Component, OnInit, NgZone } from '@angular/core';
+import { Component, OnInit, NgZone, AfterViewInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from 'app/core/services/auth/auth.service';
@@ -11,7 +11,7 @@ declare const google: any;
   styleUrls: ['./login.component.css'],
   standalone: false
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, AfterViewInit {
   loginForm: FormGroup;
   loginError: string = '';
 
@@ -26,6 +26,19 @@ export class LoginComponent implements OnInit {
       password: ['', Validators.required]
     });
   }
+
+
+  ngAfterViewInit() {
+    if (typeof google !== 'undefined' && google.accounts?.id) {
+      google.accounts.id.initialize({
+        client_id: '616690897071-bagemhsi4ns0fr6u8gboe7nio5sk6p9h.apps.googleusercontent.com',
+        callback: (response: any) => this.handleCredentialResponse(response)
+      });
+    } else {
+      console.warn('Google SDK yüklenmemiş');
+    }
+  }
+
 
   ngOnInit(): void {
     google.accounts.id.initialize({
