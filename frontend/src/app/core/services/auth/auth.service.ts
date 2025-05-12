@@ -65,6 +65,7 @@ export class AuthService {
 
         console.log('✅ Kaydedilen kullanıcı:', updatedUser);
 
+
         // Rol bazlı yönlendirme
         if (roleNames.includes('ROLE_SELLER')) {
           this.router.navigate(['/seller']);
@@ -85,7 +86,7 @@ export class AuthService {
   register(userDto: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/register`, userDto).pipe(
       tap(() => {
-        this.router.navigate(['/login']);
+        this.router.navigate(['/auth/login']);
       })
     );
   }
@@ -112,12 +113,13 @@ export class AuthService {
     const user = this.tokenStore.getUser();
     if (!user || !Array.isArray(user.roles)) return [];
 
-    // Eğer role string olarak kaydedildiyse direkt döndür
+    // Eğer rol zaten string olarak kayıtlıysa
     if (typeof user.roles[0] === 'string') return user.roles;
 
-    // Yoksa (hala nesne ise) string'e çevir
+    // 🔁 Object[] ise dönüştür
     return user.roles.map((r: any) => `ROLE_${r.name?.toUpperCase?.()}`);
   }
+
 
 
 

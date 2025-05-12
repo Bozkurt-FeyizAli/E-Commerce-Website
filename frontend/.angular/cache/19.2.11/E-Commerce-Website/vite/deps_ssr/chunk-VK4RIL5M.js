@@ -1,6 +1,30 @@
+import { createRequire } from 'module';const require = createRequire(import.meta.url);
 import {
   SelectionModel
-} from "./chunk-C6L3ALZK.js";
+} from "./chunk-WQKAPKOI.js";
+import {
+  FormGroupDirective,
+  NgControl,
+  NgForm,
+  Validators
+} from "./chunk-YXUVBFKD.js";
+import {
+  MatFormFieldModule
+} from "./chunk-WZS6EMAV.js";
+import {
+  MAT_FORM_FIELD,
+  MatFormFieldControl
+} from "./chunk-DCU5DHIO.js";
+import {
+  CdkConnectedOverlay,
+  CdkOverlayOrigin,
+  Overlay,
+  OverlayModule
+} from "./chunk-LLIYICOM.js";
+import {
+  CdkScrollableModule,
+  ViewportRuler
+} from "./chunk-EHWAIA5U.js";
 import {
   MAT_OPTGROUP,
   MAT_OPTION_PARENT_COMPONENT,
@@ -8,28 +32,11 @@ import {
   MatOptionModule,
   _countGroupLabelsBeforeOption,
   _getOptionScrollPosition
-} from "./chunk-R37TRZCT.js";
-import {
-  MatFormFieldModule
-} from "./chunk-Z5S25OEY.js";
+} from "./chunk-UP6NQNLF.js";
 import {
   ErrorStateMatcher,
   _ErrorStateTracker
-} from "./chunk-ASBU3YDJ.js";
-import {
-  MAT_FORM_FIELD,
-  MatFormFieldControl
-} from "./chunk-ONIPE2YC.js";
-import {
-  CdkConnectedOverlay,
-  CdkOverlayOrigin,
-  Overlay,
-  OverlayModule
-} from "./chunk-DPBYLNJP.js";
-import {
-  CdkScrollableModule,
-  ViewportRuler
-} from "./chunk-O4IIH2N4.js";
+} from "./chunk-TS6NV63N.js";
 import {
   A,
   ActiveDescendantKeyManager,
@@ -46,19 +53,13 @@ import {
   addAriaReferencedId,
   hasModifierKey,
   removeAriaReferencedId
-} from "./chunk-QIJS5OMT.js";
+} from "./chunk-AE36BGNL.js";
 import {
   Directionality
-} from "./chunk-UKYBS5HY.js";
-import {
-  FormGroupDirective,
-  NgControl,
-  NgForm,
-  Validators
-} from "./chunk-NILRCEOH.js";
+} from "./chunk-FCHGPEZI.js";
 import {
   NgClass
-} from "./chunk-Y5HSFJSI.js";
+} from "./chunk-3MNEXQ3R.js";
 import {
   ANIMATION_MODULE_TYPE,
   ChangeDetectionStrategy,
@@ -112,22 +113,20 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵviewQuery
-} from "./chunk-KQCQUB34.js";
+} from "./chunk-SY4CU36N.js";
 import {
-  defer,
-  merge
-} from "./chunk-FFZIAYYX.js";
+  require_cjs
+} from "./chunk-ZUJ64LXG.js";
 import {
-  Subject,
-  filter,
-  map,
-  startWith,
-  switchMap,
-  take,
-  takeUntil
-} from "./chunk-CXCX2JKZ.js";
+  require_operators
+} from "./chunk-XCIYP5SE.js";
+import {
+  __toESM
+} from "./chunk-YHCV7DAQ.js";
 
 // node_modules/@angular/material/fesm2022/module-QDphV0Pw.mjs
+var import_rxjs = __toESM(require_cjs(), 1);
+var import_operators = __toESM(require_operators(), 1);
 var _c0 = ["trigger"];
 var _c1 = ["panel"];
 var _c2 = [[["mat-select-trigger"]], "*"];
@@ -250,7 +249,7 @@ var MatSelect = class _MatSelect {
   _animationsDisabled = inject(ANIMATION_MODULE_TYPE, {
     optional: true
   }) === "NoopAnimations";
-  _initialized = new Subject();
+  _initialized = new import_rxjs.Subject();
   _cleanupDetach;
   /** All of the defined select options. */
   options;
@@ -327,7 +326,7 @@ var MatSelect = class _MatSelect {
    */
   _previousControl;
   /** Emits whenever the component is destroyed. */
-  _destroy = new Subject();
+  _destroy = new import_rxjs.Subject();
   /** Tracks the error state of the select. */
   _errorStateTracker;
   /**
@@ -335,7 +334,7 @@ var MatSelect = class _MatSelect {
    * form-field to update. Implemented as part of `MatFormFieldControl`.
    * @docs-private
    */
-  stateChanges = new Subject();
+  stateChanges = new import_rxjs.Subject();
   /**
    * Disable the automatic labeling to avoid issues like #27241.
    * @docs-private
@@ -501,20 +500,20 @@ var MatSelect = class _MatSelect {
    */
   canSelectNullableOptions = this._defaultOptions?.canSelectNullableOptions ?? false;
   /** Combined stream of all of the child options' change events. */
-  optionSelectionChanges = defer(() => {
+  optionSelectionChanges = (0, import_rxjs.defer)(() => {
     const options = this.options;
     if (options) {
-      return options.changes.pipe(startWith(options), switchMap(() => merge(...options.map((option) => option.onSelectionChange))));
+      return options.changes.pipe((0, import_operators.startWith)(options), (0, import_operators.switchMap)(() => (0, import_rxjs.merge)(...options.map((option) => option.onSelectionChange))));
     }
-    return this._initialized.pipe(switchMap(() => this.optionSelectionChanges));
+    return this._initialized.pipe((0, import_operators.switchMap)(() => this.optionSelectionChanges));
   });
   /** Event emitted when the select panel has been toggled. */
   openedChange = new EventEmitter();
   /** Event emitted when the select has been opened. */
-  _openedStream = this.openedChange.pipe(filter((o) => o), map(() => {
+  _openedStream = this.openedChange.pipe((0, import_operators.filter)((o) => o), (0, import_operators.map)(() => {
   }));
   /** Event emitted when the select has been closed. */
-  _closedStream = this.openedChange.pipe(filter((o) => !o), map(() => {
+  _closedStream = this.openedChange.pipe((0, import_operators.filter)((o) => !o), (0, import_operators.map)(() => {
   }));
   /** Event emitted when the selected value has been changed by the user. */
   selectionChange = new EventEmitter();
@@ -549,7 +548,7 @@ var MatSelect = class _MatSelect {
   ngOnInit() {
     this._selectionModel = new SelectionModel(this.multiple);
     this.stateChanges.next();
-    this._viewportRuler.change().pipe(takeUntil(this._destroy)).subscribe(() => {
+    this._viewportRuler.change().pipe((0, import_operators.takeUntil)(this._destroy)).subscribe(() => {
       if (this.panelOpen) {
         this._overlayWidth = this._getOverlayWidth(this._preferredOverlayOrigin);
         this._changeDetectorRef.detectChanges();
@@ -560,11 +559,11 @@ var MatSelect = class _MatSelect {
     this._initialized.next();
     this._initialized.complete();
     this._initKeyManager();
-    this._selectionModel.changed.pipe(takeUntil(this._destroy)).subscribe((event) => {
+    this._selectionModel.changed.pipe((0, import_operators.takeUntil)(this._destroy)).subscribe((event) => {
       event.added.forEach((option) => option.select());
       event.removed.forEach((option) => option.deselect());
     });
-    this.options.changes.pipe(startWith(null), takeUntil(this._destroy)).subscribe(() => {
+    this.options.changes.pipe((0, import_operators.startWith)(null), (0, import_operators.takeUntil)(this._destroy)).subscribe(() => {
       this._resetOptions();
       this._initializeSelection();
     });
@@ -623,7 +622,7 @@ var MatSelect = class _MatSelect {
     this._overlayWidth = this._getOverlayWidth(this._preferredOverlayOrigin);
     this._applyModalPanelOwnership();
     this._panelOpen = true;
-    this._overlayDir.positionChange.pipe(take(1)).subscribe(() => {
+    this._overlayDir.positionChange.pipe((0, import_operators.take)(1)).subscribe(() => {
       this._changeDetectorRef.detectChanges();
       this._positioningSettled();
     });
@@ -1002,15 +1001,15 @@ var MatSelect = class _MatSelect {
   }
   /** Drops current option subscriptions and IDs and resets from scratch. */
   _resetOptions() {
-    const changedOrDestroyed = merge(this.options.changes, this._destroy);
-    this.optionSelectionChanges.pipe(takeUntil(changedOrDestroyed)).subscribe((event) => {
+    const changedOrDestroyed = (0, import_rxjs.merge)(this.options.changes, this._destroy);
+    this.optionSelectionChanges.pipe((0, import_operators.takeUntil)(changedOrDestroyed)).subscribe((event) => {
       this._onSelect(event.source, event.isUserInput);
       if (event.isUserInput && !this.multiple && this._panelOpen) {
         this.close();
         this.focus();
       }
     });
-    merge(...this.options.map((option) => option._stateChanges)).pipe(takeUntil(changedOrDestroyed)).subscribe(() => {
+    (0, import_rxjs.merge)(...this.options.map((option) => option._stateChanges)).pipe((0, import_operators.takeUntil)(changedOrDestroyed)).subscribe(() => {
       this._changeDetectorRef.detectChanges();
       this.stateChanges.next();
     });
@@ -1587,4 +1586,4 @@ export {
   MatSelectTrigger,
   MatSelectModule
 };
-//# sourceMappingURL=chunk-FCXKVFP6.js.map
+//# sourceMappingURL=chunk-VK4RIL5M.js.map

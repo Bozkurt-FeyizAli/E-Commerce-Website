@@ -65,9 +65,9 @@ export class ManageUsersComponent implements OnInit {
     });
   }
 
-  deleteUser(userId: number) {
+  deavtivateUser(userId: number) {
     if (confirm('Are you sure you want to delete this user?')) {
-      this.adminService.deleteUser(userId).subscribe({
+      this.adminService.deactivateUser(userId).subscribe({
         next: () => {
           this.dataSource.data = this.dataSource.data.filter(u => u.id !== userId);
         },

@@ -257,30 +257,23 @@
           <span *ngIf="product.stock === 0">Out of Stock</span>
         </div>
 
-        <!-- Quantity Selector - NEW FEATURE -->
+        <!-- 🔄 ESKİ quantity-selector bloğunu tamamen silip aşağıdakiyle değiştir -->
         <div class="quantity-selector" *ngIf="product.stock > 0">
-          <button
-            class="quantity-btn decrease"
-            [disabled]="product.stock"
-            (click)="product.stock= product.stock> 1 ? product.stock- 1 : 1"
-            aria-label="Decrease quantity"
-          >
+          <button class="quantity-btn decrease"
+                  [disabled]="selectedQty[product.id] === 1"
+                  (click)="decQty(product)">
             <i class="fa fa-minus"></i>
           </button>
-          <input
-            type="number"
-            [(ngModel)]="product.stock"
-            min="1"
-            [max]="product.stock"
-            class="quantity-input"
-            aria-label="Product quantity"
-          >
-          <button
-            class="quantity-btn increase"
-            [disabled]="product.stock>= product.stock"
-            (click)="product.stock= product.stock< product.stock ? product.stock+ 1 : product.stock"
-            aria-label="Increase quantity"
-          >
+
+          <input type="number"
+                 class="quantity-input"
+                 [value]="selectedQty[product.id] ?? 1"
+                 (input)="selectedQty[product.id] = $any($event.target).valueAsNumber || 1"
+                 min="1" [max]="product.stock">
+
+          <button class="quantity-btn increase"
+                  [disabled]="(selectedQty[product.id] ?? 1) >= product.stock"
+                  (click)="incQty(product)">
             <i class="fa fa-plus"></i>
           </button>
         </div>

@@ -107,6 +107,11 @@ export class AdminService {
     return this.http.delete(`${this.apiUrl}/orders/${orderId}`);
   }
 
+  deactivateUser(userId: number): Observable<void> {
+    return this.http.patch<void>(`${this.apiUrl}/deactivate-user/${userId}`, null);
+  }
+
+
 
 }
 

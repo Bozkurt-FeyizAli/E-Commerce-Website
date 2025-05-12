@@ -3,7 +3,7 @@ from graphviz import Digraph
 
 # Kök klasör (c.py ile aynı klasördeki app)
 BASE_DIR = os.path.join(os.path.dirname(__file__), "app")
-IGNORED_EXTENSIONS = [".html", ".css", ".scss", ".spec.ts"]
+IGNORED_EXTENSIONS = [".html", ".css", ".scss", "ts", "manage-products", "banner", "featured-pro", "new-arriva", "anaytics", "complaints", "paymrnts", "profile", "review-mana", "shipment-tra", "transaction"]
 MAX_DEPTH = 8
 MAX_CHILDREN_PER_ROW = 8
 

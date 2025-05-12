@@ -2,12 +2,12 @@ import { createRequire } from 'module';const require = createRequire(import.meta
 import {
   DomSanitizer
 } from "./chunk-UFOMOFLG.js";
-import "./chunk-VHR53J2C.js";
 import {
   FormsModule,
   NgSelectOption,
   ɵNgSelectMultipleOption
 } from "./chunk-YXUVBFKD.js";
+import "./chunk-VHR53J2C.js";
 import {
   AsyncPipe,
   CommonModule,

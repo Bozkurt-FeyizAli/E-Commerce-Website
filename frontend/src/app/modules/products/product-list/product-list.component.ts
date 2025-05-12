@@ -36,6 +36,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   };
 
   private destroy$ = new Subject<void>();
+  selectedQty: Record<number, number> = {};
 
   constructor(
     private productService: ProductService,
@@ -90,6 +91,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   addToCart(product: Product): void {
+    const qty = this.selectedQty[product.id] ?? 1;
     if (!this.authService.isLoggedIn()) {
       this.snackBar.open('Sepete eklemek için giriş yapmalısınız!', 'Kapat', {
         duration: 3000,
@@ -99,7 +101,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
     }
 
     if (product.stock > 0) {
-      this.cartService.addToCart(product, 1).subscribe({
+      this.cartService.addToCart(product, qty).subscribe({
         next: () => {
           this.snackBar.open(`${product.name} sepete eklendi!`, 'Kapat', {
             duration: 3000,
@@ -122,37 +124,37 @@ export class ProductListComponent implements OnInit, OnDestroy {
     }
   }
 
-  addMultipleToCart(products: { product: Product; quantity: number }[]): void {
-    const userId = this.authService.getUserId();
-    if (!userId) {
-      this.snackBar.open('Sepete eklemek için giriş yapmalısınız!', 'Kapat', {
-        duration: 3000,
-        panelClass: ['error-snackbar']
-      });
-      return;
-    }
+  // addMultipleToCart(products: { product: Product; quantity: number }[]): void {
+  //   const userId = this.authService.getUserId();
+  //   if (!userId) {
+  //     this.snackBar.open('Sepete eklemek için giriş yapmalısınız!', 'Kapat', {
+  //       duration: 3000,
+  //       panelClass: ['error-snackbar']
+  //     });
+  //     return;
+  //   }
 
-    const cartItems = products.map(p => ({
-      productId: p.product.id,
-      quantity: p.quantity,
-    }));
+  //   const cartItems = products.map(p => ({
+  //     productId: p.product.id,
+  //     quantity: p.quantity,
+  //   }));
 
-    this.cartService.addMultipleToCart(products).subscribe({
-      next: () => {
-      this.snackBar.open('Ürünler sepete eklendi!', 'Kapat', {
-        duration: 3000,
-        panelClass: ['success-snackbar']
-      });
-      },
-      error: (err) => {
-      console.error('Toplu sepete ekleme hatası:', err);
-      this.snackBar.open('Ürünler sepete eklenemedi.', 'Kapat', {
-        duration: 3000,
-        panelClass: ['error-snackbar']
-      });
-      }
-    });
-  }
+  //   this.cartService.addMultipleToCart(products).subscribe({
+  //     next: () => {
+  //     this.snackBar.open('Ürünler sepete eklendi!', 'Kapat', {
+  //       duration: 3000,
+  //       panelClass: ['success-snackbar']
+  //     });
+  //     },
+  //     error: (err) => {
+  //     console.error('Toplu sepete ekleme hatası:', err);
+  //     this.snackBar.open('Ürünler sepete eklenemedi.', 'Kapat', {
+  //       duration: 3000,
+  //       panelClass: ['error-snackbar']
+  //     });
+  //     }
+  //   });
+  // }
 
 
   toggleFilters(): void {
@@ -230,5 +232,16 @@ export class ProductListComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  incQty(p: Product) {
+    const current = this.selectedQty[p.id] ?? 1;
+    if (current < p.stock)     // stok kadar sınırla
+      this.selectedQty[p.id] = current + 1;
+  }
+
+  decQty(p: Product) {
+    const current = this.selectedQty[p.id] ?? 1;
+    this.selectedQty[p.id] = Math.max(current - 1, 1);
   }
 }

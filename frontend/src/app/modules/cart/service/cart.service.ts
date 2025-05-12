@@ -66,25 +66,17 @@ export class CartService {
     });
   }
 
-  addToCart(product: Product, quantity: number = 1): Observable<CartItem> {
-    const userId = this.authService.getUserId();
-    if (!userId) {
-      alert('Please login to add items to cart');
-      return throwError(() => new Error('Can not add items to cart without login.'));
-    }
+  // cart.service.ts
+addToCart(product: Product, quantity: number = 1): Observable<CartItem> {
+  const userId = this.authService.getUserId();
+  const cartItem = { productId: product.id, quantity };
 
-    const cartItem: Partial<CartItem> = {
-      productId: product.id,
-      quantity,
-    };
+  return this.http.post<CartItem>(`${this.apiUrl}/user/${userId}/items`, cartItem).pipe(
+    tap(() => this.loadInitialCart()),
+    catchError(this.handleError)
+  );
+}
 
-    return this.http.post<CartItem>(`${this.apiUrl}/${userId}/items`, cartItem).pipe(
-      tap(() => {
-        this.loadInitialCart(); // Ekleme sonrası otomatik güncelle
-      }),
-      catchError(this.handleError)
-    );
-  }
 
   addMultipleToCart(products: { product: Product; quantity: number }[]): Observable<CartItem[]> {
     const userId = this.authService.getUserId();
