@@ -5,6 +5,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './guards/auth.guard';
 import { Role } from '../shared/models/role.enum';
 import { CoreComponent } from './core.component';
+import { RoleGuard } from './guards/role.guard';
 
 const routes: Routes = [
   {
@@ -47,7 +48,7 @@ const routes: Routes = [
       {
         path: 'seller',
         loadChildren: () => import('../modules/seller/seller.module').then(m => m.SellerModule),
-        canActivate: [AuthGuard],
+        canActivate: [AuthGuard, RoleGuard],
         data: { roles: [Role.Seller]}
       },
       {

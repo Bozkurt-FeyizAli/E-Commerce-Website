@@ -8,7 +8,7 @@ import { SessionService } from 'app/core/services/session/session.service';
 import { User } from '../../../shared/models/user';
 import { get } from 'http';
 import { Router } from '@angular/router';
-
+import { TokenStorageService } from '../token-storage/token-storage.service';
 @Injectable({
   providedIn: 'root'
 })
@@ -20,20 +20,22 @@ export class AuthService {
 
   private apiUrl = `${environment.apiUrl}/auth`;
 
-  constructor(private http: HttpClient, private sessionService: SessionService, private storageService: SessionService, private router: Router) {
-    const token = this.sessionService.getToken();
-    if (token) {
-      // Sayfa yenilenince user'ı tekrar yükle
-      this.getCurrentUserFromApi().subscribe({
-        next: (user) => {
-          this.currentUserSubject.next(user);
-          this.sessionService.save('user', user);  // ✅ user'ı session'a kaydet
-        },
-        error: () => {
-          this.sessionService.clear();
-          this.currentUserSubject.next(null);
-        }
-      });
+  constructor(private http: HttpClient,  private tokenStore: TokenStorageService, private router: Router) {
+    /* 1) Uygulama başlarken token+user çek */
+    const storedUser  = this.tokenStore.getUser();
+    const storedToken = this.tokenStore.getToken();
+
+    if (storedToken) {
+      if (storedUser) {
+        // API beklemeden hemen subject'e bas
+        this.currentUserSubject.next(storedUser);
+      } else {
+        // Kullanıcı yoksa /me çağrısıyla doldur (isteğe bağlı)
+        this.getCurrentUserFromApi().subscribe({
+          next: u => { this.currentUserSubject.next(u); this.tokenStore.saveUser(u); },
+          error: () => this.tokenStore.clear()
+        });
+      }
     }
   }
 
@@ -49,29 +51,25 @@ export class AuthService {
     ).pipe(
       tap(response => {
         const user = response.user;
-        const roleNames = user.roles.map((r: any) => `ROLE_${r.name}`);
-        console.log('✅ DOĞRU ROL STRİNG DİZİSİ:', roleNames);
 
-        this.sessionService.saveToken(response.accessToken);
-        this.sessionService.save('refreshToken', response.refreshToken);
-        this.sessionService.save('user', user);
-        this.sessionService.save('role', roleNames);
-        this.sessionService.save('username', user.username);
-        this.sessionService.save('email', user.email);
-        this.sessionService.save('id', user.id);
-        this.sessionService.save('isLoggedIn', true);
+        // 🔥 Rol nesnelerini string array'e çevir
+        const roleNames = user.roles.map((r: any) => `ROLE_${r.name?.toUpperCase?.()}`);
 
-        this.storageService.save('user', user);
-        this.storageService.save('role', roleNames);
-        this.storageService.save('username', user.username);
-        this.storageService.save('email', user.email);
-        this.storageService.save('id', user.id);
+        // 🔥 Yeni user objesi (tip kontrolüne takılmamak için `as any`)
+        const updatedUser = { ...user, roles: roleNames } as any;
 
-        this.currentUserSubject.next(user);
+        this.tokenStore.saveToken(response.accessToken);
+        this.tokenStore.saveUser(updatedUser);
+        this.currentUserSubject.next(updatedUser);
 
-        // ✅ Burası kritik → Header ve diğer abonelere haber verilir
-        this.loadCurrentUser();
-        this.router.navigate(['/']);
+        console.log('✅ Kaydedilen kullanıcı:', updatedUser);
+
+        // Rol bazlı yönlendirme
+        if (roleNames.includes('ROLE_SELLER')) {
+          this.router.navigate(['/seller']);
+        } else {
+          this.router.navigate(['/home']);
+        }
       })
     );
   }
@@ -92,25 +90,17 @@ export class AuthService {
   }
 
   logout(): void {
-    const refreshToken = this.sessionService.get('refreshToken');
-    if (refreshToken) {
-      this.http.post(`${this.apiUrl}/logout`, null, {
-        params: new HttpParams().set('refreshToken', String(refreshToken))
-      }).subscribe({
-        next: () => console.log('Logged out from server'),
-        error: err => console.error('Logout failed', err)
-      });
-    }
-    this.sessionService.clear();
-    this.currentUserSubject.next(null);  // ✅ logout sonrası sıfırla
+    this.tokenStore.clear();
+    this.currentUserSubject.next(null);
+    this.router.navigate(['/login']);
   }
 
   isLoggedIn(): boolean {
-    return !!this.storageService.getToken();
+    return !!this.tokenStore.getToken();
   }
 
   getToken(): string | null {
-    return this.sessionService.getToken();
+    return this.tokenStore.getToken();
   }
 
   getUserRole(): string[] | null {
@@ -118,10 +108,17 @@ export class AuthService {
   }
 
   getUserRoles(): string[] {
-    const role = this.sessionService.get<string | string[]>('role');
-    if (!role) return [];
-    return Array.isArray(role) ? role : [role]; // Tek stringse array'e çevir
+    const user = this.tokenStore.getUser();
+    if (!user || !Array.isArray(user.roles)) return [];
+
+    // Eğer role string olarak kaydedildiyse direkt döndür
+    if (typeof user.roles[0] === 'string') return user.roles;
+
+    // Yoksa (hala nesne ise) string'e çevir
+    return user.roles.map((r: any) => `ROLE_${r.name?.toUpperCase?.()}`);
   }
+
+
 
 
 
@@ -139,6 +136,7 @@ export class AuthService {
 
 
 
+
   getCurrentUserFromApi(): Observable<User> {
     return this.http.get<User>(`${this.apiUrl}/me`).pipe(
       tap(user => {
@@ -148,7 +146,7 @@ export class AuthService {
   }
 
   public loadCurrentUser(): void {
-    const user = this.storageService.get<User>('user');
+    const user = this.tokenStore.getUser();
     if (user) {
       this.currentUserSubject.next(user);
     }

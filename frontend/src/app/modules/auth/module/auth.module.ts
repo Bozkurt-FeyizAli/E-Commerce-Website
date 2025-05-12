@@ -8,12 +8,13 @@ import { RegisterComponent } from '../register/register.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
 import { SafePipe } from '@pipe/SafePipe';
+import { SafeUrlPipe } from '@pipe/SafeUrlPipe';
 @NgModule({
   declarations: [
     AuthComponent,
     LoginComponent,
-    RegisterComponent
-
+    RegisterComponent,
+    SafePipe
   ],
   imports: [
     CommonModule,
@@ -21,14 +22,13 @@ import { SafePipe } from '@pipe/SafePipe';
     FormsModule,
     ReactiveFormsModule,
     NgxExtendedPdfViewerModule,
-    SafePipe
-  ],
+    SafeUrlPipe
+],
   exports: [
     AuthComponent,
     LoginComponent,
     RegisterComponent,
-    NgxExtendedPdfViewerModule,
-    SafePipe
+    NgxExtendedPdfViewerModule
   ],
 })
 export class AuthModule { }

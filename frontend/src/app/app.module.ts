@@ -18,10 +18,10 @@ import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
 
 
 
-// factory function to load user on app initialization
-export function loadUserFactory(authService: AuthService) {
-  return () => authService.loadCurrentUser();
+export function bootAuth(auth: AuthService) {
+  return () => Promise.resolve();  // no‑op
 }
+
 
 // app.module.ts
 @NgModule({
@@ -44,12 +44,12 @@ export function loadUserFactory(authService: AuthService) {
   providers: [
     provideClientHydration(withEventReplay()),
     provideHttpClient(withFetch()),
-    {
-      provide: APP_INITIALIZER,
-      useFactory: loadUserFactory,
-      deps: [AuthService],
-      multi: true
-    },
+    // {
+    //   provide: APP_INITIALIZER,
+    //   useFactory: loadUserFactory,
+    //   deps: [AuthService],
+    //   multi: true
+    // },
     {
       provide: 'SocialAuthServiceConfig',
       useValue: {
