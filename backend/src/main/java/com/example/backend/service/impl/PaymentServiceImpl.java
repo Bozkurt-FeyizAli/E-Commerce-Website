@@ -13,11 +13,9 @@ import com.example.backend.service.IPaymentService;
 import com.stripe.Stripe;
 import com.stripe.model.PaymentIntent;
 import com.stripe.param.PaymentIntentCreateParams;
-
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -36,10 +34,8 @@ public class PaymentServiceImpl implements IPaymentService {
     private final TransactionRepository transactionRepository;
     private final CartServiceImpl cartItemService;
 
-
     @Value("${stripe.secret-key}")
     private String stripeSecretKey;
-
 
     @Override
     public PaymentDto createPayment(PaymentDto dto) {
@@ -48,7 +44,7 @@ public class PaymentServiceImpl implements IPaymentService {
                 .amount(dto.getAmount())
                 .transactionReference(dto.getTransactionReference())
                 .isActive(true)
-                .user(userRepository.findById(dto.getUserId()).orElseThrow(() -> new RuntimeException("User not found5")))
+                .user(userRepository.findById(dto.getUserId()).orElseThrow(() -> new RuntimeException("User not found")))
                 .paymentFormat(paymentFormatRepository.findById(dto.getPaymentFormatId()).orElseThrow(() -> new RuntimeException("PaymentFormat not found")))
                 .build();
 
@@ -114,70 +110,66 @@ public class PaymentServiceImpl implements IPaymentService {
 
     @Override
     public Map<String, String> createPaymentIntent(PaymentDto paymentDto) {
-      Stripe.apiKey = stripeSecretKey;
+        Stripe.apiKey = stripeSecretKey;
 
-      // Stripe requires the amount in cents (e.g., 20.99 USD -> 2099)
-      long amountInCents = Math.round(paymentDto.getAmount() * 100);
+        long amountInCents = Math.round(paymentDto.getAmount() * 100);
 
-      try {
-        PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
-            .setAmount(amountInCents)
-            .setCurrency("usd")
-            .setAutomaticPaymentMethods(
-                PaymentIntentCreateParams.AutomaticPaymentMethods.builder()
-                    .setEnabled(true)
-                    .build()
-            )
-            .build();
+        try {
+            PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
+                    .setAmount(amountInCents)
+                    .setCurrency("usd")
+                    .setAutomaticPaymentMethods(
+                            PaymentIntentCreateParams.AutomaticPaymentMethods.builder()
+                                    .setEnabled(true)
+                                    .build())
+                    .build();
 
-        PaymentIntent intent = PaymentIntent.create(params);
+            PaymentIntent intent = PaymentIntent.create(params);
 
-        Map<String, String> responseData = new HashMap<>();
-        responseData.put("clientSecret", intent.getClientSecret());
+            Map<String, String> responseData = new HashMap<>();
+            responseData.put("clientSecret", intent.getClientSecret());
 
-        // Optionally save payment to DB
-        savePayment(paymentDto, intent.getId(), amountInCents);
+            savePayment(paymentDto, intent.getId(), amountInCents);
+            cartItemService.removeProductFromCartwithUserId(paymentDto.getUserId());
 
-        // Remove cart items for the user
-        cartItemService.removeProductFromCart(paymentDto.getUserId());
-
-        return responseData;
-      } catch (Exception e) {
-        throw new RuntimeException("Stripe payment failed: " + e.getMessage(), e);
-      }
+            return responseData;
+        } catch (Exception e) {
+            throw new RuntimeException("Stripe payment failed: " + e.getMessage(), e);
+        }
     }
 
     private void savePayment(PaymentDto paymentDto, String id, long amountInCents) {
-       Payment payment = new Payment();
-       payment.setPaymentStatus("Pending");
-       payment.setAmount((double) amountInCents / 100); // Cents to dollars
-       payment.setTransactionReference(id);
-       payment.setIsActive(true);
-       payment.setUser(userRepository.findById(paymentDto.getUserId()).orElseThrow(() -> new RuntimeException("User not found")));
+      Payment payment = new Payment();
+      payment.setPaymentStatus("Pending");
+      payment.setAmount((double) amountInCents / 100); // Stripe için
+      payment.setTransactionReference(id); // Stripe intent id veya PayPal order id
+      payment.setIsActive(true);
+      payment.setUser(userRepository.findById(paymentDto.getUserId()).orElseThrow(() -> new RuntimeException("User not found")));
 
-       // Set payment format to STRIPE
-       var stripeFormat = paymentFormatRepository
-        .findByName("STRIPE")
-        .orElseThrow(() -> new RuntimeException("Stripe payment format not found"));
-       payment.setPaymentFormat(stripeFormat);
+      String formatName = paymentDto.getPaymentFormatId() != null ? "STRIPE" : "PAYPAL";
 
-       paymentRepository.save(payment);
+      PaymentFormat format = paymentFormatRepository
+              .findByName(formatName)
+              .orElseThrow(() -> new RuntimeException("Payment format not found"));
+      payment.setPaymentFormat(format);
+
+      paymentRepository.save(payment);
+  }
+
+
+    public Payment savePayment(CheckoutDto dto, double total, User user) {
+        PaymentFormat format = paymentFormatRepository
+                .findByName(dto.getPaymentMethod())
+                .orElseThrow(() -> new RuntimeException("Payment format not found"));
+
+        Payment payment = new Payment();
+        payment.setPaymentStatus("Pending");
+        payment.setAmount(total);
+        payment.setTransactionReference(dto.getPaymentIntentId());
+        payment.setIsActive(true);
+        payment.setUser(user);
+        payment.setPaymentFormat(format);
+
+        return paymentRepository.save(payment);
     }
-
-     public Payment savePayment(CheckoutDto dto, double total, User user) {
-    PaymentFormat format = paymentFormatRepository
-            .findByName(dto.getPaymentMethod())
-            .orElseThrow(() -> new RuntimeException("Payment format not found"));
-
-    Payment payment = new Payment();
-    payment.setPaymentStatus("Pending");
-    payment.setAmount(total);
-    payment.setTransactionReference(dto.getPaymentIntentId());
-    payment.setIsActive(true);
-    payment.setUser(user);
-    payment.setPaymentFormat(format);
-
-    return paymentRepository.save(payment);
-}
-
 }

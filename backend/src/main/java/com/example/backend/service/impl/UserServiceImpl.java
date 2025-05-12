@@ -15,12 +15,14 @@ import com.example.backend.service.RefreshTokenService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.Map;
@@ -41,27 +43,34 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public void register(UserDto userDto) {
-        if (userRepository.findByEmail(userDto.getEmail()).isPresent()) {
-            throw new RuntimeException("User is already exists.");
-        }
-        User user = User.builder()
-                .username(userDto.getUsername())
-                .email(userDto.getEmail())
-                .password(passwordEncoder.encode(userDto.getPassword()))
-                .firstName(userDto.getFirstName())
-                .lastName(userDto.getLastName())
-                .phoneNumber(userDto.getPhoneNumber())
-                .addressLine(userDto.getAddressLine())
-                .city(userDto.getCity())
-                .state(userDto.getState())
-                .postalCode(userDto.getPostalCode())
-                .country(userDto.getCountry())
-                .profileImageUrl(userDto.getProfileImageUrl())
-                .isBanned(false)
-                .isActive(true)
-                .build();
+      if (userRepository.findByEmail(userDto.getEmail()).isPresent()) {
+        throw new RuntimeException("User already exists.");
+      }
+      User user = User.builder()
+          .username(userDto.getUsername())
+          .email(userDto.getEmail())
+          .password(passwordEncoder.encode(userDto.getPassword()))
+          .firstName(userDto.getFirstName())
+          .lastName(userDto.getLastName())
+          .phoneNumber(userDto.getPhoneNumber())
+          .addressLine(userDto.getAddressLine())
+          .city(userDto.getCity())
+          .state(userDto.getState())
+          .postalCode(userDto.getPostalCode())
+          .country(userDto.getCountry())
+          .profileImageUrl(userDto.getProfileImageUrl())
+          .isBanned(false)
+          .isActive(true)
+          .build();
 
-        userRepository.save(user);
+      // Varsayılan rolü ata
+      Role userRole = roleRepository.findByName("USER");
+      if (userRole == null) {
+        throw new RuntimeException("Default role ROLE_USER not found.");
+      }
+      user.setRoles(List.of(userRole));
+
+      userRepository.save(user);
     }
 
     @Override
@@ -282,30 +291,43 @@ public UserDto getCurrentUser() {
 
     @Override
     public Map<String, String> googleLogin(String email, String name) {
-    User user = userRepository.findByEmail(email)
-            .orElseGet(() -> {
-                User newUser = User.builder()
-                        .email(email)
-                        .username(name)
-                        .password(passwordEncoder.encode("googleLoginPassword")) // Dummy password
-                        .isActive(true)
-                        .isBanned(false)
-                        .build();
-                return userRepository.save(newUser);
-            });
-    String role = user.getRoles().stream().findFirst()
-            .map(r -> r.getName())
-            .orElse("USER");
-    String accessToken = jwtService.generateToken(email, role);
-    // ✅ Eğer daha önceki refresh token varsa, onu expire et
-    refreshTokenService.invalidateUserTokens(email);
-    // ✅ Yeni refresh token üret
-    RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(email);
-    return Map.of(
-            "accessToken", accessToken,
-            "refreshToken", newRefreshToken.getToken()
-    );
+      User user = userRepository.findByEmail(email)
+        .orElseGet(() -> {
+          Role defaultRole = roleRepository.findByName("USER");
+          if (defaultRole == null) {
+            throw new RuntimeException("Default role USER not found.");
+          }
+
+          // Benzersiz bir kullanıcı adı oluştur
+          String username = generateUsernameFromEmail(email);
+
+          User newUser = User.builder()
+            .email(email)
+            .username(username)
+            .firstName(name != null && name.split(" ").length > 0 ? name.split(" ")[0] : "")
+            .lastName(name != null && name.split(" ").length > 1 ? name.split(" ")[1] : "")
+            .password(passwordEncoder.encode(UUID.randomUUID().toString())) // Google için dummy şifre
+            .isActive(true)
+            .isBanned(false)
+            .roles(List.of(defaultRole))
+            .build();
+          return userRepository.save(newUser);
+        });
+
+      String role = user.getRoles().stream().findFirst()
+        .map(Role::getName)
+        .orElse("USER");
+
+      String accessToken = jwtService.generateToken(email, role);
+      refreshTokenService.invalidateUserTokens(email);
+      RefreshToken refreshToken = refreshTokenService.createRefreshToken(email);
+
+      return Map.of(
+        "accessToken", accessToken,
+        "refreshToken", refreshToken.getToken()
+      );
     }
+
 
     @Override
     public boolean userExists(String email) {
@@ -315,23 +337,18 @@ public UserDto getCurrentUser() {
 
     @Override
     @Transactional
-public Map<String, String> googleRegister(String email, String name) {
-    // 1. Zaten kayıtlıysa hata fırlat
-    if (userRepository.findByEmail(email).isPresent()) {
+    public Map<String, String> googleRegister(String email, String name) {
+      try{
+      // 1. Zaten kayıtlıysa hata fırlat
+      if (userRepository.findByEmail(email).isPresent()) {
         throw new RuntimeException("User already exists.");
-    }
+      }
 
-    // 2. Benzersiz username oluştur
-    String username = generateUsernameFromEmail(email); // örn: "feyizali" veya "feyizali_1"
+      // 2. Benzersiz username oluştur
+      String username = generateUsernameFromEmail(email);
 
-    // 3. Varsayılan rolü getir
-    Role userRole = roleRepository.findByName("ROLE_USER");
-    if (userRole == null) {
-        throw new RuntimeException("Default role ROLE_USER not found.");
-    }
-
-    // 4. Yeni kullanıcı oluştur
-    User newUser = User.builder()
+      // 3. Yeni kullanıcı oluştur
+      User newUser = User.builder()
         .email(email)
         .username(username)
         .firstName(name.split(" ")[0])
@@ -339,22 +356,36 @@ public Map<String, String> googleRegister(String email, String name) {
         .password(passwordEncoder.encode(UUID.randomUUID().toString())) // Google şifresi dummy
         .isActive(true)
         .isBanned(false)
-        .roles((List<Role>) Set.of(userRole))
         .build();
 
-    userRepository.save(newUser);
+      userRepository.save(newUser);
 
-    // 5. JWT token üret
-    String accessToken = jwtService.generateToken(email, userRole.getName());
-    refreshTokenService.invalidateUserTokens(email);
-    RefreshToken refreshToken = refreshTokenService.createRefreshToken(email);
-    System.out.println("User saved: " + newUser.getId());
-    // 6. Cevap olarak token'ları dön
-    return Map.of(
+      // 4. Varsayılan rolü getir ve ilişkilendir
+      Role userRole = roleRepository.findByName("USER");
+      if (userRole == null) {
+        throw new RuntimeException("Default role ROLE_USER not found.");
+      }
+      newUser.setRoles(List.of(userRole));
+      userRepository.save(newUser);
+
+      // 5. JWT token üret
+      String accessToken = jwtService.generateToken(email, userRole.getName());
+      refreshTokenService.invalidateUserTokens(email);
+      RefreshToken refreshToken = refreshTokenService.createRefreshToken(email);
+
+      // 6. Cevap olarak token'ları dön
+      return Map.of(
         "accessToken", accessToken,
         "refreshToken", refreshToken.getToken()
+      );
+      } catch (Exception e) {
+    e.printStackTrace(); // ✅ Hatanın ne olduğunu görmek için
+    return Map.of(
+        "error", "Google register failed: " + e.getMessage()
     );
 }
+
+    }
 
 private String generateUsernameFromEmail(String email) {
   String base = email.split("@")[0];

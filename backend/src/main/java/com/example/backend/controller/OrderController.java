@@ -2,12 +2,17 @@ package com.example.backend.controller;
 
 import com.example.backend.dto.CheckoutDto;
 import com.example.backend.dto.OrderDto;
+import com.example.backend.dto.PaymentDto;
 import com.example.backend.service.IOrderService;
+import com.example.backend.service.IPaymentService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -15,6 +20,7 @@ import java.util.List;
 public class OrderController {
 
     private final IOrderService orderService;
+    private final IPaymentService paymentService;
 
     @PostMapping
     public ResponseEntity<OrderDto> createOrder(@RequestBody OrderDto orderDto) {
@@ -46,11 +52,11 @@ public class OrderController {
         return ResponseEntity.ok(orders);
     }
 
-    @PostMapping("/checkout")
-    public ResponseEntity<OrderDto> checkout(@RequestBody OrderDto dto) {
-        OrderDto created = orderService.createOrder(dto);
-        return ResponseEntity.ok(created);
-    }
+    @PostMapping("/payments/create-payment-intent")
+@PreAuthorize("hasAnyRole('USER', 'SELLER', 'ADMIN')")
+public ResponseEntity<Map<String, String>> createStripeIntent(@RequestBody PaymentDto dto) {
+    return ResponseEntity.ok(paymentService.createPaymentIntent(dto));
+}
 
     @GetMapping("/my")
     public ResponseEntity<List<OrderDto>> getMyOrders() {

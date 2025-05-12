@@ -46,29 +46,32 @@ public class CartServiceImpl implements ICartService {
     }
 
     @Override
-    public CartItemDto addProductToCart(Long cartId, CartItemDto dto) {
-      Cart cart = cartRepository.findById(cartId).orElse(null);
+public CartItemDto addProductToCart(Long cartId, CartItemDto dto) {
+    // Eğer Cart yoksa oluştur
+    Cart cart = cartRepository.findById(cartId).orElseGet(() -> {
+        User user = userRepository.findById(getCurrentUserId())
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        Cart newCart = Cart.builder()
+            .user(user)
+            .isActive(true)
+            .createdAt(LocalDateTime.now())
+            .build();
+        return cartRepository.save(newCart);
+    });
 
-      // Eğer cartId ile cart bulunamazsa, kullanıcıya ait aktif cartı bul
-      if (cart == null) {
-        Long userId = getCurrentUserId();
-        cart = cartRepository.findByUserId(userId)
-            .orElseThrow(() -> new RuntimeException("Cart not found for user"));
-      }
-
-      Product product = productRepository.findById(dto.getProductId())
+    Product product = productRepository.findById(dto.getProductId())
         .orElseThrow(() -> new RuntimeException("Product not found"));
 
-      // Aynı üründen aktif olarak zaten varsa, miktarını artır
-      CartItem existingItem = cartItemRepository.findByCartIdAndProductIdAndIsActiveTrue(cart.getId(), product.getId());
-      if (existingItem != null) {
+    // Aynı üründen aktif olarak zaten varsa, miktarını artır
+    CartItem existingItem = cartItemRepository.findByCartIdAndProductIdAndIsActiveTrue(cart.getId(), product.getId());
+    if (existingItem != null) {
         int newQuantity = existingItem.getQuantity() + (dto.getQuantity() != null ? dto.getQuantity() : 1);
         existingItem.setQuantity(newQuantity);
         return mapToItemDto(cartItemRepository.save(existingItem));
-      }
+    }
 
-      // Yoksa yeni CartItem oluştur
-      CartItem cartItem = CartItem.builder()
+    // Yoksa yeni CartItem oluştur
+    CartItem cartItem = CartItem.builder()
         .cart(cart)
         .product(product)
         .quantity(dto.getQuantity() != null ? dto.getQuantity() : 1)
@@ -76,8 +79,8 @@ public class CartServiceImpl implements ICartService {
         .isActive(true)
         .build();
 
-      return mapToItemDto(cartItemRepository.save(cartItem));
-    }
+    return mapToItemDto(cartItemRepository.save(cartItem));
+}
 
 private Long getCurrentUserId() {
     var authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -102,6 +105,20 @@ private Long getCurrentUserId() {
       cartItem.setIsActive(false);
       cartItemRepository.save(cartItem);
     }
+
+    public void removeProductFromCartwithUserId(Long userId) {
+      Cart cart = cartRepository.findByUserId(userId)
+          .orElseThrow(() -> new RuntimeException("Cart not found for user"));
+
+      List<CartItem> items = cartItemRepository.findByCartId(cart.getId());
+      for (CartItem item : items) {
+          item.setIsActive(false);
+          cartItemRepository.save(item);
+      }
+  }
+
+
+
 
     @Override
     public void emptyCart(Long cartId) {

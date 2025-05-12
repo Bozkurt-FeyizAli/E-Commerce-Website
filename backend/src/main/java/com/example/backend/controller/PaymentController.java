@@ -46,13 +46,13 @@ public class PaymentController {
         return ResponseEntity.ok(payments);
     }
 
-    @PostMapping("/create-payment-intent")
+    @PostMapping("/intent")
     public ResponseEntity<Map<String, String>> createPaymentIntent(@RequestBody PaymentDto paymentDto) {
     Map<String, String> response = paymentService.createPaymentIntent(paymentDto);
     return ResponseEntity.ok(response);
     }
 
-    
+
 
 
 }
