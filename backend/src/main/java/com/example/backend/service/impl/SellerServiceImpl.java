@@ -1,5 +1,7 @@
 package com.example.backend.service.impl;
 
+import com.example.backend.dto.OrderDto;
+import com.example.backend.dto.OrderItemDto;
 import com.example.backend.dto.ProductDto;
 import com.example.backend.entity.Product;
 import com.example.backend.repository.ProductRepository;
@@ -117,5 +119,12 @@ System.out.println("🔥 Principal value: " + principal);
                         .isActive(product.getIsActive())
                         .build())
                 .toList();
+    }
+
+    @Override
+    public List<OrderItemDto> getOrdersForCurrentSeller() {
+        Long currentSellerId = getCurrentSellerId();
+        List<OrderItemDto> orders = productRepository.getOrdersForSeller(currentSellerId);
+        return orders;
     }
 }

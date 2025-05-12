@@ -9,6 +9,8 @@ import java.util.Map;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.example.backend.dto.OrderDto;
+import com.example.backend.dto.OrderItemDto;
 import com.example.backend.dto.ProductDto;
 import com.example.backend.service.ISellerService;
 
@@ -26,10 +28,12 @@ public ResponseEntity<List<ProductDto>> getMyProducts() {
 }
 
 
-    @GetMapping("/my-orders")
-    public ResponseEntity<String> getMyOrders() {
-        return ResponseEntity.ok("Here are your orders (Seller View).");
-    }
+@GetMapping("/orders")
+public ResponseEntity<List<OrderItemDto>> getMyOrders() {
+    List<OrderItemDto> orders = sellerService.getOrdersForCurrentSeller();
+    return ResponseEntity.ok(orders);
+}
+
 
     @PutMapping("/update-product/{productId}")
 public ResponseEntity<String> updateOwnProduct(@PathVariable Long productId, @RequestBody ProductDto productDto) {
@@ -38,10 +42,11 @@ public ResponseEntity<String> updateOwnProduct(@PathVariable Long productId, @Re
 }
 
 @DeleteMapping("/delete-product/{productId}")
-public ResponseEntity<String> deleteOwnProduct(@PathVariable Long productId) {
+public ResponseEntity<Void> deleteOwnProduct(@PathVariable Long productId) {
     sellerService.deleteProduct(productId);
-    return ResponseEntity.ok("Product deleted successfully.");
+    return ResponseEntity.noContent().build();
 }
+
 
 @PostMapping("/products")
 public ResponseEntity<Map<String, String>> addProduct(@RequestBody ProductDto dto) {
@@ -62,6 +67,8 @@ public ResponseEntity<Map<String, String>> addProduct(@RequestBody ProductDto dt
 
         return ResponseEntity.ok(data);
     }
+
+
 
 
 

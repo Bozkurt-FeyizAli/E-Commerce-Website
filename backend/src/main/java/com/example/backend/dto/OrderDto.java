@@ -10,6 +10,18 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class OrderDto {
+
+  public OrderDto(Long id, LocalDateTime orderDate, Double totalAmount, String status, String username) {
+    this.id = id;
+    this.orderDate = orderDate;
+    this.totalAmount = totalAmount;
+    this.status = status;
+
+    this.user = new UserDto(); // user nesnesi boş olarak yaratılıyor
+    this.user.setUsername(username);
+}
+
+
     private Long id;
     private Long userId;
     private Long paymentId;
