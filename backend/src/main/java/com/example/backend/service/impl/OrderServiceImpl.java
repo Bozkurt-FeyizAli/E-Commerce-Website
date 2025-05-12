@@ -51,44 +51,52 @@ public class OrderServiceImpl implements IOrderService {
     @Transactional
     public OrderDto createOrder(OrderDto dto) {
       Order order = Order.builder()
-        .status(dto.getStatus() != null ? dto.getStatus() : "Pending")
-        .totalAmount(dto.getTotalAmount())
-        .shippingAddressLine(dto.getShippingAddressLine())
-        .shippingCity(dto.getShippingCity())
-        .shippingState(dto.getShippingState())
-        .shippingPostalCode(dto.getShippingPostalCode())
-        .shippingCountry(dto.getShippingCountry())
-        .isActive(true)
-        .user(userRepository.findById(dto.getUserId()).orElseThrow(() -> new RuntimeException("User not found")))
-        .payment(dto.getPaymentId() != null ? paymentRepository.findById(dto.getPaymentId()).orElse(null) : null)
-        .build();
-
+      .status(dto.getStatus() != null ? dto.getStatus() : "Pending")
+      .totalAmount(dto.getTotalAmount())
+      .shippingAddressLine(dto.getShippingAddressLine())
+      .shippingCity(dto.getShippingCity())
+      .shippingState(dto.getShippingState())
+      .shippingPostalCode(dto.getShippingPostalCode())
+      .shippingCountry(dto.getShippingCountry())
+      .isActive(true)
+      .user(userRepository.findById(dto.getUserId()).orElseThrow(() -> new RuntimeException("User not found")))
+      .payment(dto.getPaymentId() != null ? paymentRepository.findById(dto.getPaymentId()).orElse(null) : null)
+      .build();
 
       Order savedOrder = orderRepository.save(order);
 
       cartRepository.findByUserId(dto.getUserId()).ifPresent(cart -> {
-        System.out.println("🛒 Cart ID: " + cart.getId());
+      System.out.println("🛒 Cart ID: " + cart.getId());
 
-        List<CartItem> items = cartItemRepository.findByCartId(cart.getId());
-        System.out.println("🛍️ Found cart items: " + items.size());
+      List<CartItem> items = cartItemRepository.findByCartId(cart.getId());
+      System.out.println("🛍️ Found cart items: " + items.size());
 
-        for (CartItem ci : items) {
-          // OrderItem tablosuna kayıt et
-          OrderItem orderItem = OrderItem.builder()
-              .order(savedOrder)
-              .product(ci.getProduct())
-              .quantity(ci.getQuantity())
-              .priceAtPurchase(ci.getPriceWhenAdded())
-              .isActive(true)
-              .build();
-          orderItemRepository.save(orderItem);
-
-          System.out.println("➡️ Updating cart item id: " + ci.getId());
-          ci.setIsActive(false);
-          cartItemRepository.save(ci);
+      for (CartItem ci : items) {
+        // Ürün kontrolü
+        Product product = ci.getProduct();
+        if (product == null) {
+          throw new RuntimeException("Cart item " + ci.getId() + " için ürün bulunamadı.");
         }
-      });
+        int newStock = product.getStock() - ci.getQuantity();
+        if (newStock < 0) throw new RuntimeException("Stok yetersiz: " + product.getName());
+        product.setStock(newStock);
+        productRepository.save(product);
 
+        // OrderItem tablosuna kayıt et
+        OrderItem orderItem = OrderItem.builder()
+          .order(savedOrder)
+          .product(product)
+          .quantity(ci.getQuantity())
+          .priceAtPurchase(ci.getPriceWhenAdded())
+          .isActive(true)
+          .build();
+        orderItemRepository.save(orderItem);
+
+        System.out.println("➡️ Updating cart item id: " + ci.getId());
+        ci.setIsActive(false);
+        cartItemRepository.save(ci);
+      }
+      });
 
       return mapToDto(savedOrder);
     }
